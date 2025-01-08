@@ -1,0 +1,21 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+#
+# Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
+
+# Dependency files
+.bender
+
+# Generated source files
+.generated
+
+# Simulation files
+work
+target/sim/vsim/compile.tcl
+modelsim.ini
+transcript
+*.wlf
+
+# log files
+**/*.log

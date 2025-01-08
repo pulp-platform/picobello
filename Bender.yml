@@ -1,0 +1,36 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
+package:
+  name: picobello
+  authors:
+    - "Tim Fischer <fischeti@iis.ee.ethz.ch>"
+
+dependencies:
+  register_interface: { git: "https://github.com/pulp-platform/register_interface.git", version: "0.4.5" }
+  axi: { git: "https://github.com/pulp-platform/axi.git", version: "0.39.6" }
+  common_cells: { git: "https://github.com/pulp-platform/common_cells.git", version: "1.37.0" }
+  cheshire: { git: "https://github.com/pulp-platform/cheshire.git", version: "0.2.0" }
+  floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "main"}
+  snitch_cluster:  { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "main" }
+
+sources:
+  # Source files grouped in levels. Files in level 0 have no dependencies on files in this
+  # package. Files in level 1 only depend on files in level 0, files in level 2 on files in
+  # levels 1 and 0, etc. Files within a level are ordered alphabetically.
+  # Level 0
+  - .generated/floo_picobello_noc.sv
+  # Level 1
+  - hw/picobello_pkg.sv
+  # Level 2
+  - hw/sparta_tile.sv
+  - hw/cheshire_tile.sv
+  - hw/mem_tile.sv
+  # Level 3
+  - hw/picobello_top.sv
+
+  - target: any(simulation, test)
+    files:
+      - target/sim/src/fixture_picobello_top.sv
+      - target/sim/src/tb_picobello_top.sv
