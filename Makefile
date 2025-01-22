@@ -82,34 +82,14 @@ PICOBELLO_HW_ALL += $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
 picobello-all all: $(PICOBELLO_HW_ALL)
 picobello-clean clean: sn-clean chs-clean-deps floo-clean
 
-#############
-# QuestaSim #
-#############
+##############
+# Simulation #
+##############
 
-.PHONY: vsim-compile vsim-clean vsim-run
+TB_DUT = tb_picobello_top
+CHS_BINARY ?= $(CHS_ROOT)/sw/tests/helloworld.spm.elf
 
-VSIM ?= vsim
-VSIM_WORK = target/sim/vsim/work
-VLOG_ARGS = -work $(VSIM_WORK)
-VLOG_ARGS += -suppress vlog-2583
-VLOG_ARGS += -suppress vlog-13314
-VLOG_ARGS += -suppress vlog-13233
-BINARY = $(CHS_ROOT)/sw/tests/helloworld.spm.elf
-
-vsim-clean:
-	@rm -rf $(VSIM_WORK)
-	@rm -rf target/sim/vsim/transcript
-	@rm -f $(PICOBELLO_ROOT)/target/sim/vsim/compile.tcl
-
-vsim-compile: $(PICOBELLO_ROOT)/target/sim/vsim/compile.tcl $(CHS_SIM_ALL)
-	$(VSIM) -64 -c -work $(VSIM_WORK) -do "source $<; quit"
-
-$(PICOBELLO_ROOT)/target/sim/vsim/compile.tcl:
-	@bender script vsim $(COMMON_TARGS) $(SIM_TARGS) --vlog-arg="$(VLOG_ARGS)"> $@
-	@echo 'vlog -work $(VSIM_WORK) "$(realpath $(CHS_ROOT))/target/sim/src/elfloader.cpp" -ccflags "-std=c++11"' >> $@
-
-vsim-run:
-	$(VSIM) -64 -work $(VSIM_WORK) -do "set BINARY $(BINARY); source $(PICOBELLO_ROOT)/target/sim/vsim/start.picobello_top.tcl"
+include $(PICOBELLO_ROOT)/target/sim/vsim/vsim.mk
 
 ########
 # Misc #
