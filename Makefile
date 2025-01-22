@@ -35,7 +35,7 @@ include $(CHS_ROOT)/cheshire.mk
 # Snitch Cluster #
 ##################
 
-.PHONY: sn-clean
+.PHONY: sn-clean sn-hw-all
 
 SN_ROOT := $(shell $(BENDER) path snitch_cluster)
 SN_CFG	:= $(PICOBELLO_ROOT)/cfg/snitch_cluster.hjson
@@ -47,10 +47,11 @@ include $(SN_ROOT)/target/common/common.mk
 $(SN_GENDIR):
 	mkdir -p $(SN_GENDIR)
 
+sn-hw-all: $(SN_GENDIR)/snitch_cluster_wrapper.sv
 $(SN_GENDIR)/snitch_cluster_wrapper.sv: $(SN_CFG) $(SN_CLUSTER_GEN) | $(SN_GENDIR)
 	$(SN_CLUSTER_GEN) -c $< -o $(SN_GENDIR) --wrapper
 
-sn-clean:
+sn-hw-clean:
 	rm -rf $(PICOBELLO_GENDIR)/snitch_cluster_wrapper.sv
 
 ###########
@@ -78,9 +79,9 @@ PICOBELLO_HW_ALL += $(CHS_HW_ALL)
 PICOBELLO_HW_ALL += $(SN_GENDIR)/snitch_cluster_wrapper.sv
 PICOBELLO_HW_ALL += $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
 
-.PHONY: picobello-all picobello-clean clean
-picobello-all all: $(PICOBELLO_HW_ALL)
-picobello-clean clean: sn-clean chs-clean-deps floo-clean
+.PHONY: picobello-hw-all picobello-clean clean
+picobello-hw-all all: $(PICOBELLO_HW_ALL)
+picobello-clean: sn-clean chs-clean-deps floo-clean
 
 ##############
 # Simulation #
@@ -96,5 +97,42 @@ include $(PICOBELLO_ROOT)/target/sim/vsim/vsim.mk
 ########
 
 .PHONY dvt-flist:
+
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
+
+#################
+# Documentation #
+#################
+
+.PHONY: help
+
+Black=\033[0m
+Green=\033[1;32m
+help:
+	@echo -e "${Green}Makefile Targets${Black} for the ${Green}Snitch Cluster${Black}"
+	@echo -e "Use 'make <target>' where <target> is one of:"
+	@echo -e ""
+	@echo -e "${Green}help           	     ${Black}Show an overview of all Makefile targets."
+	@echo -e ""
+	@echo -e "General targets:"
+	@echo -e "${Green}all                  ${Black}Alias for picobello-hw-all."
+	@echo -e "${Green}clean                ${Black}Alias for picobello-clean."
+	@echo -e ""
+	@echo -e "Source generation targets:"
+	@echo -e "${Green}picobello-hw-all     ${Black}Build all RTL."
+	@echo -e "${Green}picobello-clean      ${Black}Clean everything."
+	@echo -e "${Green}floo-hw-all          ${Black}Generate FlooNoC RTL."
+	@echo -e "${Green}floo-clean           ${Black}Clean FlooNoC RTL."
+	@echo -e "${Green}sn-hw-all            ${Black}Generate Snitch Cluster wrapper RTL."
+	@echo -e "${Green}sn-hw-clean          ${Black}Clean Snitch Cluster wrapper RTL."
+	@echo -e "${Green}chs-hw-all           ${Black}Generate Cheshire RTL."
+	@echo -e ""
+	@echo -e "Simulation targets:"
+	@echo -e "${Green}vsim-compile         ${Black}Compile with Questasim."
+	@echo -e "${Green}vsim-run             ${Black}Run QuestaSim simulation in GUI mode w/o optimization."
+	@echo -e "${Green}vsim-run-batch       ${Black}Run QuestaSim simulation in batch mode w/ optimization."
+	@echo -e "${Green}vsim-clean           ${Black}Clean QuestaSim simulation files."
+	@echo -e ""
+	@echo -e "Additional miscellaneous targets:"
+	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."
