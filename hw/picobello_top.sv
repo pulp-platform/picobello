@@ -80,8 +80,8 @@ module picobello_top
 
   for (genvar c = int'(ClusterX0Y0); c < ClusterX0Y0 + NumClusters; c++) begin : gen_clusters
 
-    localparam int x = int'(Sam[c].idx.x);
-    localparam int y = int'(Sam[c].idx.y);
+    localparam int X = int'(Sam[c].idx.x);
+    localparam int Y = int'(Sam[c].idx.y);
     localparam int unsigned HartBaseId = (c - ClusterX0Y0) * NrCores;
 
     sparta_tile i_sparta_tile (
@@ -95,12 +95,12 @@ module picobello_top
       .hart_base_id_i       ( HartBaseId[9:0]     ),
       .cluster_base_addr_i  ( Sam[c].start_addr   ),
       .id_i                 ( Sam[c].idx          ),
-      .floo_req_o           ( floo_req_out[x][y]  ),
-      .floo_rsp_i           ( floo_rsp_in[x][y]   ),
-      .floo_wide_o          ( floo_wide_out[x][y] ),
-      .floo_req_i           ( floo_req_in[x][y]   ),
-      .floo_rsp_o           ( floo_rsp_out[x][y]  ),
-      .floo_wide_i          ( floo_wide_in[x][y]  )
+      .floo_req_o           ( floo_req_out[X][Y]  ),
+      .floo_rsp_i           ( floo_rsp_in[X][Y]   ),
+      .floo_wide_o          ( floo_wide_out[X][Y] ),
+      .floo_req_i           ( floo_req_in[X][Y]   ),
+      .floo_rsp_o           ( floo_rsp_out[X][Y]  ),
+      .floo_wide_i          ( floo_wide_in[X][Y]  )
     );
   end
 
@@ -192,15 +192,18 @@ module picobello_top
   for (genvar x = 0; x < NumXMesh; x++) begin : gen_x
     for (genvar y = 0; y < NumYMesh; y++) begin : gen_y
       for (genvar d = 0; d < NumDirections; d++) begin : gen_dir
-        localparam route_direction_e dir = route_direction_e'(d);
-        if (is_tie_off(x, y, dir)) begin : gen_tie_off
-          assign floo_req_in[x][y][dir] = '0;
-          assign floo_rsp_in[x][y][dir] = '0;
-          assign floo_wide_in[x][y][dir] = '0;
+        localparam route_direction_e Dir = route_direction_e'(d);
+        if (is_tie_off(x, y, Dir)) begin : gen_tie_off
+          assign floo_req_in[x][y][Dir] = '0;
+          assign floo_rsp_in[x][y][Dir] = '0;
+          assign floo_wide_in[x][y][Dir] = '0;
         end else begin : gen_con
-          assign floo_req_in[x][y][dir] = floo_req_out[neighbor_x(x, dir)][neighbor_y(y, dir)][opposite_dir(dir)];
-          assign floo_rsp_in[x][y][dir] = floo_rsp_out[neighbor_x(x, dir)][neighbor_y(y, dir)][opposite_dir(dir)];
-          assign floo_wide_in[x][y][dir] = floo_wide_out[neighbor_x(x, dir)][neighbor_y(y, dir)][opposite_dir(dir)];
+          assign floo_req_in[x][y][Dir] =
+              floo_req_out[neighbor_x(x, Dir)][neighbor_y(y, Dir)][opposite_dir(Dir)];
+          assign floo_rsp_in[x][y][Dir] =
+              floo_rsp_out[neighbor_x(x, Dir)][neighbor_y(y, Dir)][opposite_dir(Dir)];
+          assign floo_wide_in[x][y][Dir] =
+              floo_wide_out[neighbor_x(x, Dir)][neighbor_y(y, Dir)][opposite_dir(Dir)];
         end
       end
     end
