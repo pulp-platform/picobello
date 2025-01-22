@@ -18,15 +18,17 @@ jobs:
   # Verible Lint #
   ################
   verible-lint:
+    name: Lint Verilog sources
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: chipsalliance/verible-linter-action@main
-      with:
-        config_file: ''
-        paths: |
-          ./hw
-        fail_on_error: true
+      - uses: actions/checkout@v4
+      - uses: chipsalliance/verible-linter-action@main
+        with:
+          paths: |
+            ./hw
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_error: true
+          reviewdog_reporter: github-check
 
   #################
   # Check License #
