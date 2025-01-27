@@ -27,9 +27,11 @@ $(PICOBELLO_GENDIR):
 ############
 
 CLINTCORES ?= 5
-
 CHS_ROOT := $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
+
+$(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
+	flock -x $@ sh -c 'cp $< $@'
 
 ##################
 # Snitch Cluster #
