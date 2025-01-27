@@ -114,7 +114,7 @@ dvt-flist:
 Black=\033[0m
 Green=\033[1;32m
 help:
-	@echo -e "${Green}Makefile Targets${Black} for the ${Green}Snitch Cluster${Black}"
+	@echo -e "Makefile ${Green}targets${Black} for picobello"
 	@echo -e "Use 'make <target>' where <target> is one of:"
 	@echo -e ""
 	@echo -e "${Green}help           	     ${Black}Show an overview of all Makefile targets."
