@@ -44,6 +44,7 @@ SN_CFG	:= $(PICOBELLO_ROOT)/cfg/snitch_cluster.hjson
 SN_GENDIR = $(SN_ROOT)/target/snitch_cluster/generated
 SN_CLUSTER_GEN  = $(SN_ROOT)/util/clustergen.py
 
+SNITCH_ROOT = $(SN_ROOT)
 include $(SN_ROOT)/target/common/common.mk
 
 $(SN_GENDIR):
@@ -138,4 +139,7 @@ help:
 	@echo -e "${Green}vsim-clean           ${Black}Clean QuestaSim simulation files."
 	@echo -e ""
 	@echo -e "Additional miscellaneous targets:"
+	@echo -e "${Green}traces               ${Black}Generate the better readable traces in .logs/trace_hart_<hart_id>.txt."
+# TODO(fischeti): Dump `.rtlbinary` file in simulations
+#	@echo -e "${Green}annotate             ${Black}Annotate the better readable traces in .logs/trace_hart_<hart_id>.s with the source code related with the retired instructions."
 	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."
