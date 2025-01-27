@@ -76,6 +76,7 @@ floo-clean:
 #########################
 
 PICOBELLO_HW_ALL += $(CHS_HW_ALL)
+PICOBELLO_HW_ALL += $(CHS_SIM_ALL)
 PICOBELLO_HW_ALL += $(SN_GENDIR)/snitch_cluster_wrapper.sv
 PICOBELLO_HW_ALL += $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
 
