@@ -6,8 +6,7 @@
 {
     nr_clusters: 4,
     cluster: {
-        boot_addr: 4096, // 0x1000
-        cluster_base_addr: 268435456, // 0x1000_0000
+        cluster_base_addr: 536870912, // 0x2000_0000
         cluster_base_offset: 262144, // 0x4_0000
         cluster_base_hartid: 0,
         addr_width: 48,
@@ -17,12 +16,14 @@
             size: 128,
             banks: 32,
         },
-        cluster_periph_size: 64, // kB
+        cluster_periph_size: 60, // kB
         zero_mem_size: 64, // kB
         dma_data_width: 512,
         dma_axi_req_fifo_depth: 3,
         dma_req_fifo_depth: 3,
         cluster_base_expose: true,
+        alias_region_enable: true,
+        alias_region_base: 671088640, // 0x2800_0000
         // TODO(fischeti): Check if we need Snitch VM support
         vm_support: false,
         // Timing parameters
