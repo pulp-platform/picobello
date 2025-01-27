@@ -21,6 +21,8 @@
         dma_data_width: 512,
         dma_axi_req_fifo_depth: 3,
         dma_req_fifo_depth: 3,
+        narrow_trans: 4,
+        wide_trans: 32,
         cluster_base_expose: true,
         alias_region_enable: true,
         alias_region_base: 671088640, // 0x2800_0000
@@ -28,15 +30,15 @@
         vm_support: false,
         // Timing parameters
         timing: {
-            lat_comp_fp32: 3,
+            lat_comp_fp32: 2,
             lat_comp_fp64: 3,
-            lat_comp_fp16: 2,
-            lat_comp_fp16_alt: 2,
+            lat_comp_fp16: 1,
+            lat_comp_fp16_alt: 1,
             lat_comp_fp8: 1,
             lat_comp_fp8_alt: 1,
             lat_noncomp: 1,
             lat_conv: 1,
-            lat_sdotp: 2,
+            lat_sdotp: 3,
             fpu_pipe_config: "BEFORE"
             narrow_xbar_latency: "CUT_ALL_PORTS",
             wide_xbar_latency: "CUT_ALL_PORTS",
@@ -102,7 +104,9 @@
         num_dtlb_entries: 1,
         num_itlb_entries: 1,
         // Enable division/square root unit
+        // TODO(fischeti): Do we need a division/square root unit?
         // Xdiv_sqrt: true,
+        // TODO(fischeti): Do we want SSR indirection support?
     },
     dma_core_template: {
         isa: "rv32imafd",
