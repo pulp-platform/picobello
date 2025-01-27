@@ -37,7 +37,7 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 # Snitch Cluster #
 ##################
 
-.PHONY: sn-clean sn-hw-all
+.PHONY: sn-hw-clean sn-hw-all
 
 SN_ROOT := $(shell $(BENDER) path snitch_cluster)
 SN_CFG	:= $(PICOBELLO_ROOT)/cfg/snitch_cluster.hjson
@@ -84,8 +84,11 @@ PICOBELLO_HW_ALL += $(SN_GENDIR)/snitch_cluster_wrapper.sv
 PICOBELLO_HW_ALL += $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
+
 picobello-hw-all all: $(PICOBELLO_HW_ALL)
-picobello-clean: sn-clean chs-clean-deps floo-clean
+
+picobello-clean clean: sn-hw-clean floo-clean
+	rm -rf $(BENDER_ROOT)
 
 ##############
 # Simulation #
