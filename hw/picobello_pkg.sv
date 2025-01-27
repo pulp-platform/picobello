@@ -53,7 +53,7 @@ package picobello_pkg;
     ret.AxiUserWidth = dw_bt'(AxiCfgN.UserWidth);
     ret.AxiMstIdWidth = aw_bt'(AxiCfgN.OutIdWidth);
     // TODO(fischeti): Check if we need external interrupts for each hart/cluster
-    ret.NumExtIrqHarts = NumClusters;
+    ret.NumExtIrqHarts = doub_bt'(NumClusters);
     // TODO(fischeti): Check if we need/want VGA
     ret.Vga = 1'b0;
     // TODO(fischeti): Check if we need/want USB
