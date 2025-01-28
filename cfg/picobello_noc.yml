@@ -17,14 +17,14 @@ protocols:
     data_width: 64
     addr_width: 48
     id_width: 5
-    user_width: 2
+    user_width: 3
   - name: "narrow_out"
     type: "narrow"
     protocol: "AXI4"
     data_width: 64
     addr_width: 48
     id_width: 2
-    user_width: 2
+    user_width: 3
   - name: "wide_in"
     type: "wide"
     protocol: "AXI4"
