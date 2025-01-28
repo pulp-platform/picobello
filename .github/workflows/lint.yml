@@ -18,7 +18,7 @@ jobs:
   # Verible Lint #
   ################
   verible-lint:
-    name: Lint Verilog sources
+    name: Lint SV sources
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +34,7 @@ jobs:
   # Check License #
   #################
   lint-license:
+    name: Lint License Headers
     runs-on: ubuntu-latest
     steps:
       - name: lint license
