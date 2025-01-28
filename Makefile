@@ -14,7 +14,7 @@ PICOBELLO_ROOT ?= $(shell pwd)
 BENDER_ROOT ?= $(PICOBELLO_ROOT)/.bender
 BENDER = bender -d $(PICOBELLO_ROOT)
 
-COMMON_TARGS += -t rtl -t test -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
+COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
 SIM_TARGS += -t simulation -t test -t idma_test
 
 PICOBELLO_GENDIR = $(PICOBELLO_ROOT)/.generated
