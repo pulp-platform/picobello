@@ -186,7 +186,7 @@ module cheshire_tile
     DataWidth: AxiCfgN.DataWidth,
     UserWidth: max(AxiCfgN.UserWidth, AxiCfgW.UserWidth),
     InIdWidth: 0, // Not used in `nw_join`
-    OutIdWidth: max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth) + 1 // for the AXI mux
+    OutIdWidth: max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth)
   };
 
   `FLOO_TYPEDEF_AXI_FROM_CFG(nw_join, AxiCfgJoin)
