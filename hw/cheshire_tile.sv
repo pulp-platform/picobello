@@ -30,7 +30,7 @@ module cheshire_tile
   input  logic jtag_tdi_i,
   output logic jtag_tdo_o,
   output logic jtag_tdo_oe_o,
-    // UART interface
+  // UART interface
   output logic  uart_tx_o,
   input  logic  uart_rx_i,
   // UART modem flow control
