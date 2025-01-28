@@ -50,8 +50,8 @@ package picobello_pkg;
     ret.AxiExtNumSlv = 1;
     ret.AddrWidth = aw_bt'(AxiCfgN.AddrWidth);
     ret.AxiDataWidth = dw_bt'(AxiCfgN.DataWidth);
-    ret.AxiUserWidth = dw_bt'(AxiCfgN.UserWidth);
-    ret.AxiMstIdWidth = aw_bt'(AxiCfgN.OutIdWidth);
+    ret.AxiUserWidth = dw_bt'(max(AxiCfgN.UserWidth, AxiCfgW.UserWidth));
+    ret.AxiMstIdWidth = aw_bt'(max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth) + 1);
     // TODO(fischeti): Check if we need external interrupts for each hart/cluster
     ret.NumExtIrqHarts = doub_bt'(NumClusters);
     // TODO(fischeti): Check if we need/want VGA

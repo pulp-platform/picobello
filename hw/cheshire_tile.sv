@@ -5,6 +5,8 @@
 // Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 `include "cheshire/typedef.svh"
+`include "floo_noc/typedef.svh"
+`include "axi/assign.svh"
 
 module cheshire_tile
   import cheshire_pkg::*;
@@ -118,20 +120,23 @@ module cheshire_tile
   // Chimney //
   /////////////
 
-  `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
+  axi_narrow_out_req_t narrow_out_req;
+  axi_narrow_out_rsp_t narrow_out_rsp;
+  axi_narrow_in_req_t narrow_in_req;
+  axi_narrow_in_rsp_t narrow_in_rsp;
+  axi_wide_out_req_t   wide_out_req;
+  axi_wide_out_rsp_t   wide_out_rsp;
 
-  csh_axi_mst_req_t axi_ext_mst_req_in;
-  csh_axi_mst_rsp_t axi_ext_mst_rsp_out;
-  csh_axi_slv_req_t axi_ext_slv_req_out;
-  csh_axi_slv_rsp_t axi_ext_slv_rsp_in;
+  localparam chimney_cfg_t ChimneyCfgN = ChimneyDefaultCfg;
+  localparam chimney_cfg_t ChimneyCfgW = set_ports(ChimneyDefaultCfg, 1'b1, 1'b0);
 
   floo_nw_chimney #(
-    .AxiCfgN              ( AxiCfgN ),
-    .AxiCfgW              ( AxiCfgW ),
-    .ChimneyCfgN          ( ChimneyDefaultCfg ),
-    .ChimneyCfgW          ( set_ports(ChimneyDefaultCfg, 1'b0, 1'b0)  ),
-    .RouteCfg             ( RouteCfg ),
-    .AtopSupport          ( 1'b1     ),
+    .AxiCfgN              ( AxiCfgN     ),
+    .AxiCfgW              ( AxiCfgW     ),
+    .ChimneyCfgN          ( ChimneyCfgN ),
+    .ChimneyCfgW          ( ChimneyCfgW ),
+    .RouteCfg             ( RouteCfg    ),
+    .AtopSupport          ( 1'b1 ),
     .MaxAtomicTxns        ( AxiCfgN.OutIdWidth-1 ),
     .Sam                  ( Sam ),
     .id_t                 ( id_t       ),
@@ -155,15 +160,15 @@ module cheshire_tile
     .id_i,
     .test_enable_i        ( test_mode_i ),
     .sram_cfg_i           ( '0 ),
-    .axi_narrow_in_req_i  ( axi_ext_slv_req_out ),
-    .axi_narrow_in_rsp_o  ( axi_ext_slv_rsp_in  ),
-    .axi_narrow_out_req_o ( axi_ext_mst_req_in  ),
-    .axi_narrow_out_rsp_i ( axi_ext_mst_rsp_out ),
+    .route_table_i        ( '0 ),
+    .axi_narrow_in_req_i  ( narrow_in_req  ),
+    .axi_narrow_in_rsp_o  ( narrow_in_rsp  ),
+    .axi_narrow_out_req_o ( narrow_out_req ),
+    .axi_narrow_out_rsp_i ( narrow_out_rsp ),
     .axi_wide_in_req_i    ( '0 ),
     .axi_wide_in_rsp_o    (    ),
-    .axi_wide_out_req_o   (    ),
-    .axi_wide_out_rsp_i   ( '0 ),
-    .route_table_i        ( '0 ),
+    .axi_wide_out_req_o   ( wide_out_req ),
+    .axi_wide_out_rsp_i   ( wide_out_rsp ),
     .floo_req_o           ( router_floo_req_in[Eject]   ),
     .floo_rsp_o           ( router_floo_rsp_in[Eject]   ),
     .floo_wide_o          ( router_floo_wide_in[Eject]  ),
@@ -172,9 +177,64 @@ module cheshire_tile
     .floo_wide_i          ( router_floo_wide_out[Eject] )
   );
 
+  /////////////
+  // NW Join //
+  /////////////
+
+  localparam axi_cfg_t AxiCfgJoin = '{
+    AddrWidth: AxiCfgN.AddrWidth,
+    DataWidth: AxiCfgN.DataWidth,
+    UserWidth: max(AxiCfgN.UserWidth, AxiCfgW.UserWidth),
+    InIdWidth: 0, // Not used in `nw_join`
+    OutIdWidth: max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth) + 1 // for the AXI mux
+  };
+
+  `FLOO_TYPEDEF_AXI_FROM_CFG(nw_join, AxiCfgJoin)
+
+  nw_join_in_req_t nw_join_req;
+  nw_join_in_rsp_t nw_join_rsp;
+
+  floo_nw_join #(
+    .AxiCfgN          ( axi_cfg_swap_iw(AxiCfgN)    ),
+    .AxiCfgW          ( axi_cfg_swap_iw(AxiCfgW)    ),
+    .AxiCfgJoin       ( axi_cfg_swap_iw(AxiCfgJoin) ),
+    // We should not have any ATOPs in the wide path
+    .FilterWideAtops  ( 1'b1 ),
+    // We don't need it since there is one in Cheshire
+    .EnAtopAdapter    ( 1'b0 ),
+    .axi_narrow_req_t ( axi_narrow_out_req_t ),
+    .axi_narrow_rsp_t ( axi_narrow_out_rsp_t ),
+    .axi_wide_req_t   ( axi_wide_out_req_t   ),
+    .axi_wide_rsp_t   ( axi_wide_out_rsp_t   ),
+    .axi_req_t        ( nw_join_in_req_t     ),
+    .axi_rsp_t        ( nw_join_in_rsp_t     )
+  ) i_floo_nw_join (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i    ( test_mode_i    ),
+    .axi_narrow_req_i ( narrow_out_req ),
+    .axi_narrow_rsp_o ( narrow_out_rsp ),
+    .axi_wide_req_i   ( wide_out_req   ),
+    .axi_wide_rsp_o   ( wide_out_rsp   ),
+    .axi_req_o        ( nw_join_req    ),
+    .axi_rsp_i        ( nw_join_rsp    )
+  );
+
   //////////////
   // Cheshire //
   //////////////
+
+  `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
+
+  csh_axi_mst_req_t axi_ext_mst_req_in;
+  csh_axi_mst_rsp_t axi_ext_mst_rsp_out;
+  csh_axi_slv_req_t axi_ext_slv_req_out;
+  csh_axi_slv_rsp_t axi_ext_slv_rsp_in;
+
+  `AXI_ASSIGN_REQ_STRUCT(axi_ext_mst_req_in, nw_join_req)
+  `AXI_ASSIGN_RESP_STRUCT(nw_join_rsp, axi_ext_mst_rsp_out)
+  `AXI_ASSIGN_REQ_STRUCT(narrow_in_req, axi_ext_slv_req_out)
+  `AXI_ASSIGN_RESP_STRUCT(axi_ext_slv_rsp_in, narrow_in_rsp)
 
   cheshire_soc #(
     .Cfg                ( CheshireCfg ),
