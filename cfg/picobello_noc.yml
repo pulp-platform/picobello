@@ -60,6 +60,7 @@ endpoints:
       - "narrow_in"
     sbr_port_protocol:
       - "narrow_out"
+      - "wide_out"
   - name: "l2_spm"
     addr_range:
       # wide (1MB)
