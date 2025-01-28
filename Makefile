@@ -14,7 +14,7 @@ PICOBELLO_ROOT ?= $(shell pwd)
 BENDER_ROOT ?= $(PICOBELLO_ROOT)/.bender
 BENDER = bender -d $(PICOBELLO_ROOT)
 
-COMMON_TARGS += -t rtl -t test -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
+COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
 SIM_TARGS += -t simulation -t test -t idma_test
 
 PICOBELLO_GENDIR = $(PICOBELLO_ROOT)/.generated
@@ -27,30 +27,34 @@ $(PICOBELLO_GENDIR):
 ############
 
 CLINTCORES ?= 5
-
 CHS_ROOT := $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
+
+$(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
+	flock -x $@ sh -c 'cp $< $@'
 
 ##################
 # Snitch Cluster #
 ##################
 
-.PHONY: sn-clean
+.PHONY: sn-hw-clean sn-hw-all
 
 SN_ROOT := $(shell $(BENDER) path snitch_cluster)
 SN_CFG	:= $(PICOBELLO_ROOT)/cfg/snitch_cluster.hjson
 SN_GENDIR = $(SN_ROOT)/target/snitch_cluster/generated
 SN_CLUSTER_GEN  = $(SN_ROOT)/util/clustergen.py
 
+SNITCH_ROOT = $(SN_ROOT)
 include $(SN_ROOT)/target/common/common.mk
 
 $(SN_GENDIR):
 	mkdir -p $(SN_GENDIR)
 
+sn-hw-all: $(SN_GENDIR)/snitch_cluster_wrapper.sv
 $(SN_GENDIR)/snitch_cluster_wrapper.sv: $(SN_CFG) $(SN_CLUSTER_GEN) | $(SN_GENDIR)
 	$(SN_CLUSTER_GEN) -c $< -o $(SN_GENDIR) --wrapper
 
-sn-clean:
+sn-hw-clean:
 	rm -rf $(PICOBELLO_GENDIR)/snitch_cluster_wrapper.sv
 
 ###########
@@ -75,46 +79,70 @@ floo-clean:
 #########################
 
 PICOBELLO_HW_ALL += $(CHS_HW_ALL)
+PICOBELLO_HW_ALL += $(CHS_SIM_ALL)
 PICOBELLO_HW_ALL += $(SN_GENDIR)/snitch_cluster_wrapper.sv
 PICOBELLO_HW_ALL += $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
 
-.PHONY: picobello-all picobello-clean clean
-picobello-all all: $(PICOBELLO_HW_ALL)
-picobello-clean clean: sn-clean chs-clean-deps floo-clean
+.PHONY: picobello-hw-all picobello-clean clean
 
-#############
-# QuestaSim #
-#############
+picobello-hw-all all: $(PICOBELLO_HW_ALL)
 
-.PHONY: vsim-compile vsim-clean vsim-run
+picobello-clean clean: sn-hw-clean floo-clean
+	rm -rf $(BENDER_ROOT)
 
-VSIM ?= vsim
-VSIM_WORK = target/sim/vsim/work
-VLOG_ARGS = -work $(VSIM_WORK)
-VLOG_ARGS += -suppress vlog-2583
-VLOG_ARGS += -suppress vlog-13314
-VLOG_ARGS += -suppress vlog-13233
-BINARY = $(CHS_ROOT)/sw/tests/helloworld.spm.elf
+##############
+# Simulation #
+##############
 
-vsim-clean:
-	@rm -rf $(VSIM_WORK)
-	@rm -rf target/sim/vsim/transcript
-	@rm -f $(PICOBELLO_ROOT)/target/sim/vsim/compile.tcl
+TB_DUT = tb_picobello_top
+CHS_BINARY ?= $(CHS_ROOT)/sw/tests/helloworld.spm.elf
 
-vsim-compile: $(PICOBELLO_ROOT)/target/sim/vsim/compile.tcl $(CHS_SIM_ALL)
-	$(VSIM) -64 -c -work $(VSIM_WORK) -do "source $<; quit"
-
-$(PICOBELLO_ROOT)/target/sim/vsim/compile.tcl:
-	@bender script vsim $(COMMON_TARGS) $(SIM_TARGS) --vlog-arg="$(VLOG_ARGS)"> $@
-	@echo 'vlog -work $(VSIM_WORK) "$(realpath $(CHS_ROOT))/target/sim/src/elfloader.cpp" -ccflags "-std=c++11"' >> $@
-
-vsim-run:
-	$(VSIM) -64 -work $(VSIM_WORK) -do "set BINARY $(BINARY); source $(PICOBELLO_ROOT)/target/sim/vsim/start.picobello_top.tcl"
+include $(PICOBELLO_ROOT)/target/sim/vsim/vsim.mk
 
 ########
 # Misc #
 ########
 
 .PHONY dvt-flist:
+
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
+
+#################
+# Documentation #
+#################
+
+.PHONY: help
+
+Black=\033[0m
+Green=\033[1;32m
+help:
+	@echo -e "Makefile ${Green}targets${Black} for picobello"
+	@echo -e "Use 'make <target>' where <target> is one of:"
+	@echo -e ""
+	@echo -e "${Green}help           	     ${Black}Show an overview of all Makefile targets."
+	@echo -e ""
+	@echo -e "General targets:"
+	@echo -e "${Green}all                  ${Black}Alias for picobello-hw-all."
+	@echo -e "${Green}clean                ${Black}Alias for picobello-clean."
+	@echo -e ""
+	@echo -e "Source generation targets:"
+	@echo -e "${Green}picobello-hw-all     ${Black}Build all RTL."
+	@echo -e "${Green}picobello-clean      ${Black}Clean everything."
+	@echo -e "${Green}floo-hw-all          ${Black}Generate FlooNoC RTL."
+	@echo -e "${Green}floo-clean           ${Black}Clean FlooNoC RTL."
+	@echo -e "${Green}sn-hw-all            ${Black}Generate Snitch Cluster wrapper RTL."
+	@echo -e "${Green}sn-hw-clean          ${Black}Clean Snitch Cluster wrapper RTL."
+	@echo -e "${Green}chs-hw-all           ${Black}Generate Cheshire RTL."
+	@echo -e ""
+	@echo -e "Simulation targets:"
+	@echo -e "${Green}vsim-compile         ${Black}Compile with Questasim."
+	@echo -e "${Green}vsim-run             ${Black}Run QuestaSim simulation in GUI mode w/o optimization."
+	@echo -e "${Green}vsim-run-batch       ${Black}Run QuestaSim simulation in batch mode w/ optimization."
+	@echo -e "${Green}vsim-clean           ${Black}Clean QuestaSim simulation files."
+	@echo -e ""
+	@echo -e "Additional miscellaneous targets:"
+	@echo -e "${Green}traces               ${Black}Generate the better readable traces in .logs/trace_hart_<hart_id>.txt."
+# TODO(fischeti): Dump `.rtlbinary` file in simulations
+#	@echo -e "${Green}annotate             ${Black}Annotate the better readable traces in .logs/trace_hart_<hart_id>.s with the source code related with the retired instructions."
+	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."

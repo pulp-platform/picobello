@@ -16,6 +16,7 @@ target/sim/vsim/compile.tcl
 modelsim.ini
 transcript
 *.wlf
+logs
 
 # log files
 **/*.log
