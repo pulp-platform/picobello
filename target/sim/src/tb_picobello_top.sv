@@ -8,11 +8,13 @@ module tb_picobello_top;
 
   fixture_picobello_top fix();
 
-  string      preload_elf;
-  string      boot_hex;
-  logic [1:0] boot_mode;
-  logic [1:0] preload_mode;
-  bit [31:0]  exit_code;
+  string       preload_elf;
+  string       boot_hex;
+  logic [1:0]  boot_mode;
+  logic [1:0]  preload_mode;
+  bit [31:0]   exit_code;
+  bit          snitch_preload;
+  string       snitch_elf;
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
@@ -20,6 +22,12 @@ module tb_picobello_top;
     if (!$value$plusargs("PRELMODE=%d", preload_mode))  preload_mode  = 0;
     if (!$value$plusargs("BINARY=%s",   preload_elf))   preload_elf   = "";
     if (!$value$plusargs("IMAGE=%s",    boot_hex))      boot_hex      = "";
+
+    if ($value$plusargs("SN_BINARY=%s", snitch_elf)) begin
+      snitch_preload = 1;
+    end else begin
+      snitch_preload = 0;
+    end
 
     // Set boot mode and preload boot image if there is one
     fix.vip.set_boot_mode(boot_mode);
@@ -35,12 +43,15 @@ module tb_picobello_top;
       case (preload_mode)
         0: begin      // JTAG
           fix.vip.jtag_init();
+          if (snitch_preload) fix.vip.jtag_elf_preload(snitch_elf, snitch_entry);
           fix.vip.jtag_elf_run(preload_elf);
           fix.vip.jtag_wait_for_eoc(exit_code);
         end 1: begin  // Serial Link
+          if (snitch_preload) fix.vip.slink_elf_preload(snitch_elf, snitch_entry);
           fix.vip.slink_elf_run(preload_elf);
           fix.vip.slink_wait_for_eoc(exit_code);
         end 2: begin  // UART
+          if (snitch_preload) $fatal(1, "Unsupported snitch binary preload mode %d (UART)!", preload_mode);
           fix.vip.uart_debug_elf_run_and_wait(preload_elf, exit_code);
         end default: begin
           $fatal(1, "Unsupported preload mode %d (reserved)!", boot_mode);
