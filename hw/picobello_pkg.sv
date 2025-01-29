@@ -48,10 +48,14 @@ package picobello_pkg;
     // Enable the external AXI master and slave interfaces
     ret.AxiExtNumMst = 1;
     ret.AxiExtNumSlv = 1;
+    ret.AxiExtNumRules = 1;
+    ret.AxiExtRegionIdx[0] = 0;
+    ret.AxiExtRegionStart[0] = 'h2000_0000;
+    ret.AxiExtRegionEnd[0] = 'h8000_0000;
     ret.AddrWidth = aw_bt'(AxiCfgN.AddrWidth);
     ret.AxiDataWidth = dw_bt'(AxiCfgN.DataWidth);
-    ret.AxiUserWidth = dw_bt'(AxiCfgN.UserWidth);
-    ret.AxiMstIdWidth = aw_bt'(AxiCfgN.OutIdWidth);
+    ret.AxiUserWidth = dw_bt'(max(AxiCfgN.UserWidth, AxiCfgW.UserWidth));
+    ret.AxiMstIdWidth = aw_bt'(max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth));
     // TODO(fischeti): Check if we need external interrupts for each hart/cluster
     ret.NumExtIrqHarts = doub_bt'(NumClusters);
     // TODO(fischeti): Check if we need/want VGA
@@ -60,9 +64,7 @@ package picobello_pkg;
     ret.Usb = 1'b0;
     // TODO(fischeti): Check if we need/want an AXI to DRAM
     ret.LlcOutRegionStart = 'h8000_0000;
-    ret.LlcOutRegionEnd = 'hc000_0000;
-    ret.SlinkRegionStart = 'hc000_0000;
-    ret.SlinkRegionEnd = 'hffff_ffff;
+    ret.LlcOutRegionEnd = 48'h1_0000_0000;
     return ret;
   endfunction
 

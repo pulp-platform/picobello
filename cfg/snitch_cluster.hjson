@@ -11,7 +11,7 @@
         cluster_base_hartid: 0,
         addr_width: 48,
         data_width: 64,
-        user_width: 2, // clog2(nr_clusters)
+        user_width: 3, // clog2(nr_clusters + 1)
         tcdm: {
             size: 128,
             banks: 32,

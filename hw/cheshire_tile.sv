@@ -5,6 +5,8 @@
 // Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 `include "cheshire/typedef.svh"
+`include "floo_noc/typedef.svh"
+`include "axi/assign.svh"
 
 module cheshire_tile
   import cheshire_pkg::*;
@@ -28,7 +30,7 @@ module cheshire_tile
   input  logic jtag_tdi_i,
   output logic jtag_tdo_o,
   output logic jtag_tdo_oe_o,
-    // UART interface
+  // UART interface
   output logic  uart_tx_o,
   input  logic  uart_rx_i,
   // UART modem flow control
@@ -73,6 +75,155 @@ module cheshire_tile
   input  floo_wide_t [West:North]   floo_wide_i
 );
 
+  ////////////
+  // Router //
+  ////////////
+
+  floo_req_t  [Eject:North] router_floo_req_out, router_floo_req_in;
+  floo_rsp_t  [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
+  floo_wide_t [Eject:North] router_floo_wide_out, router_floo_wide_in;
+
+  floo_nw_router #(
+    .AxiCfgN      ( AxiCfgN ),
+    .AxiCfgW      ( AxiCfgW ),
+    .RouteAlgo    ( RouteCfg.RouteAlgo ),
+    .NumRoutes    ( 5 ),
+    .InFifoDepth  ( 2 ),
+    .OutFifoDepth ( 2 ),
+    .id_t         ( id_t        ),
+    .hdr_t        ( hdr_t       ),
+    .floo_req_t   ( floo_req_t  ),
+    .floo_rsp_t   ( floo_rsp_t  ),
+    .floo_wide_t  ( floo_wide_t )
+  ) i_router (
+    .clk_i,
+    .rst_ni,
+    .id_i,
+    .test_enable_i  ( test_mode_i ),
+    .id_route_map_i ( '0 ),
+    .floo_req_i     ( router_floo_req_in   ),
+    .floo_rsp_o     ( router_floo_rsp_out  ),
+    .floo_req_o     ( router_floo_req_out  ),
+    .floo_rsp_i     ( router_floo_rsp_in   ),
+    .floo_wide_i    ( router_floo_wide_in  ),
+    .floo_wide_o    ( router_floo_wide_out )
+  );
+
+  assign floo_req_o = router_floo_req_out[West:North];
+  assign router_floo_req_in[West:North] = floo_req_i;
+  assign floo_rsp_o = router_floo_rsp_out[West:North];
+  assign router_floo_rsp_in[West:North] = floo_rsp_i;
+  assign floo_wide_o = router_floo_wide_out[West:North];
+  assign router_floo_wide_in[West:North] = floo_wide_i;
+
+  /////////////
+  // Chimney //
+  /////////////
+
+  axi_narrow_out_req_t narrow_out_req;
+  axi_narrow_out_rsp_t narrow_out_rsp;
+  axi_narrow_in_req_t narrow_in_req;
+  axi_narrow_in_rsp_t narrow_in_rsp;
+  axi_wide_out_req_t   wide_out_req;
+  axi_wide_out_rsp_t   wide_out_rsp;
+
+  localparam chimney_cfg_t ChimneyCfgN = ChimneyDefaultCfg;
+  localparam chimney_cfg_t ChimneyCfgW = set_ports(ChimneyDefaultCfg, 1'b1, 1'b0);
+
+  floo_nw_chimney #(
+    .AxiCfgN              ( AxiCfgN     ),
+    .AxiCfgW              ( AxiCfgW     ),
+    .ChimneyCfgN          ( ChimneyCfgN ),
+    .ChimneyCfgW          ( ChimneyCfgW ),
+    .RouteCfg             ( RouteCfg    ),
+    .AtopSupport          ( 1'b1 ),
+    .MaxAtomicTxns        ( AxiCfgN.OutIdWidth-1 ),
+    .Sam                  ( Sam ),
+    .id_t                 ( id_t       ),
+    .rob_idx_t            ( rob_idx_t  ),
+    .hdr_t                ( hdr_t      ),
+    .sam_rule_t           ( sam_rule_t ),
+    .axi_narrow_in_req_t  ( axi_narrow_in_req_t  ),
+    .axi_narrow_in_rsp_t  ( axi_narrow_in_rsp_t  ),
+    .axi_narrow_out_req_t ( axi_narrow_out_req_t ),
+    .axi_narrow_out_rsp_t ( axi_narrow_out_rsp_t ),
+    .axi_wide_in_req_t    ( axi_wide_in_req_t  ),
+    .axi_wide_in_rsp_t    ( axi_wide_in_rsp_t  ),
+    .axi_wide_out_req_t   ( axi_wide_out_req_t ),
+    .axi_wide_out_rsp_t   ( axi_wide_out_rsp_t ),
+    .floo_req_t           ( floo_req_t  ),
+    .floo_rsp_t           ( floo_rsp_t  ),
+    .floo_wide_t          ( floo_wide_t )
+  ) i_chimney (
+    .clk_i,
+    .rst_ni,
+    .id_i,
+    .test_enable_i        ( test_mode_i ),
+    .sram_cfg_i           ( '0 ),
+    .route_table_i        ( '0 ),
+    .axi_narrow_in_req_i  ( narrow_in_req  ),
+    .axi_narrow_in_rsp_o  ( narrow_in_rsp  ),
+    .axi_narrow_out_req_o ( narrow_out_req ),
+    .axi_narrow_out_rsp_i ( narrow_out_rsp ),
+    .axi_wide_in_req_i    ( '0 ),
+    .axi_wide_in_rsp_o    (    ),
+    .axi_wide_out_req_o   ( wide_out_req ),
+    .axi_wide_out_rsp_i   ( wide_out_rsp ),
+    .floo_req_o           ( router_floo_req_in[Eject]   ),
+    .floo_rsp_o           ( router_floo_rsp_in[Eject]   ),
+    .floo_wide_o          ( router_floo_wide_in[Eject]  ),
+    .floo_req_i           ( router_floo_req_out[Eject]  ),
+    .floo_rsp_i           ( router_floo_rsp_out[Eject]  ),
+    .floo_wide_i          ( router_floo_wide_out[Eject] )
+  );
+
+  /////////////
+  // NW Join //
+  /////////////
+
+  localparam axi_cfg_t AxiCfgJoin = '{
+    AddrWidth: AxiCfgN.AddrWidth,
+    DataWidth: AxiCfgN.DataWidth,
+    UserWidth: max(AxiCfgN.UserWidth, AxiCfgW.UserWidth),
+    InIdWidth: 0, // Not used in `nw_join`
+    OutIdWidth: max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth)
+  };
+
+  `FLOO_TYPEDEF_AXI_FROM_CFG(nw_join, AxiCfgJoin)
+
+  nw_join_in_req_t nw_join_req;
+  nw_join_in_rsp_t nw_join_rsp;
+
+  floo_nw_join #(
+    .AxiCfgN          ( axi_cfg_swap_iw(AxiCfgN)    ),
+    .AxiCfgW          ( axi_cfg_swap_iw(AxiCfgW)    ),
+    .AxiCfgJoin       ( axi_cfg_swap_iw(AxiCfgJoin) ),
+    // We should not have any ATOPs in the wide path
+    .FilterWideAtops  ( 1'b1 ),
+    // We don't need it since there is one in Cheshire
+    .EnAtopAdapter    ( 1'b0 ),
+    .axi_narrow_req_t ( axi_narrow_out_req_t ),
+    .axi_narrow_rsp_t ( axi_narrow_out_rsp_t ),
+    .axi_wide_req_t   ( axi_wide_out_req_t   ),
+    .axi_wide_rsp_t   ( axi_wide_out_rsp_t   ),
+    .axi_req_t        ( nw_join_in_req_t     ),
+    .axi_rsp_t        ( nw_join_in_rsp_t     )
+  ) i_floo_nw_join (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i    ( test_mode_i    ),
+    .axi_narrow_req_i ( narrow_out_req ),
+    .axi_narrow_rsp_o ( narrow_out_rsp ),
+    .axi_wide_req_i   ( wide_out_req   ),
+    .axi_wide_rsp_o   ( wide_out_rsp   ),
+    .axi_req_o        ( nw_join_req    ),
+    .axi_rsp_i        ( nw_join_rsp    )
+  );
+
+  //////////////
+  // Cheshire //
+  //////////////
+
   `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
 
   csh_axi_mst_req_t axi_ext_mst_req_in;
@@ -80,16 +231,21 @@ module cheshire_tile
   csh_axi_slv_req_t axi_ext_slv_req_out;
   csh_axi_slv_rsp_t axi_ext_slv_rsp_in;
 
+  `AXI_ASSIGN_REQ_STRUCT(axi_ext_mst_req_in, nw_join_req)
+  `AXI_ASSIGN_RESP_STRUCT(nw_join_rsp, axi_ext_mst_rsp_out)
+  `AXI_ASSIGN_REQ_STRUCT(narrow_in_req, axi_ext_slv_req_out)
+  `AXI_ASSIGN_RESP_STRUCT(axi_ext_slv_rsp_in, narrow_in_rsp)
+
   cheshire_soc #(
-    .Cfg                ( CheshireCfg       ),
+    .Cfg                ( CheshireCfg ),
     .axi_ext_llc_req_t  ( csh_axi_llc_req_t ),
     .axi_ext_llc_rsp_t  ( csh_axi_llc_rsp_t ),
     .axi_ext_mst_req_t  ( csh_axi_mst_req_t ),
     .axi_ext_mst_rsp_t  ( csh_axi_mst_rsp_t ),
     .axi_ext_slv_req_t  ( csh_axi_slv_req_t ),
     .axi_ext_slv_rsp_t  ( csh_axi_slv_rsp_t ),
-    .reg_ext_req_t      ( csh_reg_req_t     ),
-    .reg_ext_rsp_t      ( csh_reg_rsp_t     )
+    .reg_ext_req_t      ( csh_reg_req_t ),
+    .reg_ext_rsp_t      ( csh_reg_rsp_t )
   ) i_cheshire_soc (
     .clk_i,
     .rst_ni,
@@ -97,25 +253,25 @@ module cheshire_tile
     .boot_mode_i,
     .rtc_i,
     // TODO(fischeti): Connect if we will use DRAM/Hyperram
-    .axi_llc_mst_req_o (),
-    .axi_llc_mst_rsp_i ('0),
-    .axi_ext_mst_req_i (axi_ext_mst_req_in),
-    .axi_ext_mst_rsp_o (axi_ext_mst_rsp_out),
-    .axi_ext_slv_req_o (axi_ext_slv_req_out),
-    .axi_ext_slv_rsp_i (axi_ext_slv_rsp_in),
+    .axi_llc_mst_req_o (   ),
+    .axi_llc_mst_rsp_i ('0 ),
+    .axi_ext_mst_req_i ( axi_ext_mst_req_in  ),
+    .axi_ext_mst_rsp_o ( axi_ext_mst_rsp_out ),
+    .axi_ext_slv_req_o ( axi_ext_slv_req_out ),
+    .axi_ext_slv_rsp_i ( axi_ext_slv_rsp_in  ),
     // TODO(fischeti): Connect to SoC config registers if needed
-    .reg_ext_slv_req_o (),
-    .reg_ext_slv_rsp_i ('0),
+    .reg_ext_slv_req_o (    ),
+    .reg_ext_slv_rsp_i ( '0 ),
     // TODO(fischeti): Do we need external interrupts?
-    .intr_ext_i ('0),
-    .intr_ext_o (),
+    .intr_ext_i ( '0 ),
+    .intr_ext_o (    ),
     .xeip_ext_o,
     .mtip_ext_o,
     .msip_ext_o,
     // TODO(fischeti): Do we need debug capabilities for external cores?
-    .dbg_active_o (),
-    .dbg_ext_req_o  (),
-    .dbg_ext_unavail_i ('0),
+    .dbg_active_o      (    ),
+    .dbg_ext_req_o     (    ),
+    .dbg_ext_unavail_i ( '0 ),
     .jtag_tck_i,
     .jtag_trst_ni,
     .jtag_tms_i,
@@ -151,104 +307,20 @@ module cheshire_tile
     .slink_i,
     .slink_o,
     // TODO(fischeti): Check if we need/want VGA
-    .vga_hsync_o      (),
-    .vga_vsync_o      (),
-    .vga_red_o        (),
-    .vga_green_o      (),
-    .vga_blue_o       (),
+    .vga_hsync_o ( ),
+    .vga_vsync_o ( ),
+    .vga_red_o   ( ),
+    .vga_green_o ( ),
+    .vga_blue_o  ( ),
     // TODO(fischeti): Check if we need/want USB
-    .usb_clk_i        ('0),
-    .usb_rst_ni       ('0),
-    .usb_dm_i         ('0),
-    .usb_dm_o         (),
-    .usb_dm_oe_o      (),
-    .usb_dp_i         ('0),
-    .usb_dp_o         (),
-    .usb_dp_oe_o      ()
+    .usb_clk_i   ( '0 ),
+    .usb_rst_ni  ( '0 ),
+    .usb_dm_i    ( '0 ),
+    .usb_dm_o    (    ),
+    .usb_dm_oe_o (    ),
+    .usb_dp_i    ( '0 ),
+    .usb_dp_o    (    ),
+    .usb_dp_oe_o (    )
   );
-
-  floo_req_t  [Eject:North] router_floo_req_out, router_floo_req_in;
-  floo_rsp_t  [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
-  floo_wide_t [Eject:North] router_floo_wide_out, router_floo_wide_in;
-
-  floo_nw_chimney #(
-    .AxiCfgN              ( AxiCfgN              ),
-    .AxiCfgW              ( AxiCfgW              ),
-    .ChimneyCfgN          ( ChimneyDefaultCfg    ),
-    .ChimneyCfgW          ( set_ports(ChimneyDefaultCfg, 1'b0, 1'b0)  ),
-    .RouteCfg             ( RouteCfg             ),
-    .AtopSupport          ( 1'b1                 ),
-    .MaxAtomicTxns        ( AxiCfgN.OutIdWidth-1 ),
-    .Sam                  ( Sam                  ),
-    .id_t                 ( id_t                 ),
-    .rob_idx_t            ( rob_idx_t            ),
-    .hdr_t                ( hdr_t                ),
-    .sam_rule_t           ( sam_rule_t           ),
-    .axi_narrow_in_req_t  ( axi_narrow_in_req_t  ),
-    .axi_narrow_in_rsp_t  ( axi_narrow_in_rsp_t  ),
-    .axi_narrow_out_req_t ( axi_narrow_out_req_t ),
-    .axi_narrow_out_rsp_t ( axi_narrow_out_rsp_t ),
-    .axi_wide_in_req_t    ( axi_wide_in_req_t    ),
-    .axi_wide_in_rsp_t    ( axi_wide_in_rsp_t    ),
-    .axi_wide_out_req_t   ( axi_wide_out_req_t   ),
-    .axi_wide_out_rsp_t   ( axi_wide_out_rsp_t   ),
-    .floo_req_t           ( floo_req_t           ),
-    .floo_rsp_t           ( floo_rsp_t           ),
-    .floo_wide_t          ( floo_wide_t          )
-  ) i_chimney (
-    .clk_i,
-    .rst_ni,
-    .id_i,
-    .test_enable_i        ( test_mode_i                 ),
-    .sram_cfg_i           ( '0                          ),
-    .axi_narrow_in_req_i  ( axi_ext_slv_req_out         ),
-    .axi_narrow_in_rsp_o  ( axi_ext_slv_rsp_in          ),
-    .axi_narrow_out_req_o ( axi_ext_mst_req_in          ),
-    .axi_narrow_out_rsp_i ( axi_ext_mst_rsp_out         ),
-    .axi_wide_in_req_i    ( '0                          ),
-    .axi_wide_in_rsp_o    (                             ),
-    .axi_wide_out_req_o   (                             ),
-    .axi_wide_out_rsp_i   ( '0                          ),
-    .route_table_i        ( '0                          ),
-    .floo_req_o           ( router_floo_req_in[Eject]   ),
-    .floo_rsp_o           ( router_floo_rsp_in[Eject]   ),
-    .floo_wide_o          ( router_floo_wide_in[Eject]  ),
-    .floo_req_i           ( router_floo_req_out[Eject]  ),
-    .floo_rsp_i           ( router_floo_rsp_out[Eject]  ),
-    .floo_wide_i          ( router_floo_wide_out[Eject] )
-  );
-
-  floo_nw_router #(
-    .AxiCfgN      ( AxiCfgN             ),
-    .AxiCfgW      ( AxiCfgW             ),
-    .RouteAlgo    ( RouteCfg.RouteAlgo  ),
-    .NumRoutes    ( 5                   ),
-    .InFifoDepth  ( 2                   ),
-    .OutFifoDepth ( 2                   ),
-    .id_t         ( id_t                ),
-    .hdr_t        ( hdr_t               ),
-    .floo_req_t   ( floo_req_t          ),
-    .floo_rsp_t   ( floo_rsp_t          ),
-    .floo_wide_t  ( floo_wide_t         )
-  ) i_router (
-    .clk_i,
-    .rst_ni,
-    .id_i,
-    .test_enable_i  ( test_mode_i           ),
-    .id_route_map_i ( '0                    ),
-    .floo_req_i     ( router_floo_req_in    ),
-    .floo_rsp_o     ( router_floo_rsp_out   ),
-    .floo_req_o     ( router_floo_req_out   ),
-    .floo_rsp_i     ( router_floo_rsp_in    ),
-    .floo_wide_i    ( router_floo_wide_in   ),
-    .floo_wide_o    ( router_floo_wide_out  )
-  );
-
-  assign floo_req_o = router_floo_req_out[West:North];
-  assign router_floo_req_in[West:North] = floo_req_i;
-  assign floo_rsp_o = router_floo_rsp_out[West:North];
-  assign router_floo_rsp_in[West:North] = floo_rsp_i;
-  assign floo_wide_o = router_floo_wide_out[West:North];
-  assign router_floo_wide_in[West:North] = floo_wide_i;
 
 endmodule

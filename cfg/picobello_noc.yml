@@ -17,14 +17,14 @@ protocols:
     data_width: 64
     addr_width: 48
     id_width: 5
-    user_width: 2
+    user_width: 3
   - name: "narrow_out"
     type: "narrow"
     protocol: "AXI4"
     data_width: 64
     addr_width: 48
     id_width: 2
-    user_width: 2
+    user_width: 3
   - name: "wide_in"
     type: "wide"
     protocol: "AXI4"
@@ -54,20 +54,19 @@ endpoints:
       - "wide_out"
   - name: "cheshire"
     addr_range:
-      base: 0x0000_0000
-      size: 0x2000_0000
+      - start: 0x0000_0000
+        end: 0x2000_0000
+      - start: 0x8000_0000
+        end: 0x2_0000_0000
     mgr_port_protocol:
       - "narrow_in"
     sbr_port_protocol:
       - "narrow_out"
+      - "wide_out"
   - name: "l2_spm"
     addr_range:
-      # wide (1MB)
-      - base: 0x3000_0000
-        size: 0x0010_0000
-      # narrow (128kB)
-      - base: 0x3010_0000
-        size: 0x0002_0000
+      base: 0x3000_0000
+      size: 0x0010_0000
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"

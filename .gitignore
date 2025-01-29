@@ -17,6 +17,7 @@ modelsim.ini
 transcript
 *.wlf
 logs
+.rtlbinary
 
 # log files
 **/*.log
