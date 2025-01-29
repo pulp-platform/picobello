@@ -15,6 +15,8 @@ module tb_picobello_top;
   bit [31:0]   exit_code;
   bit          snitch_preload;
   string       snitch_elf;
+  logic [63:0] snitch_entry;
+  int          snitch_fn;
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
@@ -24,6 +26,8 @@ module tb_picobello_top;
     if (!$value$plusargs("IMAGE=%s",    boot_hex))      boot_hex      = "";
 
     if ($value$plusargs("SN_BINARY=%s", snitch_elf)) begin
+      snitch_fn = $fopen(".rtlbinary", "w");
+      $fwrite(snitch_fn, snitch_elf);
       snitch_preload = 1;
     end else begin
       snitch_preload = 0;
