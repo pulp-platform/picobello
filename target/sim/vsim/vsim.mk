@@ -5,7 +5,7 @@
 # Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 VSIM ?= vsim
-VSIM_DIR = $(PICOBELLO_ROOT)/target/sim/vsim
+VSIM_DIR = $(PB_ROOT)/target/sim/vsim
 VSIM_WORK = $(VSIM_DIR)/work
 
 VLOG_ARGS = -work $(VSIM_WORK)
@@ -36,7 +36,7 @@ vsim-clean:
 	rm -f $(VSIM_DIR)/transcript
 	rm -f $(VSIM_DIR)/compile.tcl
 
-vsim-compile: $(VSIM_DIR)/compile.tcl $(PICOBELLO_HW_ALL)
+vsim-compile: $(VSIM_DIR)/compile.tcl $(PB_HW_ALL)
 	$(VSIM) -c $(VSIM_FLAGS) -do "source $<; quit"
 
 $(VSIM_DIR)/compile.tcl:

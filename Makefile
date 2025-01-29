@@ -4,23 +4,23 @@
 #
 # Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
-PICOBELLO_ROOT ?= $(shell pwd)
+PB_ROOT ?= $(shell pwd)
 
 ############
 # Cheshire #
 ############
 
 # Use bender from the picobello root directory
-BENDER_ROOT ?= $(PICOBELLO_ROOT)/.bender
-BENDER = bender -d $(PICOBELLO_ROOT)
+BENDER_ROOT ?= $(PB_ROOT)/.bender
+BENDER = bender -d $(PB_ROOT)
 
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
 SIM_TARGS += -t simulation -t test -t idma_test
 
-PICOBELLO_GENDIR = $(PICOBELLO_ROOT)/.generated
+PB_GENDIR = $(PB_ROOT)/.generated
 
-$(PICOBELLO_GENDIR):
-	mkdir -p $(PICOBELLO_GENDIR)
+$(PB_GENDIR):
+	mkdir -p $(PB_GENDIR)
 
 ############
 # Cheshire #
@@ -40,7 +40,7 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 .PHONY: sn-hw-clean sn-hw-all
 
 SN_ROOT := $(shell $(BENDER) path snitch_cluster)
-SN_CFG	:= $(PICOBELLO_ROOT)/cfg/snitch_cluster.hjson
+SN_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
 SN_GENDIR = $(SN_ROOT)/target/snitch_cluster/generated
 SN_CLUSTER_GEN  = $(SN_ROOT)/util/clustergen.py
 
@@ -55,7 +55,7 @@ $(SN_GENDIR)/snitch_cluster_wrapper.sv: $(SN_CFG) $(SN_CLUSTER_GEN) | $(SN_GENDI
 	$(SN_CLUSTER_GEN) -c $< -o $(SN_GENDIR) --wrapper
 
 sn-hw-clean:
-	rm -rf $(PICOBELLO_GENDIR)/snitch_cluster_wrapper.sv
+	rm -rf $(PB_GENDIR)/snitch_cluster_wrapper.sv
 
 ###########
 # FlooNoC #
@@ -65,14 +65,14 @@ sn-hw-clean:
 
 FLOO_ROOT := $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
-FLOO_CFG := $(PICOBELLO_ROOT)/cfg/picobello_noc.yml
+FLOO_CFG := $(PB_ROOT)/cfg/picobello_noc.yml
 
-floo-hw-all: $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
-$(PICOBELLO_GENDIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PICOBELLO_GENDIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PICOBELLO_GENDIR)
+floo-hw-all: $(PB_GENDIR)/floo_picobello_noc.sv
+$(PB_GENDIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GENDIR)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GENDIR)
 
 floo-clean:
-	rm -rf $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
+	rm -rf $(PB_GENDIR)/floo_picobello_noc.sv
 
 #########################
 # General Phony targets #
@@ -81,7 +81,7 @@ floo-clean:
 PICOBELLO_HW_ALL += $(CHS_HW_ALL)
 PICOBELLO_HW_ALL += $(CHS_SIM_ALL)
 PICOBELLO_HW_ALL += $(SN_GENDIR)/snitch_cluster_wrapper.sv
-PICOBELLO_HW_ALL += $(PICOBELLO_GENDIR)/floo_picobello_noc.sv
+PICOBELLO_HW_ALL += $(PB_GENDIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
@@ -97,7 +97,7 @@ picobello-clean clean: sn-hw-clean floo-clean
 TB_DUT = tb_picobello_top
 CHS_BINARY ?= $(CHS_ROOT)/sw/tests/helloworld.spm.elf
 
-include $(PICOBELLO_ROOT)/target/sim/vsim/vsim.mk
+include $(PB_ROOT)/target/sim/vsim/vsim.mk
 
 ########
 # Misc #
