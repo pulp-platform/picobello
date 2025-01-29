@@ -48,6 +48,10 @@ package picobello_pkg;
     // Enable the external AXI master and slave interfaces
     ret.AxiExtNumMst = 1;
     ret.AxiExtNumSlv = 1;
+    ret.AxiExtNumRules = 1;
+    ret.AxiExtRegionIdx[0] = 0;
+    ret.AxiExtRegionStart[0] = 'h2000_0000;
+    ret.AxiExtRegionEnd[0] = 'h8000_0000;
     ret.AddrWidth = aw_bt'(AxiCfgN.AddrWidth);
     ret.AxiDataWidth = dw_bt'(AxiCfgN.DataWidth);
     ret.AxiUserWidth = dw_bt'(max(AxiCfgN.UserWidth, AxiCfgW.UserWidth));
