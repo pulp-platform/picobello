@@ -90,6 +90,12 @@ picobello-hw-all all: $(PICOBELLO_HW_ALL)
 picobello-clean clean: sn-hw-clean floo-clean
 	rm -rf $(BENDER_ROOT)
 
+############
+# Software #
+############
+
+include $(PB_ROOT)/sw/cheshire/sw.mk
+
 ##############
 # Simulation #
 ##############
@@ -134,6 +140,10 @@ help:
 	@echo -e "${Green}sn-hw-all            ${Black}Generate Snitch Cluster wrapper RTL."
 	@echo -e "${Green}sn-hw-clean          ${Black}Clean Snitch Cluster wrapper RTL."
 	@echo -e "${Green}chs-hw-all           ${Black}Generate Cheshire RTL."
+	@echo -e ""
+	@echo -e "Software:"
+	@echo -e "${Green}chs-sw-tests         ${Black}Compile Cheshire software tests."
+	@echo -e "${Green}chs-sw-tests-clean   ${Black}Clean Cheshire software tests."
 	@echo -e ""
 	@echo -e "Simulation targets:"
 	@echo -e "${Green}vsim-compile         ${Black}Compile with Questasim."

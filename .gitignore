@@ -14,10 +14,21 @@
 work
 target/sim/vsim/compile.tcl
 modelsim.ini
-transcript
 *.wlf
-logs
 .rtlbinary
 
+# Software build files
+*.bin
+*.dump
+*.memh
+*.elf
+*.gpt
+*.gpth
+*.o
+*.a
+*.dtb
+
 # log files
+transcript
+logs
 **/*.log
