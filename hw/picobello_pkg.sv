@@ -64,9 +64,7 @@ package picobello_pkg;
     ret.Usb = 1'b0;
     // TODO(fischeti): Check if we need/want an AXI to DRAM
     ret.LlcOutRegionStart = 'h8000_0000;
-    ret.LlcOutRegionEnd = 'hc000_0000;
-    ret.SlinkRegionStart = 'hc000_0000;
-    ret.SlinkRegionEnd = 'hffff_ffff;
+    ret.LlcOutRegionEnd = 48'h1_0000_0000;
     return ret;
   endfunction
 
