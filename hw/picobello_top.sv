@@ -170,7 +170,8 @@ module picobello_top
   // Mem tile //
   //////////////
 
-  localparam id_t MemTileId = Sam[L2Spm].idx;
+  // TODO(fischeti): Make this better parametrizable
+  localparam id_t MemTileId = Sam[L2Spm+1].idx;
 
   mem_tile i_mem_tile (
     .clk_i,

@@ -54,8 +54,10 @@ endpoints:
       - "wide_out"
   - name: "cheshire"
     addr_range:
-      base: 0x0000_0000
-      size: 0x2000_0000
+      - start: 0x0000_0000
+        end: 0x2000_0000
+      - start: 0x8000_0000
+        end: 0x2_0000_0000
     mgr_port_protocol:
       - "narrow_in"
     sbr_port_protocol:
@@ -63,8 +65,8 @@ endpoints:
       - "wide_out"
   - name: "l2_spm"
     addr_range:
-      - base: 0x3000_0000
-        size: 0x0010_0000
+      base: 0x3000_0000
+      size: 0x0010_0000
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"
