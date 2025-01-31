@@ -39,20 +39,19 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 
 .PHONY: sn-hw-clean sn-hw-all
 
-SN_ROOT := $(shell $(BENDER) path snitch_cluster)
-SN_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
-SN_GENDIR = $(SN_ROOT)/target/snitch_cluster/generated
-SN_CLUSTER_GEN  = $(SN_ROOT)/util/clustergen.py
+SNITCH_ROOT := $(shell $(BENDER) path snitch_cluster)
+SNITCH_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SNITCH_GENDIR = $(SNITCH_ROOT)/target/snitch_cluster/generated
+SNITCH_CLUSTER_GEN  = $(SNITCH_ROOT)/util/clustergen.py
 
-SNITCH_ROOT = $(SN_ROOT)
-include $(SN_ROOT)/target/common/common.mk
+include $(SNITCH_ROOT)/target/common/common.mk
 
-$(SN_GENDIR):
-	mkdir -p $(SN_GENDIR)
+$(SNITCH_GENDIR):
+	mkdir -p $(SNITCH_GENDIR)
 
-sn-hw-all: $(SN_GENDIR)/snitch_cluster_wrapper.sv
-$(SN_GENDIR)/snitch_cluster_wrapper.sv: $(SN_CFG) $(SN_CLUSTER_GEN) | $(SN_GENDIR)
-	$(SN_CLUSTER_GEN) -c $< -o $(SN_GENDIR) --wrapper
+sn-hw-all: $(SNITCH_GENDIR)/snitch_cluster_wrapper.sv
+$(SNITCH_GENDIR)/snitch_cluster_wrapper.sv: $(SN_CFG) $(SNITCH_CLUSTER_GEN) | $(SNITCH_GENDIR)
+	$(SNITCH_CLUSTER_GEN) -c $< -o $(SNITCH_GENDIR) --wrapper
 
 sn-hw-clean:
 	rm -rf $(PB_GENDIR)/snitch_cluster_wrapper.sv
@@ -80,7 +79,7 @@ floo-clean:
 
 PICOBELLO_HW_ALL += $(CHS_HW_ALL)
 PICOBELLO_HW_ALL += $(CHS_SIM_ALL)
-PICOBELLO_HW_ALL += $(SN_GENDIR)/snitch_cluster_wrapper.sv
+PICOBELLO_HW_ALL += $(SNITCH_GENDIR)/snitch_cluster_wrapper.sv
 PICOBELLO_HW_ALL += $(PB_GENDIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
@@ -94,14 +93,13 @@ picobello-clean clean: sn-hw-clean floo-clean
 # Software #
 ############
 
-include $(PB_ROOT)/sw/cheshire/sw.mk
+include $(PB_ROOT)/sw/sw.mk
 
 ##############
 # Simulation #
 ##############
 
 TB_DUT = tb_picobello_top
-CHS_BINARY ?= $(CHS_ROOT)/sw/tests/helloworld.spm.elf
 
 include $(PB_ROOT)/target/sim/vsim/vsim.mk
 

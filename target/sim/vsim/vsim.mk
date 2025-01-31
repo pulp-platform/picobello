@@ -25,8 +25,8 @@ VSIM_FLAGS_GUI = -voptargs=+acc
 ifdef CHS_BINARY
 	VSIM_FLAGS += +BINARY=$(CHS_BINARY)
 endif
-ifdef SN_BINARY
-	VSIM_FLAGS += +SN_BINARY=$(SN_BINARY)
+ifdef SNITCH_BINARY
+	VSIM_FLAGS += +SNITCH_BINARY=$(SNITCH_BINARY)
 endif
 
 .PHONY: vsim-compile vsim-clean vsim-run
