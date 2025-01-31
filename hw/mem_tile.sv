@@ -26,7 +26,8 @@ module mem_tile
 );
 
   localparam int unsigned MemSize = 1024 * 1024; // 1MB
-  localparam int unsigned MemNumWords = MemSize / (AxiCfgW.DataWidth / 8);
+  localparam int unsigned BytesPerWord = AxiCfgW.DataWidth / 8;
+  localparam int unsigned MemNumWords = MemSize / BytesPerWord;
 
   ////////////
   // Router //
@@ -167,7 +168,7 @@ module mem_tile
   // axi2mem converter //
   ///////////////////////
 
-  typedef logic [$clog2(MemNumWords)-1:0] mem_addr_t;
+  typedef logic [$clog2(MemSize)-1:0] mem_addr_t;
   typedef logic [AxiCfgW.DataWidth-1:0] mem_data_t;
   typedef logic [AxiCfgW.DataWidth/8-1:0] mem_be_t;
 
@@ -179,7 +180,7 @@ module mem_tile
   mem_data_t mem_rdata;
 
   axi_to_mem #(
-    .AddrWidth  ( $clog2(MemNumWords)   ),
+    .AddrWidth  ( $clog2(MemSize)       ),
     .DataWidth  ( AxiCfgJoin.DataWidth  ),
     .IdWidth    ( AxiCfgJoin.OutIdWidth ),
     .NumBanks   ( 1 ),
@@ -208,6 +209,10 @@ module mem_tile
   // SRAM macros //
   /////////////////
 
+  logic [$clog2(MemNumWords)-1:0] mem_addr_sram;
+
+  assign mem_addr_sram = mem_addr >> $clog2(BytesPerWord);
+
   tc_sram #(
     .NumWords  ( MemNumWords          ),
     .DataWidth ( AxiCfgJoin.DataWidth ),
@@ -217,7 +222,7 @@ module mem_tile
     .rst_ni,
     .req_i   ( mem_req   ),
     .we_i    ( mem_we    ),
-    .addr_i  ( mem_addr  ),
+    .addr_i  ( mem_addr_sram ),
     .wdata_i ( mem_wdata ),
     .be_i    ( mem_be    ),
     .rdata_o ( mem_rdata )
