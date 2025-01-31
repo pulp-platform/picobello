@@ -52,6 +52,10 @@ package picobello_pkg;
     ret.AxiExtRegionIdx[0] = 0;
     ret.AxiExtRegionStart[0] = 'h2000_0000;
     ret.AxiExtRegionEnd[0] = 'h8000_0000;
+    // TODO(fischeti): Currently, I don't see a reason to have a CIE region
+    // Which is why we just put the CIE region after the on-chip region for now
+    ret.Cva6ExtCieOnTop = 1;
+    ret.Cva6ExtCieLength = 'h2000_0000;
     ret.AddrWidth = aw_bt'(AxiCfgN.AddrWidth);
     ret.AxiDataWidth = dw_bt'(AxiCfgN.DataWidth);
     ret.AxiUserWidth = dw_bt'(max(AxiCfgN.UserWidth, AxiCfgW.UserWidth));
