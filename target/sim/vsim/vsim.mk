@@ -12,6 +12,7 @@ VLOG_ARGS = -work $(VSIM_WORK)
 VLOG_ARGS += -suppress vlog-2583
 VLOG_ARGS += -suppress vlog-13314
 VLOG_ARGS += -suppress vlog-13233
+VLOG_ARGS += -timescale 1ns/1ps
 
 VSIM_FLAGS = -work $(VSIM_WORK)
 VSIM_FLAGS += -suppress 3009
