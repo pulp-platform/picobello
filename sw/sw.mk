@@ -60,3 +60,12 @@ chs-sw-tests: $(PB_CHS_SW_TEST)
 chs-sw-tests-clean:
 	rm -f $(PB_CHS_SW_TEST_DUMP)
 	rm -f $(PB_CHS_SW_TEST_ELF)
+
+#########################
+# General Phony targets #
+#########################
+
+.PHONY: sw sw-tests sw-clean sw-tests-clean
+sw sw-tests: chs-sw-tests snitch-tests
+
+sw-clean sw-tests-clean: chs-sw-tests-clean clean-snitch-tests
