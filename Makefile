@@ -41,17 +41,18 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 
 SNITCH_ROOT := $(shell $(BENDER) path snitch_cluster)
 SNITCH_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
-SNITCH_GENDIR = $(SNITCH_ROOT)/target/snitch_cluster/generated
+GENERATED_DIR = $(SNITCH_ROOT)/target/snitch_cluster/generated
 SNITCH_CLUSTER_GEN  = $(SNITCH_ROOT)/util/clustergen.py
+SNITCH_CLUSTER_TPL = $(SNITCH_ROOT)/hw/snitch_cluster/src/snitch_cluster_wrapper.sv.tpl
 
 include $(SNITCH_ROOT)/target/common/common.mk
 
-$(SNITCH_GENDIR):
-	mkdir -p $(SNITCH_GENDIR)
+$(GENERATED_DIR):
+	mkdir -p $(GENERATED_DIR)
 
-sn-hw-all: $(SNITCH_GENDIR)/snitch_cluster_wrapper.sv
-$(SNITCH_GENDIR)/snitch_cluster_wrapper.sv: $(SN_CFG) $(SNITCH_CLUSTER_GEN) | $(SNITCH_GENDIR)
-	$(SNITCH_CLUSTER_GEN) -c $< -o $(SNITCH_GENDIR) --wrapper
+sn-hw-all: $(GENERATED_DIR)/snitch_cluster_wrapper.sv
+$(GENERATED_DIR)/snitch_cluster_wrapper.sv: $(SNITCH_CFG) | $(GENERATED_DIR)
+	$(SNITCH_CLUSTER_GEN) -c $(SNITCH_CFG) -o $(GENERATED_DIR) --template $(SNITCH_CLUSTER_TPL)
 
 sn-hw-clean:
 	rm -rf $(PB_GENDIR)/snitch_cluster_wrapper.sv
