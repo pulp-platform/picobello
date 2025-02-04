@@ -31,6 +31,8 @@ sources:
   - hw/picobello_top.sv
 
   - target: any(simulation, test)
+    include_dirs:
+      - target/sim/include
     files:
       - target/sim/src/fixture_picobello_top.sv
       - target/sim/src/tb_picobello_top.sv
