@@ -42,7 +42,7 @@ PB_LINK_MODE ?= spm
 
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
-CHS_SW_INCLUDES += -I$(TARGET_C_HDRS_DIR)
+CHS_SW_INCLUDES += -I$(SNRT_TARGET_C_HDRS_DIR)
 
 # TODO(fischeti): This does not work yet for some reason
 CHS_SW_GEN_HDRS += $(PB_ADDRMAP)
