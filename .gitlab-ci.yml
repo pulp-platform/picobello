@@ -30,6 +30,8 @@ collect-bender-sources:
 
 install-py-pkg:
   stage: init
+  needs:
+    - collect-bender-sources
   script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
