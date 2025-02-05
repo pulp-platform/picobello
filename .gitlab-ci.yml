@@ -24,13 +24,29 @@ collect-bender-sources:
     paths:
       - .bender/
 
-####################
-# Pull bender deps #
-####################
+##############################
+# Install python environment #
+##############################
+
+install-py-pkg:
+  stage: init
+  script:
+    - $PYTHON -m venv .venv
+    - source .venv/bin/activate
+    - make floo-install-floogen
+    - make sn-install-pkg
+  artifacts:
+    paths:
+      - .venv/
+
+########################
+# Build Software Tests #
+########################
 
 snrt-sw:
   stage: build
   script:
+    - source .venv/bin/activate
     - make snrt-tests
   artifacts:
     paths:
@@ -40,6 +56,7 @@ snrt-sw:
 chs-sw:
   stage: build
   script:
+    - source .venv/bin/activate
     - make chs-sw-tests
   artifacts:
     paths:
