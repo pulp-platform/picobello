@@ -248,7 +248,7 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: 73c5d103a9e119a47078071b9a1f80ba693610bc
+    revision: efadfff39f6edbbe80b3bc3c6f81ef086e591415
     version: null
     source:
       Git: https://github.com/pulp-platform/snitch_cluster.git
