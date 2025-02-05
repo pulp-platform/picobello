@@ -6,6 +6,8 @@
 
 PB_ROOT ?= $(shell pwd)
 
+PYTHON ?= python
+
 ############
 # Cheshire #
 ############
@@ -48,7 +50,7 @@ sn-hw-clean: sn-clean-wrapper
 
 .PHONY: sn-install-pkg
 sn-install-pkg:
-	pip install $(shell $(BENDER) path snitch_cluster)
+	$(PYTHON) -m pip install $(shell $(BENDER) path snitch_cluster)
 
 ###########
 # FlooNoC #
@@ -69,7 +71,7 @@ floo-clean:
 
 .PHONY: floo-install-floogen
 floo-install-floogen:
-	pip install $(shell $(BENDER) path floo_noc)
+	$(PYTHON) -m pip install $(shell $(BENDER) path floo_noc)
 
 #########################
 # General Phony targets #
