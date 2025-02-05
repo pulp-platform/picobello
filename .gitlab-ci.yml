@@ -51,6 +51,8 @@ snrt-sw:
   stage: build
   script:
     - source .venv/bin/activate
+    - which python
+    - python -m pip list
     - make snrt-tests
   artifacts:
     paths:
