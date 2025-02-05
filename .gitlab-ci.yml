@@ -1,0 +1,47 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+variables:
+  VSIM: questa-2023.4 vsim
+  BENDER: bender
+  PYTHON: /usr/local/anaconda3/bin/python
+
+stages:
+  - init
+  - build
+  - run
+
+####################
+# Pull bender deps #
+####################
+
+collect-bender-sources:
+  stage: init
+  script:
+    - $BENDER checkout
+  artifacts:
+    paths:
+      - .bender/
+
+####################
+# Pull bender deps #
+####################
+
+snrt-sw:
+  stage: build
+  script:
+    - make snrt-tests
+  artifacts:
+    paths:
+      - sw/snitch/tests/build/*.elf
+    expire_in: 1 day
+
+chs-sw:
+  stage: build
+  script:
+    - make chs-sw-tests
+  artifacts:
+    paths:
+      - sw/cheshire/tests/*.elf
+    expire_in: 1 day
