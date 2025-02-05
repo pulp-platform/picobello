@@ -5,13 +5,14 @@
 # Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 VSIM ?= vsim
-VSIM_DIR = $(PICOBELLO_ROOT)/target/sim/vsim
+VSIM_DIR = $(PB_ROOT)/target/sim/vsim
 VSIM_WORK = $(VSIM_DIR)/work
 
 VLOG_ARGS = -work $(VSIM_WORK)
 VLOG_ARGS += -suppress vlog-2583
 VLOG_ARGS += -suppress vlog-13314
 VLOG_ARGS += -suppress vlog-13233
+VLOG_ARGS += -timescale 1ns/1ps
 
 VSIM_FLAGS = -work $(VSIM_WORK)
 VSIM_FLAGS += -suppress 3009
@@ -25,8 +26,8 @@ VSIM_FLAGS_GUI = -voptargs=+acc
 ifdef CHS_BINARY
 	VSIM_FLAGS += +BINARY=$(CHS_BINARY)
 endif
-ifdef SN_BINARY
-	VSIM_FLAGS += +SN_BINARY=$(SN_BINARY)
+ifdef SNITCH_BINARY
+	VSIM_FLAGS += +SNITCH_BINARY=$(SNITCH_BINARY)
 endif
 
 .PHONY: vsim-compile vsim-clean vsim-run
@@ -36,7 +37,7 @@ vsim-clean:
 	rm -f $(VSIM_DIR)/transcript
 	rm -f $(VSIM_DIR)/compile.tcl
 
-vsim-compile: $(VSIM_DIR)/compile.tcl $(PICOBELLO_HW_ALL)
+vsim-compile: $(VSIM_DIR)/compile.tcl $(PB_HW_ALL)
 	$(VSIM) -c $(VSIM_FLAGS) -do "source $<; quit"
 
 $(VSIM_DIR)/compile.tcl:
@@ -44,7 +45,7 @@ $(VSIM_DIR)/compile.tcl:
 	echo 'vlog -work $(VSIM_WORK) "$(realpath $(CHS_ROOT))/target/sim/src/elfloader.cpp" -ccflags "-std=c++11"' >> $@
 
 vsim-run:
-	$(VSIM) $(VSIM_FLAGS) $(VSIM_FLAGS_GUI) $(TB_DUT)
+	$(VSIM) $(VSIM_FLAGS) $(VSIM_FLAGS_GUI) $(TB_DUT) -do "log -r /*"
 
 vsim-run-batch:
 	$(VSIM) -c $(VSIM_FLAGS) $(TB_DUT) -do "run -all; quit"

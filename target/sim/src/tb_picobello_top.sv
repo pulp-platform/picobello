@@ -6,6 +6,8 @@
 
 module tb_picobello_top;
 
+  `include "tb_picobello_tasks.svh"
+
   fixture_picobello_top fix();
 
   string       preload_elf;
@@ -21,11 +23,11 @@ module tb_picobello_top;
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
     if (!$value$plusargs("BOOTMODE=%d", boot_mode))     boot_mode     = 0;
-    if (!$value$plusargs("PRELMODE=%d", preload_mode))  preload_mode  = 1;
+    if (!$value$plusargs("PRELMODE=%d", preload_mode))  preload_mode  = 3;
     if (!$value$plusargs("BINARY=%s",   preload_elf))   preload_elf   = "";
     if (!$value$plusargs("IMAGE=%s",    boot_hex))      boot_hex      = "";
 
-    if ($value$plusargs("SN_BINARY=%s", snitch_elf)) begin
+    if ($value$plusargs("SNITCH_BINARY=%s", snitch_elf)) begin
       snitch_fn = $fopen(".rtlbinary", "w");
       $fwrite(snitch_fn, snitch_elf);
       snitch_preload = 1;
@@ -57,6 +59,12 @@ module tb_picobello_top;
         end 2: begin  // UART
           if (snitch_preload) $fatal(1, "Unsupported snitch binary preload mode %d (UART)!", preload_mode);
           fix.vip.uart_debug_elf_run_and_wait(preload_elf, exit_code);
+        end 3: begin // Fast Mode
+          fix.vip.jtag_init();
+          if (snitch_preload) fastmode_elf_preload(snitch_elf, snitch_entry);
+          // TODO(fischeti): Implement fast mode for Cheshire binary
+          fix.vip.jtag_elf_run(preload_elf);
+          fix.vip.jtag_wait_for_eoc(exit_code);
         end default: begin
           $fatal(1, "Unsupported preload mode %d (reserved)!", boot_mode);
         end

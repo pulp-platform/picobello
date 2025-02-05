@@ -6,8 +6,8 @@
 {
     nr_clusters: 4,
     cluster: {
-        cluster_base_addr: 536870912, // 0x2000_0000
-        cluster_base_offset: 262144, // 0x4_0000
+        cluster_base_addr: 0x2000_0000,
+        cluster_base_offset: 0x4_0000,
         cluster_base_hartid: 0,
         addr_width: 48,
         data_width: 64,
@@ -25,7 +25,7 @@
         wide_trans: 32,
         cluster_base_expose: true,
         alias_region_enable: true,
-        alias_region_base: 671088640, // 0x2800_0000
+        alias_region_base: 0x2800_0000,
         // TODO(fischeti): Check if we need Snitch VM support
         vm_support: false,
         // Timing parameters
@@ -70,20 +70,24 @@
             }
         ]
     },
-    dram: {
-        // 0x8000_0000
-        address: 2147483648,
-        // 0x8000_0000
-        length: 2147483648
-    },
-    peripherals: {
-        clint: {
-            // 0xffff_0000
-            address: 4294901760,
-            // 0x0000_1000
-            length: 4096
+    external_addr_regions: [
+        {
+            name: "l2spm",
+            address: 0x3000_0000,
+            length: 0x1000_0000
+            cacheable: true
         },
-    },
+        {
+            name: "dram",
+            address: 0x8000_0000,
+            length: 0x8000_0000
+        },
+        {
+            name: "clint",
+            address: 0xffff_0000,
+            length: 0x0000_1000
+        }
+    ]
     // Templates.
     compute_core_template: {
         isa: "rv32imafd",
