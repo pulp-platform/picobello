@@ -6,7 +6,7 @@
 
 BENDER ?= bender
 CHS_ROOT ?= $(shell $(BENDER) path cheshire)
-SNITCH_ROOT ?= $(shell $(BENDER) path snitch_cluster)
+SN_ROOT ?= $(shell $(BENDER) path snitch_cluster)
 
 PB_SW_DIR = $(PB_ROOT)/sw
 PB_CHS_SW_DIR = $(PB_SW_DIR)/cheshire
@@ -18,12 +18,12 @@ PB_INCDIR = $(PB_SW_DIR)/include
 ## Snitch Cluster ##
 ####################
 
-SNRT_TARGET_DIR = $(PB_SNITCH_SW_DIR)/runtime
-SNRT_SRCDIR 	  = $(SNRT_TARGET_DIR)
-TESTS_BUILDDIR  = $(PB_SNITCH_SW_DIR)/tests/build
-SNRT_INCDIRS    = $(PB_INCDIR)
+SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
+SNRT_SRCDIR 	      = $(SNRT_TARGET_DIR)
+SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
+SNRT_INCDIRS        = $(PB_INCDIR)
 
-include $(SNITCH_ROOT)/target/snitch_cluster/sw.mk
+include $(SN_ROOT)/target/snitch_cluster/sw.mk
 
 ######################
 ## Picobello Global ##
@@ -31,7 +31,7 @@ include $(SNITCH_ROOT)/target/snitch_cluster/sw.mk
 
 PB_ADDRMAP = $(PB_SW_DIR)/include/picobello_addrmap.h
 
-$(PB_ADDRMAP): $(TARGET_C_HDRS)
+$(PB_ADDRMAP): $(SNRT_TARGET_C_HDRS)
 
 ##############
 ## Cheshire ##
@@ -66,6 +66,6 @@ chs-sw-tests-clean:
 #########################
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests snitch-tests
+sw sw-tests: chs-sw-tests snrt-tests
 
-sw-clean sw-tests-clean: chs-sw-tests-clean clean-snitch-tests
+sw-clean sw-tests-clean: chs-sw-tests-clean clean-snrt-tests

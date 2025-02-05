@@ -17,10 +17,10 @@ BENDER = bender -d $(PB_ROOT)
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
 SIM_TARGS += -t simulation -t test -t idma_test
 
-PB_GENDIR = $(PB_ROOT)/.generated
+PB_GEN_DIR = $(PB_ROOT)/.generated
 
-$(PB_GENDIR):
-	mkdir -p $(PB_GENDIR)
+$(PB_GEN_DIR):
+	mkdir -p $(PB_GEN_DIR)
 
 ############
 # Cheshire #
@@ -39,23 +39,12 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 
 .PHONY: sn-hw-clean sn-hw-all
 
-SNITCH_ROOT := $(shell $(BENDER) path snitch_cluster)
-SNITCH_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
-GENERATED_DIR = $(SNITCH_ROOT)/target/snitch_cluster/generated
-SNITCH_CLUSTER_GEN  = $(SNITCH_ROOT)/util/clustergen.py
-SNITCH_CLUSTER_TPL = $(SNITCH_ROOT)/hw/snitch_cluster/src/snitch_cluster_wrapper.sv.tpl
+SN_ROOT := $(shell $(BENDER) path snitch_cluster)
+SN_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
-include $(SNITCH_ROOT)/target/common/common.mk
-
-$(GENERATED_DIR):
-	mkdir -p $(GENERATED_DIR)
-
-sn-hw-all: $(GENERATED_DIR)/snitch_cluster_wrapper.sv
-$(GENERATED_DIR)/snitch_cluster_wrapper.sv: $(SNITCH_CFG) | $(GENERATED_DIR)
-	$(SNITCH_CLUSTER_GEN) -c $(SNITCH_CFG) -o $(GENERATED_DIR) --template $(SNITCH_CLUSTER_TPL)
-
-sn-hw-clean:
-	rm -rf $(PB_GENDIR)/snitch_cluster_wrapper.sv
+include $(SN_ROOT)/target/common/rtl.mk
+sn-hw-all: sn-wrapper
+sn-hw-clean: sn-clean-wrapper
 
 ###########
 # FlooNoC #
@@ -67,27 +56,27 @@ FLOO_ROOT := $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
 FLOO_CFG := $(PB_ROOT)/cfg/picobello_noc.yml
 
-floo-hw-all: $(PB_GENDIR)/floo_picobello_noc.sv
-$(PB_GENDIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GENDIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GENDIR)
+floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc.sv
+$(PB_GEN_DIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR)
 
 floo-clean:
-	rm -rf $(PB_GENDIR)/floo_picobello_noc.sv
+	rm -rf $(PB_GEN_DIR)/floo_picobello_noc.sv
 
 #########################
 # General Phony targets #
 #########################
 
-PICOBELLO_HW_ALL += $(CHS_HW_ALL)
-PICOBELLO_HW_ALL += $(CHS_SIM_ALL)
-PICOBELLO_HW_ALL += $(SNITCH_GENDIR)/snitch_cluster_wrapper.sv
-PICOBELLO_HW_ALL += $(PB_GENDIR)/floo_picobello_noc.sv
+PB_HW_ALL += $(CHS_HW_ALL)
+PB_HW_ALL += $(CHS_SIM_ALL)
+PB_HW_ALL += $(SN_GEN_DIR)/snitch_cluster_wrapper.sv
+PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
 picobello-hw-all all: $(PICOBELLO_HW_ALL)
 
-picobello-clean clean: sn-hw-clean floo-clean
+picobello-clean clean: sn-clean-wrapper floo-clean
 	rm -rf $(BENDER_ROOT)
 
 ############
@@ -107,6 +96,8 @@ include $(PB_ROOT)/target/sim/vsim/vsim.mk
 ########
 # Misc #
 ########
+
+include $(SN_ROOT)/target/common/common.mk
 
 .PHONY dvt-flist:
 
@@ -145,8 +136,8 @@ help:
 	@echo -e "${Green}sw-clean             ${Black}Clean all software tests."
 	@echo -e "${Green}chs-sw-tests         ${Black}Compile Cheshire software tests."
 	@echo -e "${Green}chs-sw-tests-clean   ${Black}Clean Cheshire software tests."
-	@echo -e "${Green}snitch-tests         ${Black}Compile Snitch Cluster software tests."
-	@echo -e "${Green}snitch-clean-tests   ${Black}Clean Snitch Cluster software tests."
+	@echo -e "${Green}snrt-tests           ${Black}Compile Snitch runtime software tests."
+	@echo -e "${Green}snrt-clean-tests     ${Black}Clean Snitch runtime software tests."
 	@echo -e ""
 	@echo -e "Simulation targets:"
 	@echo -e "${Green}vsim-compile         ${Black}Compile with Questasim."
