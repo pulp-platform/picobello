@@ -22,6 +22,7 @@ SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
 SNRT_SRCDIR 	      = $(SNRT_TARGET_DIR)
 SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
 SNRT_INCDIRS        = $(PB_INCDIR)
+SNRT_BUILD_APPS    ?= OFF
 
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 
