@@ -37,8 +37,8 @@ install-py-pkg:
   script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
-    - make floo-install-floogen
-    - make sn-install-pkg
+    - $PYTHON -m pip install $(bender path floo_noc)
+    - $PYTHON -m pip install $(bender path snitch_cluster)
   artifacts:
     paths:
       - .venv/
