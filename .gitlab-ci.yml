@@ -10,7 +10,6 @@ variables:
   LLVM_BINROOT: /usr/pack/riscv-1.0-kgf/pulp-llvm-0.12.0/bin
 
 stages:
-  - init
   - build
   - run
 
@@ -25,6 +24,7 @@ stages:
     - source .venv/bin/activate
     - python -m pip install $(bender path floo_noc)
     - python -m pip install $(bender path snitch_cluster)
+    - python -m pip install -r $(bender path cheshire)/requirements.txt
   cache:
     key:
       files:
