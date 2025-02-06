@@ -18,8 +18,8 @@ stages:
     - $BENDER checkout
 
 .install-py-deps:
-  extends: .bender-checkout
   before_script:
+    - $BENDER checkout
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
     - python -m pip install $(bender path floo_noc)
