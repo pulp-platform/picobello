@@ -30,7 +30,7 @@ endif
 endef
 
 $(eval $(call add_vsim_flag,CHS_BINARY))
-$(eval $(call add_vsim_flag,SNITCH_BINARY))
+$(eval $(call add_vsim_flag,SN_BINARY))
 $(eval $(call add_vsim_flag,BOOTMODE))
 $(eval $(call add_vsim_flag,PRELMODE))
 

@@ -27,7 +27,7 @@ module tb_picobello_top;
     if (!$value$plusargs("CHS_BINARY=%s", preload_elf))   preload_elf   = "";
     if (!$value$plusargs("IMAGE=%s",      boot_hex))      boot_hex      = "";
 
-    if ($value$plusargs("SNITCH_BINARY=%s", snitch_elf)) begin
+    if ($value$plusargs("SN_BINARY=%s", snitch_elf)) begin
       snitch_fn = $fopen(".rtlbinary", "w");
       $fwrite(snitch_fn, snitch_elf);
       snitch_preload = 1;
