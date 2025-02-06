@@ -36,13 +36,6 @@ stages:
     paths:
       - .venv/
 
-install-py-deps:
-  stage: build
-  extends:
-    - .install-py-deps
-  cache:
-    policy: pull-push
-
 ########################
 # Build Software Tests #
 ########################
@@ -57,8 +50,6 @@ snrt-sw:
     paths:
       - sw/snitch/tests/build/*.elf
     expire_in: 1 day
-  cache:
-    policy: pull
 
 chs-sw:
   stage: build
@@ -70,9 +61,6 @@ chs-sw:
     paths:
       - sw/cheshire/tests/*.elf
     expire_in: 1 day
-  cache:
-    policy: pull
-
 
 #############
 # Build RTL #
@@ -86,8 +74,6 @@ build-rtl:
     - .install-py-deps
   script:
     - make picobello-hw-all
-  cache:
-    policy: pull
 
 #####################
 # Compile QuestaSim #
@@ -105,5 +91,3 @@ vsim-compile:
     paths:
       - target/sim/vsim/work
     expire_in: 1 day
-  cache:
-    policy: pull
