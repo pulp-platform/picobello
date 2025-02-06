@@ -95,6 +95,7 @@ vsim-compile:
   variables:
     CHS_BUILD_DIR: sw/cheshire/tests
     SN_BUILD_DIR: sw/snitch/tests/build
+    BENDER: bender --local
   parallel:
     matrix:
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 0 }
