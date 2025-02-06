@@ -14,25 +14,16 @@ stages:
   - build
   - run
 
-before_script:
-  - $BENDER checkout
+.bender-checkout:
+  before_script:
+    - $BENDER checkout
 
-##############################
-# Install python environment #
-##############################
-
-install-py-pkg:
-  stage: init
-  script:
+.install-py-deps:
+  before_script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
-    - which python
-    - which pip
     - python -m pip install $(bender path floo_noc)
     - python -m pip install $(bender path snitch_cluster)
-  artifacts:
-    paths:
-      - .venv/
   cache:
     key:
       files:
@@ -46,13 +37,10 @@ install-py-pkg:
 
 snrt-sw:
   stage: build
-  needs:
-    - install-py-pkg
+  extends:
+    - .bender-checkout
+    - .install-py-deps
   script:
-    - source .venv/bin/activate
-    - which python
-    - which pip
-    - python -m pip list
     - make snrt-tests
   artifacts:
     paths:
@@ -61,12 +49,10 @@ snrt-sw:
 
 chs-sw:
   stage: build
-  needs:
-    - install-py-pkg
+  extends:
+    - .bender-checkout
+    - .install-py-deps
   script:
-    - source .venv/bin/activate
-    - which python
-    - which pip
     - make chs-sw-tests
   artifacts:
     paths:
