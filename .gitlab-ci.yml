@@ -15,6 +15,12 @@ stages:
 .bender-checkout:
   before_script:
     - bender checkout
+  cache:
+    key:
+      files:
+        - Bender.lock
+    paths:
+      - .bender
 
 ###############################
 # Install Python dependencies #
@@ -22,7 +28,7 @@ stages:
 
 .install-py-deps:
   before_script:
-    - bender checkout
+    - !reference [.bender-checkout, before_script]
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
     - python -m pip install $(bender path floo_noc)
@@ -61,10 +67,10 @@ chs-sw:
 
 build-rtl:
   stage: build
-  variables:
-    FLOO_GEN_ARGS: --no-format
   extends:
     - .install-py-deps
+  variables:
+    FLOO_GEN_ARGS: --no-format
   script:
     - make picobello-hw-all
 
@@ -94,7 +100,6 @@ vsim-compile:
   variables:
     CHS_BUILD_DIR: sw/cheshire/tests
     SN_BUILD_DIR: sw/snitch/tests/build
-    BENDER: bender --local
   parallel:
     matrix:
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 0 }
