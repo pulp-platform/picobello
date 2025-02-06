@@ -14,23 +14,8 @@ stages:
   - build
   - run
 
-####################
-# Pull bender deps #
-####################
-
-collect-bender-sources:
-  stage: init
-  script:
-    - $BENDER checkout
-  artifacts:
-    paths:
-      - .bender/
-  cache:
-    key:
-      files:
-        - Bender.lock
-    paths:
-      - .bender/
+before_script:
+  - $BENDER checkout
 
 ##############################
 # Install python environment #
@@ -38,8 +23,6 @@ collect-bender-sources:
 
 install-py-pkg:
   stage: init
-  needs:
-    - collect-bender-sources
   script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
@@ -64,7 +47,6 @@ install-py-pkg:
 snrt-sw:
   stage: build
   needs:
-    - collect-bender-sources
     - install-py-pkg
   script:
     - source .venv/bin/activate
@@ -80,7 +62,6 @@ snrt-sw:
 chs-sw:
   stage: build
   needs:
-    - collect-bender-sources
     - install-py-pkg
   script:
     - source .venv/bin/activate
