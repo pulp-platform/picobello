@@ -22,10 +22,10 @@ module tb_picobello_top;
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
-    if (!$value$plusargs("BOOTMODE=%d", boot_mode))     boot_mode     = 0;
-    if (!$value$plusargs("PRELMODE=%d", preload_mode))  preload_mode  = 3;
-    if (!$value$plusargs("BINARY=%s",   preload_elf))   preload_elf   = "";
-    if (!$value$plusargs("IMAGE=%s",    boot_hex))      boot_hex      = "";
+    if (!$value$plusargs("BOOTMODE=%d",   boot_mode))     boot_mode     = 0;
+    if (!$value$plusargs("PRELMODE=%d",   preload_mode))  preload_mode  = 3;
+    if (!$value$plusargs("CHS_BINARY=%s", preload_elf))   preload_elf   = "";
+    if (!$value$plusargs("IMAGE=%s",      boot_hex))      boot_hex      = "";
 
     if ($value$plusargs("SNITCH_BINARY=%s", snitch_elf)) begin
       snitch_fn = $fopen(".rtlbinary", "w");

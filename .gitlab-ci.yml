@@ -70,7 +70,7 @@ build-rtl:
     - make picobello-hw-all
 
 #####################
-# Compile QuestaSim #
+# Build Simulations #
 #####################
 
 vsim-compile:
@@ -85,3 +85,33 @@ vsim-compile:
     paths:
       - target/sim/vsim/work
     expire_in: 1 day
+
+###################
+# Run simulations #
+###################
+
+.sw-tests:
+  stage: run
+  needs:
+    - chs-sw
+    - snrt-sw
+  variables:
+    CHS_BUILD_DIR: sw/cheshire/tests
+    SN_BUILD_DIR: sw/snitch/tests/build
+  parallel:
+    matrix:
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf }
+
+sim-vsim-tpl:
+  stage: run
+  extends: .sw-tests
+  needs:
+    - vsim-compile
+  script:
+    - make vsim-run-batch
+    - '(grep "\] SUCCESS" transcript)'
+    - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" transcript); fi'
+    - (! grep -n "Error:" transcript)
+    - (! grep -n "Fatal:" transcript)
+  artifacts:
+    paths: [ target/sim/vsim/transcript ]

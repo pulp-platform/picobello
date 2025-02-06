@@ -23,12 +23,16 @@ VSIM_FLAGS += -64
 
 VSIM_FLAGS_GUI = -voptargs=+acc
 
-ifdef CHS_BINARY
-	VSIM_FLAGS += +BINARY=$(CHS_BINARY)
+define add_vsim_flag
+ifdef $(1)
+	VSIM_FLAGS += +$(1)=$$($(1))
 endif
-ifdef SNITCH_BINARY
-	VSIM_FLAGS += +SNITCH_BINARY=$(SNITCH_BINARY)
-endif
+endef
+
+$(eval $(call add_vsim_flag,CHS_BINARY))
+$(eval $(call add_vsim_flag,SNITCH_BINARY))
+$(eval $(call add_vsim_flag,BOOTMODE))
+$(eval $(call add_vsim_flag,PRELMODE))
 
 .PHONY: vsim-compile vsim-clean vsim-run
 
