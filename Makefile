@@ -14,7 +14,7 @@ PYTHON ?= python
 
 # Use bender from the picobello root directory
 BENDER_ROOT ?= $(PB_ROOT)/.bender
-BENDER = bender -d $(PB_ROOT)
+BENDER ?= bender -d $(PB_ROOT)
 
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
 SIM_TARGS += -t simulation -t test -t idma_test
