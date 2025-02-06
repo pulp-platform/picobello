@@ -97,14 +97,14 @@ vsim-compile:
     SN_BUILD_DIR: sw/snitch/tests/build
   parallel:
     matrix:
-      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, BOOTMODE: 0 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, BOOTMODE: 1 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, BOOTMODE: 2 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 0 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 1 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 2 }
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity_fail.spm.elf, NZ_EXIT_CODE: 7}
       - { CHS_BINARY: $CHS_BUILD_DIR/helloworld.spm.elf, UART: "Hello World!" }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, BOOTMODE: 0 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, BOOTMODE: 1 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, BOOTMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 0 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 1 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 3 }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/non_null_exitcode.elf, NZ_EXIT_CODE: 126 }
 
 sim-vsim:
