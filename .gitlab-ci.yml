@@ -68,6 +68,8 @@ chs-sw:
 
 build-rtl:
   stage: build
+  variables:
+    FLOO_GEN_ARGS: --no-format
   extends:
     - .install-py-deps
   script:
@@ -81,6 +83,8 @@ vsim-compile:
   stage: build
   extends:
     - .install-py-deps
+  variables:
+    FLOO_GEN_ARGS: --no-format
   script:
     - make vsim-compile
   artifacts:

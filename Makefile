@@ -64,7 +64,7 @@ FLOO_CFG := $(PB_ROOT)/cfg/picobello_noc.yml
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc.sv
 $(PB_GEN_DIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) $(FLOO_GEN_ARGS)
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc.sv
