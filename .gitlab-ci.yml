@@ -29,12 +29,6 @@ stages:
     - python -m pip install $(bender path floo_noc)
     - python -m pip install $(bender path snitch_cluster)
     - python -m pip install -r $(bender path cheshire)/requirements.txt
-  cache:
-    key:
-      files:
-        - Bender.lock
-    paths:
-      - .venv/
 
 ########################
 # Build Software Tests #
