@@ -19,6 +19,7 @@ stages:
     - $BENDER checkout
 
 .install-py-deps:
+  extends: .bender-checkout
   before_script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
@@ -38,7 +39,6 @@ stages:
 snrt-sw:
   stage: build
   extends:
-    - .bender-checkout
     - .install-py-deps
   script:
     - make snrt-tests
@@ -50,7 +50,6 @@ snrt-sw:
 chs-sw:
   stage: build
   extends:
-    - .bender-checkout
     - .install-py-deps
   script:
     - make chs-sw-tests
