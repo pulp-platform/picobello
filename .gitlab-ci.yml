@@ -100,10 +100,12 @@ vsim-compile:
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, BOOTMODE: 0 }
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, BOOTMODE: 1 }
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, BOOTMODE: 2 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/sanity_fail.spm.elf }
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity_fail.spm.elf, NZ_EXIT_CODE: 7}
       - { CHS_BINARY: $CHS_BUILD_DIR/helloworld.spm.elf, UART: "Hello World!" }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/non_null_exitcode.elf }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, BOOTMODE: 0 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, BOOTMODE: 1 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, BOOTMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/non_null_exitcode.elf, NZ_EXIT_CODE: 126 }
 
 sim-vsim:
   stage: run
@@ -115,9 +117,16 @@ sim-vsim:
     - snrt-sw
     - vsim-compile
   script:
+    # Run the simulation
     - make vsim-run-batch
-    - 'grep "] SUCCESS" transcript || (exit 1)'
+    # Check either success or failure for non-zero exit codes
+    - 'if [ -z "${NZ_EXIT_CODE}" ]; then grep "] SUCCESS" transcript || (exit 1); else grep "] FAILED: return code ${NZ_EXIT_CODE}" transcript || (exit 1); fi'
+    # Check for UART output
     - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" transcript); fi'
+    # Check for any fatal errors
+    - 'if grep "Fatal:" transcript; then exit 1; fi'
+    # Check for any errors (except one for non-zero exit codes)
+    - 'if [ ! -z "${NZ_EXIT_CODE}" ]; then count=$(grep -c "Error:" transcript); if [ "$count" -ne 1 ]; then exit 1; fi; else if grep -q "Error:" transcript; then exit 1; fi; fi'
   artifacts:
     paths:
       - transcript
