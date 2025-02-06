@@ -24,7 +24,9 @@ SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
 SNRT_INCDIRS        = $(PB_INCDIR)
 SNRT_BUILD_APPS    ?= OFF
 
+ifeq ($(filter sw,$(MAKECMDGOALS)),sw)
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
+endif
 
 ######################
 ## Picobello Global ##
