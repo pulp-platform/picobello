@@ -110,10 +110,8 @@ sim-vsim:
     - vsim-compile
   script:
     - make vsim-run-batch
-    - echo $LOG_FILE
-    - echo ${LOG_FILE}
-    - 'grep "] SUCCESS" ${LOG_FILE} || (exit 1)'
-    - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" ${LOG_FILE}); fi'
+    - 'grep "] SUCCESS" transcript || (exit 1)'
+    - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" transcript); fi'
   artifacts:
     paths:
-      - $LOG_FILE
+      - transcript
