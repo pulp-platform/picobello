@@ -17,6 +17,10 @@ stages:
   before_script:
     - $BENDER checkout
 
+###############################
+# Install Python dependencies #
+###############################
+
 .install-py-deps:
   before_script:
     - $BENDER checkout
@@ -56,4 +60,30 @@ chs-sw:
   artifacts:
     paths:
       - sw/cheshire/tests/*.elf
+    expire_in: 1 day
+
+#############
+# Build RTL #
+#############
+
+build-rtl:
+  stage: build
+  extends:
+    - .install-py-deps
+  script:
+    - picobello-hw-all
+
+#####################
+# Compile QuestaSim #
+#####################
+
+vsim-compile:
+  stage: build
+  extends:
+    - .install-py-deps
+  script:
+    - make vsim-compile
+  artifacts:
+    paths:
+      - target/sim/vsim/work
     expire_in: 1 day
