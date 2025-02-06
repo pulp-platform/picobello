@@ -102,15 +102,18 @@ vsim-compile:
 sim-vsim:
   stage: run
   extends: .sw-tests
+  variables:
+    LOG_FILE: target/sim/vsim/transcript
   needs:
     - chs-sw
     - snrt-sw
     - vsim-compile
   script:
     - make vsim-run-batch
-    - '(grep "\] SUCCESS" transcript)'
-    - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" transcript); fi'
-    - (! grep -n "Error:" transcript)
-    - (! grep -n "Fatal:" transcript)
+    - '(grep "\] SUCCESS" $LOG_FILE)'
+    - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" $LOG_FILE); fi'
+    - (! grep -n "Error:" $LOG_FILE)
+    - (! grep -n "Fatal:" $LOG_FILE)
   artifacts:
-    paths: [ target/sim/vsim/transcript ]
+    paths:
+      - $LOG_FILE
