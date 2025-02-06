@@ -14,12 +14,22 @@ stages:
   - build
   - run
 
+.cache-bender-deps:
+  cache:
+    key:
+      files:
+        - Bender.lock
+    paths:
+      - .bender/
+      - .venv/
+
 ####################
 # Pull bender deps #
 ####################
 
 collect-bender-sources:
   stage: init
+  extends: .cache-bender-deps
   script:
     - $BENDER checkout
   artifacts:
@@ -34,6 +44,7 @@ install-py-pkg:
   stage: init
   needs:
     - collect-bender-sources
+  extends: .cache-bender-deps
   script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
@@ -41,10 +52,7 @@ install-py-pkg:
     - which pip
     - python -m pip install $(bender path floo_noc)
     - python -m pip install $(bender path snitch_cluster)
-  cache:
-    key:
-      files:
-        - Bender.lock
+  artifacts:
     paths:
       - .venv/
 
@@ -54,13 +62,9 @@ install-py-pkg:
 
 snrt-sw:
   stage: build
-  needs: ["install-py-pkg"]
-  cache:
-    key:
-      files:
-        - Bender.lock
-    paths:
-      - .venv/
+  needs:
+    - collect-bender-sources
+    - install-py-pkg
   script:
     - source .venv/bin/activate
     - which python
@@ -74,13 +78,9 @@ snrt-sw:
 
 chs-sw:
   stage: build
-  needs: ["install-py-pkg"]
-  cache:
-    key:
-      files:
-        - Bender.lock
-    paths:
-      - .venv/
+  needs:
+    - collect-bender-sources
+    - install-py-pkg
   script:
     - source .venv/bin/activate
     - which python
