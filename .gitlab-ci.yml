@@ -114,7 +114,9 @@ vsim-compile:
 
 sim-vsim:
   stage: run
-  extends: .sw-tests
+  extends:
+    - .bender-checkout
+    - .sw-tests
   variables:
     LOG_FILE: target/sim/vsim/transcript
   needs:
