@@ -73,7 +73,7 @@ build-rtl:
   extends:
     - .install-py-deps
   script:
-    - picobello-hw-all
+    - make picobello-hw-all
 
 #####################
 # Compile QuestaSim #
