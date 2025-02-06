@@ -37,8 +37,10 @@ install-py-pkg:
   script:
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
-    - pip install $(bender path floo_noc)
-    - pip install $(bender path snitch_cluster)
+    - which python
+    - which pip
+    - python -m pip install $(bender path floo_noc)
+    - python -m pip install $(bender path snitch_cluster)
   cache:
     key:
       files:
@@ -62,6 +64,7 @@ snrt-sw:
   script:
     - source .venv/bin/activate
     - which python
+    - which pip
     - python -m pip list
     - make snrt-tests
   artifacts:
@@ -80,6 +83,8 @@ chs-sw:
       - .venv/
   script:
     - source .venv/bin/activate
+    - which python
+    - which pip
     - make chs-sw-tests
   artifacts:
     paths:
