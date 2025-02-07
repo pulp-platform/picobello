@@ -67,19 +67,6 @@ chs-sw:
       - sw/cheshire/tests/*.elf
     expire_in: 1 day
 
-#############
-# Build RTL #
-#############
-
-build-rtl:
-  stage: build
-  extends:
-    - .install-py-deps
-  variables:
-    FLOO_GEN_ARGS: --no-format
-  script:
-    - make picobello-hw-all
-
 #####################
 # Build Simulations #
 #####################
