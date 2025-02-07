@@ -21,6 +21,23 @@ default:
       - .bender
     policy: pull
 
+##########################
+# Bender collect sources #
+##########################
+
+bender-collect-sources:
+  stage: build
+  script:
+    - bender checkout
+  cache:
+    key:
+      files:
+        - Bender.lock
+    paths:
+      - .bender
+    policy: pull-push
+
+
 ###############################
 # Install Python dependencies #
 ###############################
@@ -33,13 +50,6 @@ default:
     - python -m pip install $(bender path floo_noc)
     - python -m pip install $(bender path snitch_cluster)
     - python -m pip install -r $(bender path cheshire)/requirements.txt
-  cache:
-    key:
-      files:
-        - Bender.lock
-    paths:
-      - .bender
-    policy: pull-push
 
 ########################
 # Build Software Tests #
