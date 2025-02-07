@@ -29,7 +29,7 @@ $(PB_GEN_DIR):
 ############
 
 CLINTCORES ?= 5
-CHS_ROOT := $(shell $(BENDER) path cheshire)
+CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
 $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
@@ -41,8 +41,8 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 
 .PHONY: sn-hw-clean sn-hw-all
 
-SN_ROOT := $(shell $(BENDER) path snitch_cluster)
-SN_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SN_ROOT = $(shell $(BENDER) path snitch_cluster)
+SN_CFG	= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
@@ -58,9 +58,9 @@ sn-install-pkg:
 
 .PHONY: floo-hw-all floo-clean
 
-FLOO_ROOT := $(shell $(BENDER) path floo_noc)
+FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
-FLOO_CFG := $(PB_ROOT)/cfg/picobello_noc.yml
+FLOO_CFG = $(PB_ROOT)/cfg/picobello_noc.yml
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc.sv
 $(PB_GEN_DIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
