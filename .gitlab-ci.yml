@@ -12,15 +12,14 @@ stages:
   - build
   - run
 
-.bender-checkout:
-  before_script:
-    - bender checkout
+default:
   cache:
     key:
       files:
         - Bender.lock
     paths:
       - .bender
+    policy: pull
 
 ###############################
 # Install Python dependencies #
@@ -28,12 +27,19 @@ stages:
 
 .install-py-deps:
   before_script:
-    - !reference [.bender-checkout, before_script]
+    - bender checkout
     - $PYTHON -m venv .venv
     - source .venv/bin/activate
     - python -m pip install $(bender path floo_noc)
     - python -m pip install $(bender path snitch_cluster)
     - python -m pip install -r $(bender path cheshire)/requirements.txt
+  cache:
+    key:
+      files:
+        - Bender.lock
+    paths:
+      - .bender
+    policy: pull-push
 
 ########################
 # Build Software Tests #
@@ -115,7 +121,6 @@ vsim-compile:
 sim-vsim:
   stage: run
   extends:
-    - .bender-checkout
     - .sw-tests
   variables:
     LOG_FILE: target/sim/vsim/transcript
