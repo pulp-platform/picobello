@@ -6,13 +6,15 @@
 
 PB_ROOT ?= $(shell pwd)
 
+PYTHON ?= python
+
 ############
 # Cheshire #
 ############
 
 # Use bender from the picobello root directory
 BENDER_ROOT ?= $(PB_ROOT)/.bender
-BENDER = bender -d $(PB_ROOT)
+BENDER ?= bender -d $(PB_ROOT)
 
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
 SIM_TARGS += -t simulation -t test -t idma_test
@@ -27,7 +29,7 @@ $(PB_GEN_DIR):
 ############
 
 CLINTCORES ?= 5
-CHS_ROOT := $(shell $(BENDER) path cheshire)
+CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
 $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
@@ -39,12 +41,16 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
 
 .PHONY: sn-hw-clean sn-hw-all
 
-SN_ROOT := $(shell $(BENDER) path snitch_cluster)
-SN_CFG	:= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SN_ROOT = $(shell $(BENDER) path snitch_cluster)
+SN_CFG	= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
 sn-hw-clean: sn-clean-wrapper
+
+.PHONY: sn-install-pkg
+sn-install-pkg:
+	$(PYTHON) -m pip install $(shell $(BENDER) path snitch_cluster)
 
 ###########
 # FlooNoC #
@@ -52,16 +58,20 @@ sn-hw-clean: sn-clean-wrapper
 
 .PHONY: floo-hw-all floo-clean
 
-FLOO_ROOT := $(shell $(BENDER) path floo_noc)
+FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
-FLOO_CFG := $(PB_ROOT)/cfg/picobello_noc.yml
+FLOO_CFG = $(PB_ROOT)/cfg/picobello_noc.yml
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc.sv
 $(PB_GEN_DIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) $(FLOO_GEN_ARGS)
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc.sv
+
+.PHONY: floo-install-floogen
+floo-install-floogen:
+	$(PYTHON) -m pip install $(shell $(BENDER) path floo_noc)
 
 #########################
 # General Phony targets #

@@ -24,7 +24,9 @@ SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
 SNRT_INCDIRS        = $(PB_INCDIR)
 SNRT_BUILD_APPS    ?= OFF
 
+ifneq (,$(filter chs-sw% snrt% sw,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
+endif
 
 ######################
 ## Picobello Global ##
@@ -42,7 +44,7 @@ PB_LINK_MODE ?= spm
 
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
-CHS_SW_INCLUDES += -I$(TARGET_C_HDRS_DIR)
+CHS_SW_INCLUDES += -I$(SNRT_TARGET_C_HDRS_DIR)
 
 # TODO(fischeti): This does not work yet for some reason
 CHS_SW_GEN_HDRS += $(PB_ADDRMAP)

@@ -1,0 +1,141 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+variables:
+  VSIM: questa-2023.4 vsim
+  PYTHON: /usr/local/anaconda3/bin/python
+  CHS_SW_GCC_BINROOT: /usr/pack/riscv-1.0-kgf/riscv64-gcc-12.2.0/bin
+  LLVM_BINROOT: /usr/pack/riscv-1.0-kgf/pulp-llvm-0.12.0/bin
+
+stages:
+  - build
+  - run
+
+default:
+  cache:
+    key:
+      files:
+        - Bender.lock
+    paths:
+      - .bender
+    policy: pull
+
+##########################
+# Bender collect sources #
+##########################
+
+bender-collect-sources:
+  stage: build
+  script:
+    - bender checkout
+  cache:
+    key:
+      files:
+        - Bender.lock
+    paths:
+      - .bender
+    policy: pull-push
+
+
+###############################
+# Install Python dependencies #
+###############################
+
+.install-py-deps:
+  before_script:
+    - bender checkout
+    - $PYTHON -m venv .venv
+    - source .venv/bin/activate
+    - python -m pip install $(bender path floo_noc)
+    - python -m pip install $(bender path snitch_cluster)
+    - python -m pip install -r $(bender path cheshire)/requirements.txt
+
+########################
+# Build Software Tests #
+########################
+
+snrt-sw:
+  stage: build
+  extends:
+    - .install-py-deps
+  script:
+    - make snrt-tests
+  artifacts:
+    paths:
+      - sw/snitch/tests/build/*.elf
+    expire_in: 1 day
+
+chs-sw:
+  stage: build
+  extends:
+    - .install-py-deps
+  script:
+    - make chs-sw-tests
+  artifacts:
+    paths:
+      - sw/cheshire/tests/*.elf
+    expire_in: 1 day
+
+#####################
+# Build Simulations #
+#####################
+
+vsim-compile:
+  stage: build
+  extends:
+    - .install-py-deps
+  variables:
+    FLOO_GEN_ARGS: --no-format
+  script:
+    - make vsim-compile
+  artifacts:
+    paths:
+      - target/sim/vsim/work
+    expire_in: 1 day
+
+###################
+# Run simulations #
+###################
+
+.sw-tests:
+  stage: run
+  variables:
+    CHS_BUILD_DIR: sw/cheshire/tests
+    SN_BUILD_DIR: sw/snitch/tests/build
+  parallel:
+    matrix:
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 0 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 1 }
+      # - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 2 } # UART preloading takes over 1h, maybe enable later again
+      - { CHS_BINARY: $CHS_BUILD_DIR/sanity_fail.spm.elf, NZ_EXIT_CODE: 7}
+      - { CHS_BINARY: $CHS_BUILD_DIR/helloworld.spm.elf, USTR: "Hello World!" }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 0 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 1 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/non_null_exitcode.elf, NZ_EXIT_CODE: 224 }
+
+sim-vsim:
+  stage: run
+  extends:
+    - .sw-tests
+  variables:
+    LOG_FILE: target/sim/vsim/transcript
+  needs:
+    - chs-sw
+    - snrt-sw
+    - vsim-compile
+  script:
+    # Run the simulation
+    - make vsim-run-batch
+    # Check either success or failure for non-zero exit codes
+    - 'if [ -z "${NZ_EXIT_CODE}" ]; then grep "] SUCCESS" transcript || (exit 1); else grep "] FAILED: return code ${NZ_EXIT_CODE}" transcript || (exit 1); fi'
+    # Check for UART output
+    - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" transcript); fi'
+    # Check for any fatal errors
+    - 'if grep "Fatal:" transcript; then exit 1; fi'
+    # Check for any errors (except one for non-zero exit codes)
+    - 'if [ ! -z "${NZ_EXIT_CODE}" ]; then count=$(grep -c "Error:" transcript); if [ "$count" -ne 1 ]; then exit 1; fi; else if grep -q "Error:" transcript; then exit 1; fi; fi'
+  artifacts:
+    paths:
+      - transcript
