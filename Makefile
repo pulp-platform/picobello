@@ -73,6 +73,24 @@ floo-clean:
 floo-install-floogen:
 	$(PYTHON) -m pip install $(shell $(BENDER) path floo_noc)
 
+###################
+# Physical Design #
+###################
+
+PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
+PD_COMMIT ?= main
+PD_DIR = $(PB_ROOT)/pd
+
+.PHONY: init-pd clean-pd
+
+init-pd: $(PD_DIR)
+$(PD_DIR):
+	git clone $(PD_REMOTE) $(PD_DIR)
+	cd $(PD_DIR) && git checkout $(PD_COMMIT)
+
+clean-pd:
+	rm -rf $(PD_DIR)
+
 #########################
 # General Phony targets #
 #########################
