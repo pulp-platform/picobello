@@ -192,7 +192,7 @@ module picobello_top
 
   for (genvar x = 0; x < NumXMesh; x++) begin : gen_x
     for (genvar y = 0; y < NumYMesh; y++) begin : gen_y
-      for (genvar d = 0; d < NumDirections; d++) begin : gen_dir
+      for (genvar d = int'(North); d <= int'(West); d++) begin : gen_dir
         localparam route_direction_e Dir = route_direction_e'(d);
         if (is_tie_off(x, y, Dir)) begin : gen_tie_off
           assign floo_req_in[x][y][Dir] = '0;
