@@ -15,6 +15,10 @@ package picobello_pkg;
 
   typedef axi_narrow_in_addr_t addr_t;
 
+  ///////////////
+  //  FlooNoC  //
+  ///////////////
+
   // TODO: make this better parametrizable
   localparam int unsigned NumXMesh = 3;
   localparam int unsigned NumYMesh = 2;
@@ -41,6 +45,15 @@ package picobello_pkg;
   function automatic route_direction_e opposite_dir(route_direction_e dir);
     return (dir == West) ? East : (dir == East) ? West : (dir == South) ? North : South;
   endfunction
+
+  // Returns the address size of a FlooNoC endpoint
+  function automatic int unsigned ep_addr_size(ep_id_e ep);
+    return Sam[ep].end_addr - Sam[ep].start_addr;
+  endfunction
+
+  ////////////////
+  //  Cheshire  //
+  ////////////////
 
   // Define function to derive configuration from Cheshire defaults.
   function automatic cheshire_pkg::cheshire_cfg_t gen_cheshire_cfg();
@@ -73,5 +86,13 @@ package picobello_pkg;
   endfunction
 
   localparam cheshire_cfg_t CheshireCfg = gen_cheshire_cfg();
+
+  ////////////////
+  //  Mem Tile  //
+  ////////////////
+
+  // TODO(fischeti): Fix the index in FlooGen
+  // The L2 SPM memory size of every mem tile
+  localparam int unsigned MemTileSize = ep_addr_size(ep_id_e'(L2Spm+1));
 
 endpackage

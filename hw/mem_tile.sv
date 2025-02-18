@@ -10,7 +10,13 @@
 module mem_tile
   import floo_pkg::*;
   import floo_picobello_noc_pkg::*;
-(
+  import picobello_pkg::*;
+#(
+  // The maximum data width of the instantiated SRAMs
+  parameter int unsigned SramDataWidth = 256, // in bits
+  // The number of words in the instantiated SRAMs
+  parameter int unsigned SramNumWords = 512 // in #words
+) (
   input logic clk_i,
   input logic rst_ni,
   input logic test_enable_i,
@@ -25,20 +31,24 @@ module mem_tile
   input  floo_wide_t [West:North]   floo_wide_i
 );
 
-  // The total memory size in bytes
-  localparam int unsigned MemSize = 1024 * 1024; // 1MB
-  // The maximum word size of the SRAM
-  localparam int unsigned SramWordSize = 32; // in bytes
-  // The maximum number of words in the SRAM
-  localparam int unsigned SramNumWords = 512; // in #words
-  // The number of bytes per word
-  localparam int unsigned BytesPerWord = AxiCfgW.DataWidth / 8;
-  // The number of banks per word
-  localparam int unsigned NumBanksPerWord = BytesPerWord / SramWordSize;
-  // The size of a bank row in bytes
-  localparam int unsigned SizePerBankRow = NumBanksPerWord * SramWordSize * SramNumWords;
-  // The number of bank rows
-  localparam int unsigned NumBankRows = (MemSize / BytesPerWord) / SramNumWords;
+  // The number of banks required to store a wide word
+  localparam int unsigned NumBanksPerWord = AxiCfgW.DataWidth / SramDataWidth;
+  // The number of macros required to store the entire memory
+  localparam int unsigned NumBankRows = (MemTileSize / (AxiCfgW.DataWidth / 8)) / SramNumWords;
+
+  // The number of LSBs to address the bytes in an SRAM word
+  localparam int unsigned SramByteOffsetWidth   = $clog2(SramDataWidth / 8);
+  // The number of bits required to select the subbank for a wide word
+  localparam int unsigned SramBankSelWidth      = $clog2(NumBanksPerWord);
+  // The number of bits for the SRAM address
+  localparam int unsigned SramAddrWidth  = $clog2(SramNumWords);
+  // The number of bits to index the SRAM macro
+  localparam int unsigned SramMacroSelWidth = $clog2(NumBankRows);
+
+  // Various offsets for the SRAM address
+  localparam int unsigned SramBankSelOffset = SramByteOffsetWidth;
+  localparam int unsigned SramAddrWidthOffset = SramBankSelOffset + SramBankSelWidth;
+  localparam int unsigned SramMacroSelOffset = SramAddrWidthOffset + SramAddrWidth;
 
   ////////////
   // Router //
@@ -179,9 +189,9 @@ module mem_tile
   // axi2mem converter //
   ///////////////////////
 
-  typedef logic [$clog2(MemSize)-1:0] mem_addr_t;
-  typedef logic [AxiCfgW.DataWidth/NumBanksPerWord-1:0] mem_data_t;
-  typedef logic [AxiCfgW.DataWidth/NumBanksPerWord/8-1:0] mem_be_t;
+  typedef logic [$clog2(MemTileSize)-1:0] mem_addr_t;
+  typedef logic [SramDataWidth-1:0] mem_data_t;
+  typedef logic [SramDataWidth/8-1:0] mem_be_t;
 
   logic [NumBanksPerWord-1:0] mem_req, mem_req_q;
   logic [NumBanksPerWord-1:0] mem_we;
@@ -191,7 +201,7 @@ module mem_tile
   mem_data_t [NumBanksPerWord-1:0] mem_rdata;
 
   axi_to_mem #(
-    .AddrWidth  ( $clog2(MemSize)       ),
+    .AddrWidth  ( $clog2(MemTileSize)   ),
     .DataWidth  ( AxiCfgJoin.DataWidth  ),
     .IdWidth    ( AxiCfgJoin.OutIdWidth ),
     .NumBanks   ( NumBanksPerWord   ),
@@ -220,42 +230,40 @@ module mem_tile
   // SRAM macros //
   /////////////////
 
-  logic [NumBanksPerWord-1:0][$clog2(NumBankRows)-1:0] row_idx, row_idx_q;
-  logic [NumBanksPerWord-1:0][$clog2(SramNumWords)-1:0] col_idx;
+  logic [NumBanksPerWord-1:0][SramMacroSelWidth-1:0] sram_macro_sel, sram_macro_sel_q;
+  logic [NumBanksPerWord-1:0][SramAddrWidth-1:0] sram_addr;
   mem_data_t [NumBankRows-1:0][NumBanksPerWord-1:0] mem_rdata_split;
 
-  for (genvar j = 0; j < NumBanksPerWord; j++) begin : gen_sram_banks
+  for (genvar i = 0; i < NumBanksPerWord; i++) begin : gen_addresses
+    // Calculate the addresses
+    assign sram_addr[i] = mem_addr[i][SramAddrWidthOffset +: SramAddrWidth];
+    assign sram_macro_sel[i] = mem_addr[i][SramMacroSelOffset +: SramMacroSelWidth];
 
-    assign row_idx[j] = mem_addr[j][$clog2(SizePerBankRow)+:$clog2(NumBankRows)];
-    assign col_idx[j] = mem_addr[j][$clog2(BytesPerWord)+:$clog2(SramNumWords)];
+    // Register the macro selection to select the correct macro for the next cycle
+    `FFL(sram_macro_sel_q[i], sram_macro_sel[i], mem_req[i] & ~mem_we[i], '0)
 
-    assign mem_rdata[j] = mem_rdata_split[row_idx_q[j]][j];
+    // Return the read data from the previously selected macro
+    assign mem_rdata[i] = mem_rdata_split[sram_macro_sel_q[i]][i];
+  end
 
-    for (genvar i = 0; i < NumBankRows; i++) begin : gen_sram_rows
-
-      logic mem_split_req, mem_split_we;
-
-      assign mem_split_req = mem_req[j] && (row_idx == i);
-      assign mem_split_we = mem_we[j] && (row_idx == i);
-
+  for (genvar i = 0; i < NumBanksPerWord; i++) begin : gen_sram_banks
+    for (genvar j = 0; j < NumBankRows; j++) begin : gen_sram_macros
       tc_sram #(
-        .NumWords  ( SramNumWords   ),
-        .DataWidth ( SramWordSize*8 ),
+        .NumWords  ( SramNumWords  ),
+        .DataWidth ( SramDataWidth ),
         .NumPorts  ( 1 ),
         .Latency   ( 1 )
       ) i_mem (
         .clk_i,
         .rst_ni,
-        .req_i   ( mem_split_req ),
-        .we_i    ( mem_split_we  ),
-        .addr_i  ( col_idx[j]    ),
-        .wdata_i ( mem_wdata[j]  ),
-        .be_i    ( mem_be[j]     ),
-        .rdata_o ( mem_rdata_split[i][j] )
+        .req_i   ( mem_req[i] && (sram_macro_sel[i] == j) ),
+        .we_i    ( mem_we[i] && (sram_macro_sel[i] == j) ),
+        .addr_i  ( sram_addr[i]    ),
+        .wdata_i ( mem_wdata[i]  ),
+        .be_i    ( mem_be[i]     ),
+        .rdata_o ( mem_rdata_split[j][i] )
       );
     end
   end
-
-  `FF(row_idx_q, row_idx, '0)
 
 endmodule
