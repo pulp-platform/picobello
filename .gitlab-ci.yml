@@ -55,6 +55,8 @@ snrt-sw:
   script:
     - make python-venv
     - source .venv/bin/activate
+    - which python
+    - which python3
     - make snrt-tests
   artifacts:
     paths:
