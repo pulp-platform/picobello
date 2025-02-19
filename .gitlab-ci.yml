@@ -161,6 +161,8 @@ sim-vsim:
 
 init-pd:
   stage: init
+  extends:
+    - .cache-deps
   script: make init-pd
   artifacts:
     paths:
