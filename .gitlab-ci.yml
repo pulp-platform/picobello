@@ -28,31 +28,19 @@ stages:
 # Bender collect sources #
 ##########################
 
-bender-collect-sources:
+init-deps:
   stage: init
   script:
+    # Collect bender sourcess
     - bender checkout
-  cache:
-    key:
-      files:
-        - Bender.lock
-    paths:
-      - .bender
-    policy: pull-push
-
-#######################
-# Install Python venv #
-#######################
-
-install-python-venv:
-  stage: init
-  script:
+    # Install the python venv
     - make python-venv
   cache:
     key:
       files:
         - Bender.lock
     paths:
+      - .bender
       - .venv
     policy: pull-push
 
