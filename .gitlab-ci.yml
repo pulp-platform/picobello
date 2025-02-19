@@ -11,6 +11,7 @@ variables:
 stages:
   - build
   - run
+  - elaboration
 
 default:
   cache:
@@ -139,3 +140,21 @@ sim-vsim:
   artifacts:
     paths:
       - transcript
+
+###################
+# Physical Design #
+###################
+
+init-pd:
+  stage: elaboration
+  script: make init-pd
+
+subpipe:
+  stage: elaboration
+  needs:
+    - init-pd
+  trigger:
+    include:
+      - artifact: pd/ci.yml
+        job: init-pd
+    strategy: depend
