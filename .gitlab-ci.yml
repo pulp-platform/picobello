@@ -24,9 +24,9 @@ stages:
       - .venv
     policy: pull
 
-##########################
-# Bender collect sources #
-##########################
+##################
+# Initialization #
+##################
 
 init-deps:
   stage: init
