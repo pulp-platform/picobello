@@ -7,6 +7,9 @@
 # Dependency files
 .bender
 
+# Python virtual environment
+.venv
+
 # Generated source files
 .generated
 

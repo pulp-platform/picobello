@@ -104,7 +104,9 @@ PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
-picobello-hw-all all: $(PB_HW_ALL)
+picobello-hw-all all: .venv
+	source .venv/bin/activate && \
+	$(MAKE) $(PB_HW_ALL)
 
 picobello-clean clean: sn-clean-wrapper floo-clean
 	rm -rf $(BENDER_ROOT)
@@ -134,9 +136,10 @@ include $(SN_ROOT)/target/common/common.mk
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
 
-python-venv: Bender.lock
-	$(PYTHON) -m venv .venv
-	source .venv/bin/activate && \
+python-venv: .venv
+.venv:
+	$(PYTHON) -m venv $@
+	source $@/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install $(shell $(BENDER) path floo_noc) && \
 	python -m pip install $(shell $(BENDER) path snitch_cluster) && \
