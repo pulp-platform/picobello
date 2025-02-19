@@ -146,7 +146,6 @@ vsim-compile:
 # Physical Design #
 ###################
 
-
 init-pd:
   stage: build
   script: make init-pd
