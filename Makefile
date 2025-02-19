@@ -32,8 +32,9 @@ CLINTCORES ?= 5
 CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
-$(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
-	flock -x $@ sh -c 'cp $< $@'
+$(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
+$(OTPROOT)/.generated2: cfg/rv_plic.cfg.hjson
+	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 ##################
 # Snitch Cluster #
