@@ -129,10 +129,21 @@ include $(PB_ROOT)/target/sim/vsim/vsim.mk
 
 include $(SN_ROOT)/target/common/common.mk
 
-.PHONY dvt-flist:
+.PHONY: dvt-flist python-venv python-venv-clean
 
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
+
+python-venv: Bender.lock
+	$(PYTHON) -m venv .venv
+	source .venv/bin/activate && \
+	python -m pip install --upgrade pip && \
+	python -m pip install $(shell $(BENDER) path floo_noc) && \
+	python -m pip install $(shell $(BENDER) path snitch_cluster) && \
+	python -m pip install -r $(shell $(BENDER) path cheshire)/requirements.txt
+
+python-venv-clean:
+	rm -rf .venv
 
 #################
 # Documentation #
@@ -179,3 +190,5 @@ help:
 	@echo -e "${Green}traces               ${Black}Generate the better readable traces in .logs/trace_hart_<hart_id>.txt."
 	@echo -e "${Green}annotate             ${Black}Annotate the better readable traces in .logs/trace_hart_<hart_id>.s with the source code related with the retired instructions."
 	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."
+	@echo -e "${Green}python-venv          ${Black}Create a Python virtual environment and install the required packages."
+	@echo -e "${Green}python-venv-clean    ${Black}Remove the Python virtual environment."
