@@ -91,6 +91,8 @@ $(PD_DIR):
 clean-pd:
 	rm -rf $(PD_DIR)
 
+-include $(PD_DIR)/pd.mk
+
 #########################
 # General Phony targets #
 #########################
