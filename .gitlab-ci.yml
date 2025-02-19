@@ -132,6 +132,7 @@ vsim-compile:
 sim-vsim:
   stage: run
   extends:
+    - .cache-deps
     - .sw-tests
   variables:
     LOG_FILE: target/sim/vsim/transcript
