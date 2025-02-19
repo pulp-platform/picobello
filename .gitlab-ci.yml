@@ -9,6 +9,7 @@ variables:
   LLVM_BINROOT: /usr/pack/riscv-1.0-kgf/pulp-llvm-0.12.0/bin
 
 stages:
+  - init
   - build
   - run
   - elaboration
@@ -27,7 +28,7 @@ default:
 ##########################
 
 bender-collect-sources:
-  stage: build
+  stage: init
   script:
     - bender checkout
   cache:
@@ -146,11 +147,11 @@ sim-vsim:
 ###################
 
 init-pd:
-  stage: elaboration
+  stage: build
   script: make init-pd
 
 subpipe:
-  stage: elaboration
+  stage: build
   needs:
     - init-pd
   trigger:
