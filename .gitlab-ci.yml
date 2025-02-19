@@ -160,14 +160,14 @@ sim-vsim:
 ###################
 
 init-pd:
-  stage: build
+  stage: init
   script: make init-pd
   artifacts:
     paths:
       - pd/ci.yml
 
 subpipe:
-  stage: build
+  stage: init
   needs:
     - init-pd
   trigger:
