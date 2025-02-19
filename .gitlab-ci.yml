@@ -12,7 +12,6 @@ stages:
   - init
   - build
   - run
-  - elaboration
 
 .cache-deps:
   cache:
@@ -167,7 +166,6 @@ init-pd:
       - pd/ci.yml
 
 subpipe:
-  stage: init
   needs:
     - init-pd
   trigger:
