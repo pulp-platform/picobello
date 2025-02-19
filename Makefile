@@ -104,7 +104,7 @@ PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
-picobello-hw-all all: $(PICOBELLO_HW_ALL)
+picobello-hw-all all: $(PB_HW_ALL)
 
 picobello-clean clean: sn-clean-wrapper floo-clean
 	rm -rf $(BENDER_ROOT)
