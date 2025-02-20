@@ -12,11 +12,12 @@ import "DPI-C" context function byte read_section(input longint address, inout b
 // Write a 32-bit word into an `tc_sram` at a given address
 task automatic fastmode_write_word(input longint addr, input logic [31:0] data);
   import floo_picobello_noc_pkg::*;
-  // TODO(fischeti): Make this better parametrizable
+  // TODO(fischeti): Implement this again
   if (addr >= Sam[L2Spm+1].start_addr && addr < Sam[L2Spm+1].end_addr) begin
-    automatic int word_offset = (addr - Sam[L2Spm+1].start_addr) / (AxiCfgW.DataWidth / 8);
-    automatic int byte_offset = (addr - Sam[L2Spm+1].start_addr) % (AxiCfgW.DataWidth / 8);
-    fix.dut.i_mem_tile.i_mem.sram[word_offset][byte_offset*8 +: 32] = data;
+    // automatic int word_offset = (addr - Sam[L2Spm+1].start_addr) / (AxiCfgW.DataWidth / 8);
+    // automatic int byte_offset = (addr - Sam[L2Spm+1].start_addr) % (AxiCfgW.DataWidth / 8);
+    // fix.dut.i_mem_tile.i_mem.sram[word_offset][byte_offset*8 +: 32] = data;
+    $fatal(1, "[FAST_PRELOAD] L2 SPM memory region not supported yet/anymore");
   end else if (addr >= Sam[Cheshire+1].start_addr && addr < Sam[Cheshire+1].end_addr) begin
     // TODO(fischeti): Implement Cheshire SPM fast preload
     $fatal(1, "[FAST_PRELOAD] Cheshire memory region not supported yet");

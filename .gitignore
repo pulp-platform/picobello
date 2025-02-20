@@ -7,8 +7,14 @@
 # Dependency files
 .bender
 
+# Python virtual environment
+.venv
+
 # Generated source files
 .generated
+
+# Physical design repository
+pd
 
 # Software
 *build

@@ -32,8 +32,13 @@ CLINTCORES ?= 5
 CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
-$(CHS_ROOT)/hw/rv_plic.cfg.hjson: cfg/rv_plic.cfg.hjson
-	flock -x $@ sh -c 'cp $< $@'
+$(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
+$(OTPROOT)/.generated2: cfg/rv_plic.cfg.hjson
+	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
+
+$(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
+$(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
+	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 ##################
 # Snitch Cluster #
@@ -73,6 +78,26 @@ floo-clean:
 floo-install-floogen:
 	$(PYTHON) -m pip install $(shell $(BENDER) path floo_noc)
 
+###################
+# Physical Design #
+###################
+
+PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
+PD_COMMIT ?= cd9f7dd2be136b02a620a99126c3e0c2c659e98f
+PD_DIR = $(PB_ROOT)/pd
+
+.PHONY: init-pd clean-pd
+
+init-pd: $(PD_DIR)
+$(PD_DIR):
+	git clone $(PD_REMOTE) $(PD_DIR)
+	cd $(PD_DIR) && git checkout $(PD_COMMIT)
+
+clean-pd:
+	rm -rf $(PD_DIR)
+
+-include $(PD_DIR)/pd.mk
+
 #########################
 # General Phony targets #
 #########################
@@ -84,7 +109,9 @@ PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
-picobello-hw-all all: $(PICOBELLO_HW_ALL)
+picobello-hw-all all: .venv
+	source .venv/bin/activate && \
+	$(MAKE) $(PB_HW_ALL)
 
 picobello-clean clean: sn-clean-wrapper floo-clean
 	rm -rf $(BENDER_ROOT)
@@ -109,10 +136,22 @@ include $(PB_ROOT)/target/sim/vsim/vsim.mk
 
 include $(SN_ROOT)/target/common/common.mk
 
-.PHONY dvt-flist:
+.PHONY: dvt-flist python-venv python-venv-clean
 
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
+
+python-venv: .venv
+.venv:
+	$(PYTHON) -m venv $@
+	source $@/bin/activate && \
+	python -m pip install --upgrade pip && \
+	python -m pip install $(shell $(BENDER) path floo_noc) && \
+	python -m pip install $(shell $(BENDER) path snitch_cluster) && \
+	python -m pip install -r $(shell $(BENDER) path cheshire)/requirements.txt
+
+python-venv-clean:
+	rm -rf .venv
 
 #################
 # Documentation #
@@ -159,3 +198,5 @@ help:
 	@echo -e "${Green}traces               ${Black}Generate the better readable traces in .logs/trace_hart_<hart_id>.txt."
 	@echo -e "${Green}annotate             ${Black}Annotate the better readable traces in .logs/trace_hart_<hart_id>.s with the source code related with the retired instructions."
 	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."
+	@echo -e "${Green}python-venv          ${Black}Create a Python virtual environment and install the required packages."
+	@echo -e "${Green}python-venv-clean    ${Black}Remove the Python virtual environment."

@@ -9,47 +9,39 @@ variables:
   LLVM_BINROOT: /usr/pack/riscv-1.0-kgf/pulp-llvm-0.12.0/bin
 
 stages:
+  - init
   - build
   - run
 
-default:
+.cache-deps:
   cache:
     key:
       files:
         - Bender.lock
     paths:
       - .bender
+      - .venv
     policy: pull
 
-##########################
-# Bender collect sources #
-##########################
+##################
+# Initialization #
+##################
 
-bender-collect-sources:
-  stage: build
+init-deps:
+  stage: init
   script:
+    # Collect bender sourcess
     - bender checkout
+    # Install the python venv
+    - make python-venv
   cache:
     key:
       files:
         - Bender.lock
     paths:
       - .bender
+      - .venv
     policy: pull-push
-
-
-###############################
-# Install Python dependencies #
-###############################
-
-.install-py-deps:
-  before_script:
-    - bender checkout
-    - $PYTHON -m venv .venv
-    - source .venv/bin/activate
-    - python -m pip install $(bender path floo_noc)
-    - python -m pip install $(bender path snitch_cluster)
-    - python -m pip install -r $(bender path cheshire)/requirements.txt
 
 ########################
 # Build Software Tests #
@@ -58,8 +50,10 @@ bender-collect-sources:
 snrt-sw:
   stage: build
   extends:
-    - .install-py-deps
+    - .cache-deps
   script:
+    - make python-venv
+    - source .venv/bin/activate
     - make snrt-tests
   artifacts:
     paths:
@@ -69,12 +63,32 @@ snrt-sw:
 chs-sw:
   stage: build
   extends:
-    - .install-py-deps
+    - .cache-deps
   script:
+    - make python-venv
+    - source .venv/bin/activate
     - make chs-sw-tests
   artifacts:
     paths:
       - sw/cheshire/tests/*.elf
+    expire_in: 1 day
+
+########################
+# Generate RTL Sources #
+########################
+
+generate-rtl:
+  stage: build
+  extends:
+    - .cache-deps
+  script:
+    - make python-venv
+    - source .venv/bin/activate
+    - make picobello-hw-all
+  artifacts:
+    paths:
+      - .bender
+      - .generated
     expire_in: 1 day
 
 #####################
@@ -83,12 +97,13 @@ chs-sw:
 
 vsim-compile:
   stage: build
-  extends:
-    - .install-py-deps
+  needs:
+    - generate-rtl
   variables:
     FLOO_GEN_ARGS: --no-format
   script:
-    - make vsim-compile
+    - make vsim-compile | tee compile.log 2>&1
+    - '! grep "\*\* Error" compile.log'
   artifacts:
     paths:
       - target/sim/vsim/work
@@ -112,12 +127,13 @@ vsim-compile:
       - { CHS_BINARY: $CHS_BUILD_DIR/helloworld.spm.elf, USTR: "Hello World!" }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 0 }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 1 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 3 }
+      # - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 3 }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/non_null_exitcode.elf, NZ_EXIT_CODE: 224 }
 
 sim-vsim:
   stage: run
   extends:
+    - .cache-deps
     - .sw-tests
   variables:
     LOG_FILE: target/sim/vsim/transcript
@@ -139,3 +155,26 @@ sim-vsim:
   artifacts:
     paths:
       - transcript
+
+###################
+# Physical Design #
+###################
+
+init-pd:
+  stage: init
+  extends:
+    - .cache-deps
+  script: make init-pd
+  artifacts:
+    paths:
+      - pd/ci.yml
+
+subpipe:
+  stage: build
+  needs:
+    - init-pd
+  trigger:
+    include:
+      - artifact: pd/ci.yml
+        job: init-pd
+    strategy: depend
