@@ -83,7 +83,7 @@ floo-install-floogen:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= main
+PD_COMMIT ?= cd9f7dd2be136b02a620a99126c3e0c2c659e98f
 PD_DIR = $(PB_ROOT)/pd
 
 .PHONY: init-pd clean-pd
