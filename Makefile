@@ -36,6 +36,10 @@ $(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
 $(OTPROOT)/.generated2: cfg/rv_plic.cfg.hjson
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
+$(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
+$(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
+	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
+
 ##################
 # Snitch Cluster #
 ##################
