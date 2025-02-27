@@ -56,8 +56,10 @@ endpoints:
     addr_range:
       - start: 0x0000_0000
         end: 0x2000_0000
+        desc: "internal"
       - start: 0x8000_0000
         end: 0x2_0000_0000
+        desc: "external"
     mgr_port_protocol:
       - "narrow_in"
     sbr_port_protocol:
