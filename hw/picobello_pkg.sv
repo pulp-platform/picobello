@@ -19,16 +19,23 @@ package picobello_pkg;
   //  FlooNoC  //
   ///////////////
 
-  // TODO: make this better parametrizable
-  localparam int unsigned NumXMesh = 3;
-  localparam int unsigned NumYMesh = 2;
+  function automatic id_t get_mesh_dim();
+    id_t id_max = id_t'('0);
+    for (int i = 0; i < SamNumRules; i++) begin
+      id_max.x = x_bits_t'(max(id_max.x, Sam[i].idx.x));
+      id_max.y = y_bits_t'(max(id_max.y, Sam[i].idx.y));
+    end
+    return id_max;
+  endfunction
+
+  localparam id_t MeshDim = get_mesh_dim();
+  localparam int unsigned NumTiles = MeshDim.x * MeshDim.y;
   localparam int unsigned NumClusters = Cheshire - ClusterX0Y0;
-  localparam int unsigned NumTiles = NumXMesh * NumYMesh;
 
   // Whether the connection is a tie-off or a valid neighbor
   function automatic bit is_tie_off(int x, int y, route_direction_e dir);
-    return (x == 0 && dir == West) || (x == NumXMesh-1 && dir == East) ||
-           (y == 0 && dir == South) || (y == NumYMesh-1 && dir == North);
+    return (x == 0 && dir == West) || (x == MeshDim.x-1 && dir == East) ||
+           (y == 0 && dir == South) || (y == MeshDim.y-1 && dir == North);
   endfunction
 
   // Returns the X-coordinate of the neighbor in the given direction
@@ -47,7 +54,7 @@ package picobello_pkg;
   endfunction
 
   // Returns the address size of a FlooNoC endpoint
-  function automatic int unsigned ep_addr_size(ep_id_e ep);
+  function automatic int unsigned ep_addr_size(sam_idx_e ep);
     return Sam[ep].end_addr - Sam[ep].start_addr;
   endfunction
 
@@ -91,8 +98,7 @@ package picobello_pkg;
   //  Mem Tile  //
   ////////////////
 
-  // TODO(fischeti): Fix the index in FlooGen
   // The L2 SPM memory size of every mem tile
-  localparam int unsigned MemTileSize = ep_addr_size(ep_id_e'(L2Spm+1));
+  localparam int unsigned MemTileSize = ep_addr_size(L2SpmSamIdx);
 
 endpackage

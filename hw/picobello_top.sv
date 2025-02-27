@@ -59,12 +59,9 @@ module picobello_top
   output logic [SlinkNumChan-1:0][SlinkNumLanes-1:0]  slink_o
 );
 
-  localparam int unsigned NumClusters = Cheshire - ClusterX0Y0;
-
-  floo_req_t [NumXMesh-1:0][NumYMesh-1:0][West:North] floo_req_in, floo_req_out;
-  floo_rsp_t [NumXMesh-1:0][NumYMesh-1:0][West:North] floo_rsp_in, floo_rsp_out;
-  floo_wide_t [NumXMesh-1:0][NumYMesh-1:0][West:North] floo_wide_in, floo_wide_out;
-
+  floo_req_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_req_in, floo_req_out;
+  floo_rsp_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_rsp_in, floo_rsp_out;
+  floo_wide_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_wide_in, floo_wide_out;
 
   //////////////////
   // SPARTA tiles //
@@ -78,11 +75,14 @@ module picobello_top
   assign mtip = '0;
   assign msip = '0;
 
-  for (genvar c = int'(ClusterX0Y0); c < ClusterX0Y0 + NumClusters; c++) begin : gen_clusters
+  for (genvar c = 0; c < NumClusters; c++) begin : gen_clusters
 
-    localparam int X = int'(Sam[c].idx.x);
-    localparam int Y = int'(Sam[c].idx.y);
-    localparam int unsigned HartBaseId = (c - ClusterX0Y0) * NrCores;
+    localparam int ClusterSamIdx = c + ClusterX0Y0SamIdx;
+    localparam id_t ClusterId = Sam[ClusterSamIdx].idx;
+    localparam int X = int'(ClusterId.x);
+    localparam int Y = int'(ClusterId.y);
+    localparam int unsigned HartBaseId = c * NrCores;
+    localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
 
     sparta_tile i_sparta_tile (
       .clk_i,
@@ -93,8 +93,8 @@ module picobello_top
       .mtip_i               ( mtip[c]             ),
       .msip_i               ( msip[c]             ),
       .hart_base_id_i       ( HartBaseId[9:0]     ),
-      .cluster_base_addr_i  ( Sam[c].start_addr   ),
-      .id_i                 ( Sam[c].idx          ),
+      .cluster_base_addr_i  ( ClusterBaseAddr     ),
+      .id_i                 ( ClusterId           ),
       .floo_req_o           ( floo_req_out[X][Y]  ),
       .floo_rsp_i           ( floo_rsp_in[X][Y]   ),
       .floo_wide_o          ( floo_wide_out[X][Y] ),
@@ -113,7 +113,7 @@ module picobello_top
   logic [iomsb(CheshireCfg.NumExtIrqHarts):0]             mtip_ext;
   logic [iomsb(CheshireCfg.NumExtIrqHarts):0]             msip_ext;
 
-  localparam id_t CheshireId = Sam[Cheshire].idx;
+  localparam id_t CheshireId = Sam[CheshireInternalSamIdx].idx;
 
   cheshire_tile i_cheshire_tile (
     .clk_i,
@@ -166,12 +166,12 @@ module picobello_top
     .floo_rsp_o     (floo_rsp_out[CheshireId.x][CheshireId.y]),
     .floo_wide_i    (floo_wide_in[CheshireId.x][CheshireId.y])
   );
+
   //////////////
   // Mem tile //
   //////////////
 
-  // TODO(fischeti): Make this better parametrizable
-  localparam id_t MemTileId = Sam[L2Spm+1].idx;
+  localparam id_t MemTileId = Sam[L2SpmSamIdx].idx;
 
   mem_tile i_mem_tile (
     .clk_i,
@@ -190,8 +190,8 @@ module picobello_top
   // NoC Connections //
   /////////////////////
 
-  for (genvar x = 0; x < NumXMesh; x++) begin : gen_x
-    for (genvar y = 0; y < NumYMesh; y++) begin : gen_y
+  for (genvar x = 0; x < MeshDim.x; x++) begin : gen_x
+    for (genvar y = 0; y < MeshDim.y; y++) begin : gen_y
       for (genvar d = int'(North); d <= int'(West); d++) begin : gen_dir
         localparam route_direction_e Dir = route_direction_e'(d);
         if (is_tie_off(x, y, Dir)) begin : gen_tie_off
