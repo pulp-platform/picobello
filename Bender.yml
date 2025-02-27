@@ -24,7 +24,7 @@ sources:
   # Level 1
   - hw/picobello_pkg.sv
   # Level 2
-  - hw/sparta_tile.sv
+  - hw/cluster_tile.sv
   - hw/cheshire_tile.sv
   - hw/mem_tile.sv
   # Level 3

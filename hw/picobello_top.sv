@@ -63,9 +63,9 @@ module picobello_top
   floo_rsp_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_rsp_in, floo_rsp_out;
   floo_wide_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_wide_in, floo_wide_out;
 
-  //////////////////
-  // SPARTA tiles //
-  //////////////////
+  ///////////////////
+  // Cluster tiles //
+  ///////////////////
 
   logic [NumClusters-1:0][NrCores-1:0] debug_req, meip, mtip, msip;
 
@@ -84,7 +84,7 @@ module picobello_top
     localparam int unsigned HartBaseId = c * NrCores;
     localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
 
-    sparta_tile i_sparta_tile (
+    cluster_tile i_cluster_tile (
       .clk_i,
       .rst_ni,
       .test_enable_i        ( test_mode_i         ),

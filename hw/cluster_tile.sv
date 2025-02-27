@@ -6,7 +6,7 @@
 
 `include "axi/assign.svh"
 
-module sparta_tile
+module cluster_tile
   import floo_pkg::*;
   import floo_picobello_noc_pkg::*;
   import picobello_pkg::*;
