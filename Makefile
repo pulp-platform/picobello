@@ -67,12 +67,12 @@ FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
 FLOO_CFG = $(PB_ROOT)/cfg/picobello_noc.yml
 
-floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc.sv
-$(PB_GEN_DIR)/floo_picobello_noc.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) $(FLOO_GEN_ARGS)
+floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
+$(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg
 
 floo-clean:
-	rm -rf $(PB_GEN_DIR)/floo_picobello_noc.sv
+	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 
 .PHONY: floo-install-floogen
 floo-install-floogen:
@@ -105,7 +105,7 @@ clean-pd:
 PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(SN_GEN_DIR)/snitch_cluster_wrapper.sv
-PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc.sv
+PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
