@@ -12,7 +12,7 @@ dependencies:
   axi: { git: "https://github.com/pulp-platform/axi.git", version: "0.39.6" }
   common_cells: { git: "https://github.com/pulp-platform/common_cells.git", version: "1.37.0" }
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "9d746cced4e8fc4aa7403d7135a71ac0cf41ea82" }
-  floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "floogen-fix-addridx"}
+  floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "main"}
   snitch_cluster:  { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "soc-integration" }
 
 sources:
