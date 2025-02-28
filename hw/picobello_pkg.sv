@@ -19,16 +19,32 @@ package picobello_pkg;
   //  FlooNoC  //
   ///////////////
 
-  // TODO: make this better parametrizable
-  localparam int unsigned NumXMesh = 3;
-  localparam int unsigned NumYMesh = 2;
+  typedef struct packed {
+    int unsigned x;
+    int unsigned y;
+  } mesh_dim_t;
+
+  function automatic mesh_dim_t get_mesh_dim();
+    mesh_dim_t tile_id_max = '{x: 0, y: 0};
+    mesh_dim_t tile_id_min = '{x: '1, y: '1};
+    for (int i = 0; i < SamNumRules; i++) begin
+      tile_id_max.x = max(tile_id_max.x, int'(Sam[i].idx.x));
+      tile_id_max.y = max(tile_id_max.y, int'(Sam[i].idx.y));
+      tile_id_min.x = min(tile_id_min.x, int'(Sam[i].idx.x));
+      tile_id_min.y = min(tile_id_min.y, int'(Sam[i].idx.y));
+    end
+    return '{x: tile_id_max.x - tile_id_min.x + 1,
+             y: tile_id_max.y - tile_id_min.y + 1};
+  endfunction
+
+  localparam mesh_dim_t MeshDim = get_mesh_dim();
+  localparam int unsigned NumTiles = MeshDim.x * MeshDim.y;
   localparam int unsigned NumClusters = Cheshire - ClusterX0Y0;
-  localparam int unsigned NumTiles = NumXMesh * NumYMesh;
 
   // Whether the connection is a tie-off or a valid neighbor
   function automatic bit is_tie_off(int x, int y, route_direction_e dir);
-    return (x == 0 && dir == West) || (x == NumXMesh-1 && dir == East) ||
-           (y == 0 && dir == South) || (y == NumYMesh-1 && dir == North);
+    return (x == 0 && dir == West) || (x == MeshDim.x-1 && dir == East) ||
+           (y == 0 && dir == South) || (y == MeshDim.y-1 && dir == North);
   endfunction
 
   // Returns the X-coordinate of the neighbor in the given direction
@@ -47,7 +63,7 @@ package picobello_pkg;
   endfunction
 
   // Returns the address size of a FlooNoC endpoint
-  function automatic int unsigned ep_addr_size(ep_id_e ep);
+  function automatic int unsigned ep_addr_size(sam_idx_e ep);
     return Sam[ep].end_addr - Sam[ep].start_addr;
   endfunction
 
@@ -91,8 +107,7 @@ package picobello_pkg;
   //  Mem Tile  //
   ////////////////
 
-  // TODO(fischeti): Fix the index in FlooGen
   // The L2 SPM memory size of every mem tile
-  localparam int unsigned MemTileSize = ep_addr_size(ep_id_e'(L2Spm+1));
+  localparam int unsigned MemTileSize = ep_addr_size(L2SpmSamIdx);
 
 endpackage
