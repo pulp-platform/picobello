@@ -120,8 +120,8 @@ packages:
     - scm
     - tech_cells_generic
   common_cells:
-    revision: c27bce39ebb2e6bae52f60960814a2afca7bd4cb
-    version: 1.37.0
+    revision: 9afda9abb565971649c2aa0985639c096f351171
+    version: 1.38.0
     source:
       Git: https://github.com/pulp-platform/common_cells.git
     dependencies:
@@ -151,7 +151,7 @@ packages:
     dependencies:
     - axi
   floo_noc:
-    revision: dde8c53908dbd5b7afbfacb215b0b30fe4b0dbf3
+    revision: 3c6be86d90183c70480bd66bb1c634011111383e
     version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
