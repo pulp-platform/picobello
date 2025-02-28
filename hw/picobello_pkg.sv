@@ -19,16 +19,25 @@ package picobello_pkg;
   //  FlooNoC  //
   ///////////////
 
-  function automatic id_t get_mesh_dim();
-    id_t id_max = id_t'('0);
+  typedef struct packed {
+    int unsigned x;
+    int unsigned y;
+  } mesh_dim_t;
+
+  function automatic mesh_dim_t get_mesh_dim();
+    mesh_dim_t tile_id_max = '{x: 0, y: 0};
+    mesh_dim_t tile_id_min = '{x: '1, y: '1};
     for (int i = 0; i < SamNumRules; i++) begin
-      id_max.x = x_bits_t'(max(id_max.x, Sam[i].idx.x));
-      id_max.y = y_bits_t'(max(id_max.y, Sam[i].idx.y));
+      tile_id_max.x = max(tile_id_max.x, int'(Sam[i].idx.x));
+      tile_id_max.y = max(tile_id_max.y, int'(Sam[i].idx.y));
+      tile_id_min.x = min(tile_id_min.x, int'(Sam[i].idx.x));
+      tile_id_min.y = min(tile_id_min.y, int'(Sam[i].idx.y));
     end
-    return id_max;
+    return '{x: tile_id_max.x - tile_id_min.x + 1,
+             y: tile_id_max.y - tile_id_min.y + 1};
   endfunction
 
-  localparam id_t MeshDim = get_mesh_dim();
+  localparam mesh_dim_t MeshDim = get_mesh_dim();
   localparam int unsigned NumTiles = MeshDim.x * MeshDim.y;
   localparam int unsigned NumClusters = Cheshire - ClusterX0Y0;
 
