@@ -67,9 +67,16 @@ FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
 FLOO_CFG = $(PB_ROOT)/cfg/picobello_noc.yml
 
+# Check if the "verible-verilog-format" is installed in the system
+# otherwise use the "--no-format" flag to generate FlooNoC.
+NO_FORMAT_FLAG ?=
+ifeq ($(shell command -v verible-verilog-format 2>/dev/null),)
+	NO_FORMAT_FLAG += --no-format
+endif
+
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(NO_FORMAT_FLAG)
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
