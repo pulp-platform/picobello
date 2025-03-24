@@ -74,13 +74,14 @@
         {
             name: "l2spm",
             address: 0x3000_0000,
-            length: 0x1000_0000
+            length: 0x1000_0000,
             cacheable: true
         },
         {
             name: "dram",
             address: 0x8000_0000,
-            length: 0x8000_0000
+            length: 0x8000_0000,
+            cacheable: true
         },
         {
             name: "clint",
