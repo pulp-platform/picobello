@@ -7,7 +7,7 @@
 ## 🚧 Getting started (currently in early development)
 The first requirement you need to install is [Bender](https://github.com/pulp-platform/bender). Check if there is any pre-compiled release for your Operating System, otherwise follow the intructions to build your own binary using Rust.
 
-At this point, the `make help` command prompts all the available make options on your terminal. To continue further, other python requirements that might need to be installed are `hjson`, `jsonref`, `jsonschema` (jsonschema version >4.0.0).
+At this point, the `make help` command prompts all the available make options on your terminal.
 
 ### RTL code generation
 Generate the RTL code for Cheshire, FlooNoC, and Snitch by running `make all`.
