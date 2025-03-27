@@ -130,7 +130,7 @@ include $(PB_ROOT)/target/sim/vsim/vsim.mk
 # Misc #
 ########
 
-PYTHON ?= python
+BASE_PYTHON ?= python
 
 # includes `traces` and `annotate` targets
 include $(SN_ROOT)/target/common/common.mk
@@ -142,7 +142,7 @@ dvt-flist:
 
 python-venv: .venv
 .venv:
-	$(PYTHON) -m venv $@
+	$(BASE_PYTHON) -m venv $@
 	. $@/bin/activate && \
 	python -m pip install --upgrade pip && \
 	python -m pip install -r requirements.txt && \
