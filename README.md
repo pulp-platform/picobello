@@ -17,8 +17,7 @@ to give you a list of all available make targets. Some of the require more depen
 
 ### RTL code generation
 
-To generate all necessary RTL code, you need to install a couple of python dependencies from the bender dependencies. The easiest way to do this is to use to set up a virtual environment:
-
+To generate all necessary RTL code, you need to install a couple of python dependencies from the bender dependencies. The easiest way to do this is to set up a virtual environment:
 ```bash
 make python-venv
 source .venv/bin/activate
