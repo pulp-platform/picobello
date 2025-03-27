@@ -80,7 +80,7 @@ floo-clean:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= 67d364b4fa501f3940adacf69aefb25d4e91a75c
+PD_COMMIT ?= be6613e64c8aff61ba3fdf91fa86b653b9ae5fb9
 PD_DIR = $(PB_ROOT)/pd
 
 .PHONY: init-pd clean-pd
