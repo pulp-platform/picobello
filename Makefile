@@ -109,7 +109,7 @@ PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 picobello-hw-all all: $(PB_HW_ALL)
 	$(MAKE) $(PB_HW_ALL)
 
-picobello-clean clean: sn-clean-wrapper floo-clean
+picobello-hw-clean clean: sn-clean-wrapper floo-clean
 	rm -rf $(BENDER_ROOT)
 
 ############
@@ -167,11 +167,11 @@ help:
 	@echo -e ""
 	@echo -e "General targets:"
 	@echo -e "${Green}all                  ${Black}Alias for picobello-hw-all."
-	@echo -e "${Green}clean                ${Black}Alias for picobello-clean."
+	@echo -e "${Green}clean                ${Black}Alias for picobello-hw-clean."
 	@echo -e ""
 	@echo -e "Source generation targets:"
 	@echo -e "${Green}picobello-hw-all     ${Black}Build all RTL."
-	@echo -e "${Green}picobello-clean      ${Black}Clean everything."
+	@echo -e "${Green}picobello-hw-clean   ${Black}Clean everything."
 	@echo -e "${Green}floo-hw-all          ${Black}Generate FlooNoC RTL."
 	@echo -e "${Green}floo-clean           ${Black}Clean FlooNoC RTL."
 	@echo -e "${Green}sn-hw-all            ${Black}Generate Snitch Cluster wrapper RTL."
