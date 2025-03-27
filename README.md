@@ -40,7 +40,7 @@ By default, it will use the `python` in your `$PATH`. If you want to use a speci
 Picobello requires two different toolchains at the moment:
 
 * Snitch software tests require the Clang compiler extended with Snitch-specific instructions. There are some precompiled releases available on the [PULP Platform LLVM Project](https://github.com/pulp-platform/llvm-project/releases/download/0.12.0/riscv32-pulp-llvm-ubuntu2004-0.12.0.tar.gz) fork that are ready to be downloaded and unzipped.
-* Cheshire requires a 64-bit GCC toolchain that can be installed from the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) git following the *Installation (Newlib)* intructions.
+* Cheshire requires a 64-bit GCC toolchain that can be installed from the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) git following the *Installation (Newlib)* instructions.
 
 Once LLVM and GCC are obtained, export a `LLVM_BINROOT` environment variable to the binary folder of the LLVM toolchain installation. Then, add the GCC binary folder to your `$PATH`:
 
