@@ -2,16 +2,14 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-variables:
-  VSIM: questa-2023.4 vsim
-  PYTHON: /usr/local/anaconda3/bin/python
-  CHS_SW_GCC_BINROOT: /usr/pack/riscv-1.0-kgf/riscv64-gcc-12.2.0/bin
-  LLVM_BINROOT: /usr/pack/riscv-1.0-kgf/pulp-llvm-0.12.0/bin
-
 stages:
   - init
   - build
   - run
+
+before_script:
+  # Set the IIS environment variables
+  - source iis-env.sh
 
 .cache-deps:
   cache:
