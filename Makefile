@@ -6,8 +6,6 @@
 
 PB_ROOT ?= $(shell pwd)
 
-PYTHON ?= python
-
 ############
 # Cheshire #
 ############
@@ -108,8 +106,7 @@ PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 
 .PHONY: picobello-hw-all picobello-clean clean
 
-picobello-hw-all all: .venv
-	source .venv/bin/activate && \
+picobello-hw-all all: $(PB_HW_ALL)
 	$(MAKE) $(PB_HW_ALL)
 
 picobello-clean clean: sn-clean-wrapper floo-clean
@@ -133,6 +130,9 @@ include $(PB_ROOT)/target/sim/vsim/vsim.mk
 # Misc #
 ########
 
+PYTHON ?= python
+
+# includes `traces` and `annotate` targets
 include $(SN_ROOT)/target/common/common.mk
 
 .PHONY: dvt-flist python-venv python-venv-clean
@@ -143,11 +143,10 @@ dvt-flist:
 python-venv: .venv
 .venv:
 	$(PYTHON) -m venv $@
-	source $@/bin/activate && \
+	. $@/bin/activate && \
 	python -m pip install --upgrade pip && \
-	python -m pip install $(shell $(BENDER) path floo_noc) && \
-	python -m pip install $(shell $(BENDER) path snitch_cluster) && \
-	python -m pip install -r $(shell $(BENDER) path cheshire)/requirements.txt
+	python -m pip install -r requirements.txt && \
+	python -m pip install $(shell $(BENDER) path floo_noc) --no-deps
 
 python-venv-clean:
 	rm -rf .venv
