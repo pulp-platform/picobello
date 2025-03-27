@@ -144,7 +144,7 @@ python-venv: .venv
 .venv:
 	$(BASE_PYTHON) -m venv $@
 	. $@/bin/activate && \
-	python -m pip install --upgrade pip && \
+	python -m pip install --upgrade pip setuptools && \
 	python -m pip install -r requirements.txt && \
 	python -m pip install $(shell $(BENDER) path floo_noc) --no-deps
 
