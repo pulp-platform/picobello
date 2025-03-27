@@ -53,10 +53,6 @@ include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
 sn-hw-clean: sn-clean-wrapper
 
-.PHONY: sn-install-pkg
-sn-install-pkg:
-	$(PYTHON) -m pip install $(shell $(BENDER) path snitch_cluster)
-
 ###########
 # FlooNoC #
 ###########
@@ -80,10 +76,6 @@ $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
-
-.PHONY: floo-install-floogen
-floo-install-floogen:
-	$(PYTHON) -m pip install $(shell $(BENDER) path floo_noc)
 
 ###################
 # Physical Design #
