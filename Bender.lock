@@ -44,8 +44,8 @@ packages:
     - common_cells
     - common_verification
   axi_rt:
-    revision: 641ea950e24722af747033f2ab85f0e48ea8d7f8
-    version: 0.0.0-alpha.9
+    revision: f6aff64c2da42adbd1f46684ebc7dc4227b0d422
+    version: null
     source:
       Git: https://github.com/pulp-platform/axi_rt.git
     dependencies:
@@ -151,7 +151,7 @@ packages:
     dependencies:
     - axi
   floo_noc:
-    revision: 38a1b70fa9f94a85da5910defdd0e60fea9ab4c0
+    revision: add4108261bbb2516311072b2989351b9bddab2d
     version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
@@ -198,8 +198,8 @@ packages:
     - common_cells
     - register_interface
   obi:
-    revision: 5321106817e177d6c16ecc4daa922b96b1bc946b
-    version: 0.1.5
+    revision: 8097928cf1b43712f93d5356f336397879b4ad2c
+    version: 0.1.6
     source:
       Git: https://github.com/pulp-platform/obi.git
     dependencies:
@@ -249,7 +249,7 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: a35ba184e19c151cc68705ad219d7657b144a753
+    revision: 8b684ffdaf7ca3a06889d28f29922304e1cbb363
     version: null
     source:
       Git: https://github.com/pulp-platform/snitch_cluster.git

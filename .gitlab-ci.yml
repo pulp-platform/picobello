@@ -7,15 +7,16 @@ stages:
   - build
   - run
 
-before_script:
-  # Set the IIS environment variables
-  - source iis-env.sh
+.init-env:
+  before_script:
+    source iis-env.sh
 
 .cache-deps:
   cache:
     key:
       files:
         - Bender.lock
+        - requirements.txt
     paths:
       - .bender
       - .venv
@@ -36,6 +37,7 @@ init-deps:
     key:
       files:
         - Bender.lock
+        - requirements.txt
     paths:
       - .bender
       - .venv
@@ -49,9 +51,8 @@ snrt-sw:
   stage: build
   extends:
     - .cache-deps
+    - .init-env
   script:
-    - make python-venv
-    - source .venv/bin/activate
     - make snrt-tests
   artifacts:
     paths:
@@ -62,9 +63,8 @@ chs-sw:
   stage: build
   extends:
     - .cache-deps
+    - .init-env
   script:
-    - make python-venv
-    - source .venv/bin/activate
     - make chs-sw-tests
   artifacts:
     paths:
@@ -79,9 +79,8 @@ generate-rtl:
   stage: build
   extends:
     - .cache-deps
+    - .init-env
   script:
-    - make python-venv
-    - source .venv/bin/activate
     - make picobello-hw-all
   artifacts:
     paths:
@@ -132,6 +131,7 @@ sim-vsim:
   stage: run
   extends:
     - .cache-deps
+    - .init-env
     - .sw-tests
   variables:
     LOG_FILE: target/sim/vsim/transcript
@@ -162,6 +162,7 @@ init-pd:
   stage: init
   extends:
     - .cache-deps
+    - .init-env
   script: make init-pd
   artifacts:
     paths:
