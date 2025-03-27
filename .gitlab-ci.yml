@@ -16,6 +16,7 @@ before_script:
     key:
       files:
         - Bender.lock
+        - requirements.txt
     paths:
       - .bender
       - .venv
