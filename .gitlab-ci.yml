@@ -7,9 +7,9 @@ stages:
   - build
   - run
 
-before_script:
-  # Set the IIS environment variables
-  - source iis-env.sh
+.init-env:
+  before_script:
+    source iis-env.sh
 
 .cache-deps:
   cache:
@@ -51,6 +51,7 @@ snrt-sw:
   stage: build
   extends:
     - .cache-deps
+    - .init-env
   script:
     - make snrt-tests
   artifacts:
@@ -62,6 +63,7 @@ chs-sw:
   stage: build
   extends:
     - .cache-deps
+    - .init-env
   script:
     - make chs-sw-tests
   artifacts:
@@ -77,6 +79,7 @@ generate-rtl:
   stage: build
   extends:
     - .cache-deps
+    - .init-env
   script:
     - make picobello-hw-all
   artifacts:
@@ -128,6 +131,7 @@ sim-vsim:
   stage: run
   extends:
     - .cache-deps
+    - .init-env
     - .sw-tests
   variables:
     LOG_FILE: target/sim/vsim/transcript
@@ -158,6 +162,7 @@ init-pd:
   stage: init
   extends:
     - .cache-deps
+    - .init-env
   script: make init-pd
   artifacts:
     paths:
