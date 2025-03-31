@@ -27,6 +27,7 @@ sources:
   - hw/cluster_tile.sv
   - hw/cheshire_tile.sv
   - hw/mem_tile.sv
+  - hw/dummy_tile.sv
   # Level 3
   - hw/picobello_top.sv
 
