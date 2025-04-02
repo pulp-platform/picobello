@@ -171,20 +171,27 @@ module picobello_top
    // Mem tile //
    //////////////
 
-   localparam id_t MemTileId = Sam[L2SpmSamIdx].idx;
+   for (genvar m = 0; m < NumMemTiles; m++) begin: gen_memtile
 
-   mem_tile i_mem_tile (
-       .clk_i,
-       .rst_ni,
-       .test_enable_i(test_mode_i),
-       .id_i         (MemTileId),
-       .floo_req_o   (floo_req_out[MemTileId.x][MemTileId.y]),
-       .floo_rsp_i   (floo_rsp_in[MemTileId.x][MemTileId.y]),
-       .floo_wide_o  (floo_wide_out[MemTileId.x][MemTileId.y]),
-       .floo_req_i   (floo_req_in[MemTileId.x][MemTileId.y]),
-       .floo_rsp_o   (floo_rsp_out[MemTileId.x][MemTileId.y]),
-       .floo_wide_i  (floo_wide_in[MemTileId.x][MemTileId.y])
-   );
+      localparam int  MemTileSamIdx = m + L2Spm0SamIdx;
+      localparam id_t MemTileId = Sam[MemTileSamIdx].idx;
+      localparam int  MemTileX = int'(MemTileId.x);
+      localparam int  MemTileY = int'(MemTileId.y);
+
+      mem_tile i_mem_tile (
+          .clk_i,
+          .rst_ni,
+          .test_enable_i(test_mode_i),
+          .id_i         (MemTileId),
+          .floo_req_o   (floo_req_out[MemTileX][MemTileY]),
+          .floo_rsp_i   (floo_rsp_in[MemTileX][MemTileY]),
+          .floo_wide_o  (floo_wide_out[MemTileX][MemTileY]),
+          .floo_req_i   (floo_req_in[MemTileX][MemTileY]),
+          .floo_rsp_o   (floo_rsp_out[MemTileX][MemTileY]),
+          .floo_wide_i  (floo_wide_in[MemTileX][MemTileY])
+      );
+
+   end
 
    // ////////////////
    // // Dummy tile //
@@ -192,24 +199,23 @@ module picobello_top
 
    for (genvar d = 0; d < NumDummyTiles; d++) begin : gen_dummytiles
 
-      localparam id_t DummyTileId = dummy_idx[d];
-      localparam int X = int'(dummy_idx[d].x);
-      localparam int Y = int'(dummy_idx[d].y);
+      localparam id_t DummyTileId = DummyIdx[d];
+      localparam int DummyTileX = int'(DummyIdx[d].x);
+      localparam int DummyTileY = int'(DummyIdx[d].y);
 
       dummy_tile i_dummy_tile (
           .clk_i,
           .rst_ni,
           .test_enable_i(test_mode_i),
           .id_i         (DummyTileId),
-          .floo_req_o   (floo_req_out[X][Y]),
-          .floo_rsp_i   (floo_rsp_in[X][Y]),
-          .floo_wide_o  (floo_wide_out[X][Y]),
-          .floo_req_i   (floo_req_in[X][Y]),
-          .floo_rsp_o   (floo_rsp_out[X][Y]),
-          .floo_wide_i  (floo_wide_in[X][Y])
+          .floo_req_o   (floo_req_out[DummyTileX][DummyTileY]),
+          .floo_rsp_i   (floo_rsp_in[DummyTileX][DummyTileY]),
+          .floo_wide_o  (floo_wide_out[DummyTileX][DummyTileY]),
+          .floo_req_i   (floo_req_in[DummyTileX][DummyTileY]),
+          .floo_rsp_o   (floo_rsp_out[DummyTileX][DummyTileY]),
+          .floo_wide_i  (floo_wide_in[DummyTileX][DummyTileY])
       );
    end
-
 
 
   /////////////////////

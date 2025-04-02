@@ -59,7 +59,7 @@ sn-hw-clean: sn-clean-wrapper
 
 FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
-FLOO_CFG ?= $(PB_ROOT)/cfg/exp_picobello_noc.yml
+FLOO_CFG ?= $(PB_ROOT)/cfg/picobello_noc.yml
 
 # Check if the "verible-verilog-format" is installed in the system
 # otherwise use the "--no-format" flag to generate FlooNoC.

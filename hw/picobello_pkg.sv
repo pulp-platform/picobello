@@ -39,6 +39,7 @@ package picobello_pkg;
    localparam mesh_dim_t MeshDim = get_mesh_dim();
    localparam int unsigned NumTiles = MeshDim.x * MeshDim.y;
    localparam int unsigned NumClusters = Cheshire - ClusterX0Y0;
+   localparam int unsigned NumMemTiles = NumEndpoints - L2Spm0;
 
    // Generate a bitmap for existing tiles.
    // Fill non-existent tiles with dummy tiles.
@@ -73,7 +74,7 @@ package picobello_pkg;
       return dummy_idx;
    endfunction
 
-   localparam dummy_idx_t dummy_idx = get_dummy_idx(MeshMap, MeshDim.x, MeshDim.y);
+   localparam dummy_idx_t DummyIdx = get_dummy_idx(MeshMap, MeshDim.x, MeshDim.y);
 
    // Whether the connection is a tie-off or a valid neighbor
    function automatic bit is_tie_off(int x, int y, route_direction_e dir);
@@ -142,6 +143,6 @@ package picobello_pkg;
    ////////////////
 
    // The L2 SPM memory size of every mem tile
-   localparam int unsigned MemTileSize = ep_addr_size(L2SpmSamIdx);
+   localparam int unsigned MemTileSize = ep_addr_size(L2Spm0SamIdx);
 
 endpackage

@@ -66,6 +66,7 @@ endpoints:
       - "narrow_out"
       - "wide_out"
   - name: "l2_spm"
+    array: [1]
     addr_range:
       base: 0x3000_0000
       size: 0x0010_0000
@@ -94,5 +95,7 @@ connections:
     dst_dir: "Eject"
   - src: "l2_spm"
     dst: "router"
+    src_range:
+      - [0, 0]
     dst_idx: [2, 1]
     dst_dir: "Eject"
