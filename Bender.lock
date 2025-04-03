@@ -34,6 +34,15 @@ packages:
     - common_verification
     - register_interface
     - tech_cells_generic
+  axi_obi:
+    revision: null
+    version: null
+    source:
+      Path: hw/axi_obi
+    dependencies:
+    - axi
+    - common_cells
+    - obi
   axi_riscv_atomics:
     revision: 0ac3a78fe342c5a5b9b10bff49d58897f773059e
     version: 0.8.2
