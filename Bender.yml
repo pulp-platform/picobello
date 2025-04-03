@@ -14,6 +14,7 @@ dependencies:
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "d5101a7884be55a3d7da8419353e7c6d34c8fb57" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "main"}
   snitch_cluster:  { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "soc-integration" }
+  axi_obi: { path: "hw/axi_obi" }
 
 sources:
   # Source files grouped in levels. Files in level 0 have no dependencies on files in this
