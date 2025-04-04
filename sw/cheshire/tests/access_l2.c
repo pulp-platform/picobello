@@ -19,32 +19,35 @@
 
 #define TESTVAL 0xABCD9876
 #define BANKS_SIZE 0x00004000
-#define NUM_L2_LOG_BANKS 2
+#define NUM_L2_BANKS_PER_WORDS 2
 #define NUM_L2_BANK_PER_ROW 32
-#define MISALIGNED_ADDR 0x04
-#define L2_WRITE_ADDR (PB_L2_BASE_ADDR + MISALIGNED_ADDR)
 
 int main() {
-  volatile uint32_t *l2ptr = (volatile uint32_t *)L2_WRITE_ADDR;
-  volatile uint32_t result;
+  volatile uint32_t *l2ptr = (volatile uint32_t *)PB_L2_BASE_ADDR;
+  volatile uint32_t result_aligned;
+  volatile uint32_t result_missaligned;
 
   // Write TESTVAL to each physical bank:
   for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
-    for (int logBank = 0; logBank < NUM_L2_LOG_BANKS; logBank++) {
-      l2ptr = (volatile uint32_t *)((uintptr_t)L2_WRITE_ADDR +
+    for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
+      l2ptr = (volatile uint32_t *)((uintptr_t)PB_L2_BASE_ADDR +
                                     (phyBank << 15) + (logBank << 5));
-      *(l2ptr ) = TESTVAL;
+      // Write to aligned and miss-aligned loactiuon
+      *(l2ptr ) = (uintptr_t)l2ptr;           // aligned
+      *(l2ptr + 1) =(uintptr_t)(l2ptr + 1);   // miss-aligned
     }
   }
 
   // Read back and verify TESTVAL in each bank:
-  l2ptr = (volatile uint32_t *)L2_WRITE_ADDR;
+  l2ptr = (volatile uint32_t *)PB_L2_BASE_ADDR;
   for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
-    for (int logBank = 0; logBank < NUM_L2_LOG_BANKS; logBank++) {
-      l2ptr = (volatile uint32_t *)((uintptr_t)L2_WRITE_ADDR +
+    for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
+      l2ptr = (volatile uint32_t *)((uintptr_t)PB_L2_BASE_ADDR +
                                     (phyBank << 15) + (logBank << 5));
-      result = *(l2ptr);
-      if (result != TESTVAL) {
+
+      result_aligned = *(l2ptr);           // aligned
+      result_missaligned = *(l2ptr + 1);   // miss-aligned
+      if ((result_aligned != (uintptr_t)l2ptr) || (result_missaligned != (uintptr_t)(l2ptr + 1))) {
         return 1;
       }
     }
