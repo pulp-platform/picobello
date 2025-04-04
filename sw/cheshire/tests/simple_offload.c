@@ -8,15 +8,20 @@
 #include "picobello_addrmap.h"
 
 // This needs to be in a region which is not cached
-volatile uint32_t (*return_code_array)[CFG_CLUSTER_NR_CORES] = (uint32_t (*)[CFG_CLUSTER_NR_CORES])0x14000000;
+volatile uint32_t (*return_code_array)[CFG_CLUSTER_NR_CORES] = (uint32_t (*)[CFG_CLUSTER_NR_CORES])0x30008000;
 
 int main() {
 
   // Write entry point to scratch register 1
   // and return code address to scratch register 0
+  // Initalize return address loaction before offloading.
   for (int i = 0; i < SNRT_CLUSTER_NUM; i++) {
     *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 1)) = PB_L2_BASE_ADDR;
-    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 0)) = (uintptr_t)&return_code_array[i];
+    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 0)) =
+        (uintptr_t)&return_code_array[i];
+    for (int j = 0; j < CFG_CLUSTER_NR_CORES; j++) {
+      return_code_array[i][j] = 0;
+    }
   }
 
   // Start all cores by setting the clint interrupt

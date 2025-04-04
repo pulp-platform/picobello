@@ -122,6 +122,7 @@ vsim-compile:
       # - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 2 } # UART preloading takes over 1h, maybe enable later again
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity_fail.spm.elf, NZ_EXIT_CODE: 7}
       - { CHS_BINARY: $CHS_BUILD_DIR/helloworld.spm.elf, USTR: "Hello World!" }
+      - { CHS_BINARY: $CHS_BUILD_DIR/access_l2.spm.elf, PRELMODE: 1}
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 0 }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 1 }
       # - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 3 }

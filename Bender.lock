@@ -44,8 +44,8 @@ packages:
     - common_cells
     - common_verification
   axi_rt:
-    revision: f6aff64c2da42adbd1f46684ebc7dc4227b0d422
-    version: null
+    revision: 50153a346b753dc2bc7723c446656a43db35d02d
+    version: 0.0.0-alpha.10
     source:
       Git: https://github.com/pulp-platform/axi_rt.git
     dependencies:
@@ -69,7 +69,7 @@ packages:
     - common_cells
     - register_interface
   cheshire:
-    revision: 9d746cced4e8fc4aa7403d7135a71ac0cf41ea82
+    revision: d5101a7884be55a3d7da8419353e7c6d34c8fb57
     version: null
     source:
       Git: https://github.com/pulp-platform/cheshire.git
@@ -151,8 +151,8 @@ packages:
     dependencies:
     - axi
   floo_noc:
-    revision: add4108261bbb2516311072b2989351b9bddab2d
-    version: null
+    revision: 71972efee8c8216af7ed1ee3f640e585cb5ba181
+    version: 0.6.0
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
@@ -177,8 +177,8 @@ packages:
     dependencies:
     - common_cells
   idma:
-    revision: 1a42da9d5c76f1cff0bcdaaacc474ed85631d734
-    version: null
+    revision: ff5d56fffb3767814db88d6bf8f381974ea33aa5
+    version: 0.6.4
     source:
       Git: https://github.com/pulp-platform/iDMA.git
     dependencies:
