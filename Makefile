@@ -45,7 +45,7 @@ $(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
 .PHONY: sn-hw-clean sn-hw-all
 
 SN_ROOT = $(shell $(BENDER) path snitch_cluster)
-SN_CFG	= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SN_CFG ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
