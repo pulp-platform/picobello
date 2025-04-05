@@ -26,7 +26,7 @@ $(PB_GEN_DIR):
 # Cheshire #
 ############
 
-CLINTCORES ?= 5
+CLINTCORES ?= 17
 CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
@@ -45,7 +45,7 @@ $(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
 .PHONY: sn-hw-clean sn-hw-all
 
 SN_ROOT = $(shell $(BENDER) path snitch_cluster)
-SN_CFG	= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SN_CFG ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
@@ -59,7 +59,7 @@ sn-hw-clean: sn-clean-wrapper
 
 FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
-FLOO_CFG = $(PB_ROOT)/cfg/picobello_noc.yml
+FLOO_CFG ?= $(PB_ROOT)/cfg/picobello_noc.yml
 
 # Check if the "verible-verilog-format" is installed in the system
 # otherwise use the "--no-format" flag to generate FlooNoC.
