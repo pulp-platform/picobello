@@ -30,6 +30,24 @@ jobs:
           fail_on_error: true
           reviewdog_reporter: github-check
 
+  ##################
+  # Verible Format #
+  ##################
+
+  lint-sv-format:
+    name: Format SV sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: chipsalliance/verible-formatter-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          parameters:
+            --flagfile .verilog_format
+          fail_on_formatting_suggestions: true
+
   #################
   # Check License #
   #################
