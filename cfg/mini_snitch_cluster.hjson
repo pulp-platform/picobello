@@ -4,7 +4,7 @@
 
 // Cluster configuration for a simple testbench system.
 {
-    nr_clusters: 16,
+    nr_clusters: 4,
     cluster: {
         cluster_base_addr: 0x2000_0000,
         cluster_base_offset: 0x4_0000,
