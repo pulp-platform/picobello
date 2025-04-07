@@ -26,6 +26,7 @@ jobs:
         with:
           paths: |
             ./hw
+            ./target/sim/src
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fail_on_error: true
           reviewdog_reporter: github-check
