@@ -8,24 +8,24 @@ module tb_picobello_top;
 
   `include "tb_picobello_tasks.svh"
 
-fixture_picobello_top fix ();
+  fixture_picobello_top fix();
 
-  string        preload_elf;
-  string        boot_hex;
-  logic  [ 1:0] boot_mode;
-  logic  [ 1:0] preload_mode;
-  bit    [31:0] exit_code;
-  bit           snitch_preload;
-  string        snitch_elf;
-  logic  [63:0] snitch_entry;
-  int           snitch_fn;
+  string       preload_elf;
+  string       boot_hex;
+  logic [1:0]  boot_mode;
+  logic [1:0]  preload_mode;
+  bit [31:0]   exit_code;
+  bit          snitch_preload;
+  string       snitch_elf;
+  logic [63:0] snitch_entry;
+  int          snitch_fn;
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
-    if (!$value$plusargs("BOOTMODE=%d", boot_mode)) boot_mode = 0;
-    if (!$value$plusargs("PRELMODE=%d", preload_mode)) preload_mode = 1;
-    if (!$value$plusargs("CHS_BINARY=%s", preload_elf)) preload_elf = "";
-    if (!$value$plusargs("IMAGE=%s", boot_hex)) boot_hex = "";
+    if (!$value$plusargs("BOOTMODE=%d",   boot_mode))     boot_mode     = 0;
+    if (!$value$plusargs("PRELMODE=%d",   preload_mode))  preload_mode  = 1;
+    if (!$value$plusargs("CHS_BINARY=%s", preload_elf))   preload_elf   = "";
+    if (!$value$plusargs("IMAGE=%s",      boot_hex))      boot_hex      = "";
 
     if ($value$plusargs("SN_BINARY=%s", snitch_elf)) begin
       snitch_fn = $fopen(".rtlbinary", "w");
@@ -47,30 +47,25 @@ fixture_picobello_top fix ();
     if (boot_mode == 0) begin
       // Idle boot: preload with the specified mode
       case (preload_mode)
-        0: begin  // JTAG
+        0: begin      // JTAG
           fix.vip.jtag_init();
           if (snitch_preload) fix.vip.jtag_elf_preload(snitch_elf, snitch_entry);
           fix.vip.jtag_elf_run(preload_elf);
           fix.vip.jtag_wait_for_eoc(exit_code);
-        end
-        1: begin  // Serial Link
+        end 1: begin  // Serial Link
           if (snitch_preload) fix.vip.slink_elf_preload(snitch_elf, snitch_entry);
           fix.vip.slink_elf_run(preload_elf);
           fix.vip.slink_wait_for_eoc(exit_code);
-        end
-        2: begin  // UART
-          if (snitch_preload)
-            $fatal(1, "Unsupported snitch binary preload mode %d (UART)!", preload_mode);
+        end 2: begin  // UART
+          if (snitch_preload) $fatal(1, "Unsupported snitch binary preload mode %d (UART)!", preload_mode);
           fix.vip.uart_debug_elf_run_and_wait(preload_elf, exit_code);
-        end
-        3: begin  // Fast Mode
+        end 3: begin // Fast Mode
           fix.vip.jtag_init();
           if (snitch_preload) fastmode_elf_preload(snitch_elf, snitch_entry);
           // TODO(fischeti): Implement fast mode for Cheshire binary
           fix.vip.jtag_elf_run(preload_elf);
           fix.vip.jtag_wait_for_eoc(exit_code);
-        end
-        default: begin
+        end default: begin
           $fatal(1, "Unsupported preload mode %d (reserved)!", boot_mode);
         end
       endcase
