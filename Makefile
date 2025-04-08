@@ -5,40 +5,49 @@
 # Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 PB_ROOT ?= $(shell pwd)
-
-VERIBLE_FMT ?= verible-verilog-format
-VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
-
-##########
-# Bender #
-##########
-
-# Use bender from the picobello root directory
-BENDER_ROOT ?= $(PB_ROOT)/.bender
-BENDER ?= bender -d $(PB_ROOT)
-
-COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster -t floogen_pkg
-SIM_TARGS += -t simulation -t test -t idma_test
-
 PB_GEN_DIR = $(PB_ROOT)/.generated
+BENDER_ROOT ?= $(PB_ROOT)/.bender
 
 $(PB_GEN_DIR):
 	mkdir -p $(PB_GEN_DIR)
+
+# Configuration files
+FLOO_CFG  ?= $(PB_ROOT)/cfg/picobello_noc.yml
+SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
+PLIC_CFG  ?= cfg/rv_plic.cfg.hjson
+SLINK_CFG ?= cfg/serial_link.hjson
+
+# Root directories of dependencies
+CHS_ROOT  = $(shell $(BENDER) path cheshire)
+SN_ROOT   = $(shell $(BENDER) path snitch_cluster)
+FLOO_ROOT = $(shell $(BENDER) path floo_noc)
+
+# Executables
+BENDER           ?= bender -d $(PB_ROOT)
+FLOO_GEN	       ?= floogen
+VERIBLE_FMT      ?= verible-verilog-format
+VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
+
+################
+# Bender flags #
+################
+
+COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster -t floogen_pkg
+SIM_TARGS += -t simulation -t test -t idma_test
 
 ############
 # Cheshire #
 ############
 
 CLINTCORES ?= 17
-CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
 $(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
-$(OTPROOT)/.generated2: cfg/rv_plic.cfg.hjson
+$(OTPROOT)/.generated2: $(PLIC_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 $(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
-$(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
+$(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 ##################
@@ -46,9 +55,6 @@ $(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
 ##################
 
 .PHONY: sn-hw-clean sn-hw-all
-
-SN_ROOT = $(shell $(BENDER) path snitch_cluster)
-SN_CFG ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
@@ -65,16 +71,10 @@ update-sn-cfg: $(SN_CFG)
 
 .PHONY: floo-hw-all floo-clean
 
-FLOO_ROOT = $(shell $(BENDER) path floo_noc)
-FLOO_GEN	?= floogen
-FLOO_CFG ?= $(PB_ROOT)/cfg/picobello_noc.yml
-
 # Check if `VERIBLE_FMT` executable is valid, otherwise don't format FlooGen output
-FLOO_GEN_FLAGS ?=
+FLOO_GEN_FLAGS = --no-format
 ifeq ($(shell $(VERIBLE_FMT) --version >/dev/null 2>&1 && echo OK),OK)
 	FLOO_GEN_FLAGS = --verible-fmt-bin="$(VERIBLE_FMT)" --verible-fmt-args="$(VERIBLE_FMT_ARGS)"
-else
-	FLOO_GEN_FLAGS = --no-format
 endif
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
