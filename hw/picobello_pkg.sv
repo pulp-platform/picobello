@@ -33,8 +33,7 @@ package picobello_pkg;
       tile_id_min.x = min(tile_id_min.x, int'(Sam[i].idx.x));
       tile_id_min.y = min(tile_id_min.y, int'(Sam[i].idx.y));
     end
-    return '{x: tile_id_max.x - tile_id_min.x + 1,
-             y: tile_id_max.y - tile_id_min.y + 1};
+    return '{x: tile_id_max.x - tile_id_min.x + 1, y: tile_id_max.y - tile_id_min.y + 1};
   endfunction
 
   localparam mesh_dim_t MeshDim = get_mesh_dim();
@@ -85,12 +84,12 @@ package picobello_pkg;
 
   // Returns the X-coordinate of the neighbor in the given direction
   function automatic int neighbor_x(int x, route_direction_e dir);
-    return (dir == West) ? x-1 : (dir == East) ? x+1 : x;
+    return (dir == West) ? x - 1 : (dir == East) ? x + 1 : x;
   endfunction
 
   // Returns the Y-coordinate of the neighbor in the given direction
   function automatic int neighbor_y(int y, route_direction_e dir);
-    return (dir == South) ? y-1 : (dir == North) ? y+1 : y;
+    return (dir == South) ? y - 1 : (dir == North) ? y + 1 : y;
   endfunction
 
   // Returns the opposite direction
@@ -111,29 +110,29 @@ package picobello_pkg;
   function automatic cheshire_pkg::cheshire_cfg_t gen_cheshire_cfg();
     cheshire_pkg::cheshire_cfg_t ret = cheshire_pkg::DefaultCfg;
     // Enable the external AXI master and slave interfaces
-    ret.AxiExtNumMst = 1;
-    ret.AxiExtNumSlv = 1;
-    ret.AxiExtNumRules = 1;
-    ret.AxiExtRegionIdx[0] = 0;
+    ret.AxiExtNumMst         = 1;
+    ret.AxiExtNumSlv         = 1;
+    ret.AxiExtNumRules       = 1;
+    ret.AxiExtRegionIdx[0]   = 0;
     ret.AxiExtRegionStart[0] = 'h2000_0000;
-    ret.AxiExtRegionEnd[0] = 'h8000_0000;
+    ret.AxiExtRegionEnd[0]   = 'h8000_0000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just put the CIE region after the on-chip region for now
-    ret.Cva6ExtCieOnTop = 1;
-    ret.Cva6ExtCieLength = 'h2000_0000;
-    ret.AddrWidth = aw_bt'(AxiCfgN.AddrWidth);
-    ret.AxiDataWidth = dw_bt'(AxiCfgN.DataWidth);
-    ret.AxiUserWidth = dw_bt'(max(AxiCfgN.UserWidth, AxiCfgW.UserWidth));
-    ret.AxiMstIdWidth = aw_bt'(max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth));
+    ret.Cva6ExtCieOnTop      = 1;
+    ret.Cva6ExtCieLength     = 'h2000_0000;
+    ret.AddrWidth            = aw_bt'(AxiCfgN.AddrWidth);
+    ret.AxiDataWidth         = dw_bt'(AxiCfgN.DataWidth);
+    ret.AxiUserWidth         = dw_bt'(max(AxiCfgN.UserWidth, AxiCfgW.UserWidth));
+    ret.AxiMstIdWidth        = aw_bt'(max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth));
     // TODO(fischeti): Check if we need external interrupts for each hart/cluster
-    ret.NumExtIrqHarts = doub_bt'(NumClusters);
+    ret.NumExtIrqHarts       = doub_bt'(NumClusters);
     // TODO(fischeti): Check if we need/want VGA
-    ret.Vga = 1'b0;
+    ret.Vga                  = 1'b0;
     // TODO(fischeti): Check if we need/want USB
-    ret.Usb = 1'b0;
+    ret.Usb                  = 1'b0;
     // TODO(fischeti): Check if we need/want an AXI to DRAM
-    ret.LlcOutRegionStart = 'h8000_0000;
-    ret.LlcOutRegionEnd = 48'h1_0000_0000;
+    ret.LlcOutRegionStart    = 'h8000_0000;
+    ret.LlcOutRegionEnd      = 48'h1_0000_0000;
     return ret;
   endfunction
 
