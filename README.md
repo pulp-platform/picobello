@@ -49,6 +49,14 @@ export LLVM_BINROOT=/path/to/llvm/bin
 export PATH=$PATH:/path/to/gcc/bin
 ```
 
+#### Verible (Optional)
+
+For automatic formatting of generated sources, install [`verible`](https://github.com/chipsalliance/verible). By default, the Makefile will look for a `verible-verilog-format` in your path, but you can also set it explicitly with the `VERIBLE_FMT` environment variable. This dependency is optional for normal users, but it is required to contribute to the project, since the CI will use verible to check the formatting of the code. Once installed, you can format the SV code in this repository with:
+
+```bash
+make verible-fmt
+```
+
 ### RTL code generation
 
 After setting up the environment, you can generate all the RTL code for Cheshire, FlooNoC, and Snitch by running:
