@@ -26,7 +26,7 @@ $(PB_GEN_DIR):
 # Cheshire #
 ############
 
-CLINTCORES ?= 5
+CLINTCORES ?= 17
 CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
@@ -45,7 +45,7 @@ $(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
 .PHONY: sn-hw-clean sn-hw-all
 
 SN_ROOT = $(shell $(BENDER) path snitch_cluster)
-SN_CFG	= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SN_CFG ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
@@ -55,11 +55,16 @@ sn-hw-clean: sn-clean-wrapper
 # FlooNoC #
 ###########
 
+SN_CLUSTERS = 16
+.PHONY: update-sn-cfg
+update-sn-cfg: $(SN_CFG)
+	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
+
 .PHONY: floo-hw-all floo-clean
 
 FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
-FLOO_CFG = $(PB_ROOT)/cfg/picobello_noc.yml
+FLOO_CFG ?= $(PB_ROOT)/cfg/picobello_noc.yml
 
 # Check if the "verible-verilog-format" is installed in the system
 # otherwise use the "--no-format" flag to generate FlooNoC.
@@ -80,7 +85,7 @@ floo-clean:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= eff66a78fa2d7e9940e47429c021ea907652b949
+PD_COMMIT ?= 995649785b10c24187ab4c9e189cf5e408588f38
 PD_DIR = $(PB_ROOT)/pd
 
 .PHONY: init-pd clean-pd
@@ -103,6 +108,7 @@ PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(SN_GEN_DIR)/snitch_cluster_wrapper.sv
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
+PB_HW_ALL += update-sn-cfg
 
 .PHONY: picobello-hw-all picobello-clean clean
 

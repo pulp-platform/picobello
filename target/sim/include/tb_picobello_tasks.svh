@@ -13,7 +13,7 @@ import "DPI-C" context function byte read_section(input longint address, inout b
 task automatic fastmode_write_word(input longint addr, input logic [31:0] data);
   import floo_picobello_noc_pkg::*;
   // TODO(fischeti): Implement this again
-  if (addr >= Sam[L2Spm+1].start_addr && addr < Sam[L2Spm+1].end_addr) begin
+  if (addr >= Sam[L2Spm0+1].start_addr && addr < Sam[L2Spm0+1].end_addr) begin
     // automatic int word_offset = (addr - Sam[L2Spm+1].start_addr) / (AxiCfgW.DataWidth / 8);
     // automatic int byte_offset = (addr - Sam[L2Spm+1].start_addr) % (AxiCfgW.DataWidth / 8);
     // fix.dut.i_mem_tile.i_mem.sram[word_offset][byte_offset*8 +: 32] = data;
