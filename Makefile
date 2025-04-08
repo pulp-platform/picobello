@@ -14,8 +14,8 @@ $(PB_GEN_DIR):
 # Configuration files
 FLOO_CFG  ?= $(PB_ROOT)/cfg/picobello_noc.yml
 SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
-PLIC_CFG  ?= cfg/rv_plic.cfg.hjson
-SLINK_CFG ?= cfg/serial_link.hjson
+PLIC_CFG  ?= $(PB_ROOT)/cfg/rv_plic.cfg.hjson
+SLINK_CFG ?= $(PB_ROOT)/cfg/serial_link.hjson
 
 # Root directories of dependencies
 CHS_ROOT  = $(shell $(BENDER) path cheshire)
