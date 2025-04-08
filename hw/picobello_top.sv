@@ -217,6 +217,18 @@ module picobello_top
     );
   end
 
+  mem_tile i_mem_tile (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i(test_mode_i),
+    .id_i         (MemTileId),
+    .floo_req_o   (floo_req_out[MemTileId.x][MemTileId.y]),
+    .floo_rsp_i   (floo_rsp_in[MemTileId.x][MemTileId.y]),
+    .floo_wide_o  (floo_wide_out[MemTileId.x][MemTileId.y]),
+    .floo_req_i   (floo_req_in[MemTileId.x][MemTileId.y]),
+    .floo_rsp_o   (floo_rsp_out[MemTileId.x][MemTileId.y]),
+    .floo_wide_i  (floo_wide_in[MemTileId.x][MemTileId.y])
+  );
 
   /////////////////////
   // NoC Connections //
@@ -231,27 +243,12 @@ module picobello_top
           assign floo_rsp_in[x][y][Dir]  = '0;
           assign floo_wide_in[x][y][Dir] = '0;
         end else begin : gen_con
-          assign floo_req_in[x][y][Dir] = floo_req_out[neighbor_x(
-              x, Dir
-          )][neighbor_y(
-              y, Dir
-          )][opposite_dir(
-              Dir
-          )];
-          assign floo_rsp_in[x][y][Dir] = floo_rsp_out[neighbor_x(
-              x, Dir
-          )][neighbor_y(
-              y, Dir
-          )][opposite_dir(
-              Dir
-          )];
-          assign floo_wide_in[x][y][Dir] = floo_wide_out[neighbor_x(
-              x, Dir
-          )][neighbor_y(
-              y, Dir
-          )][opposite_dir(
-              Dir
-          )];
+          localparam int Xn = neighbor_x(x, Dir);
+          localparam int Yn = neighbor_y(y, Dir);
+          localparam route_direction_e Dirn = opposite_dir(Dir);
+          assign floo_req_in[x][y][Dir]  = floo_req_out[Xn][Yn][Dirn];
+          assign floo_rsp_in[x][y][Dir]  = floo_rsp_out[Xn][Yn][Dirn];
+          assign floo_wide_in[x][y][Dir] = floo_wide_out[Xn][Yn][Dirn];
         end
       end
     end
