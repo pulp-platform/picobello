@@ -14,7 +14,7 @@ PB_ROOT ?= $(shell pwd)
 BENDER_ROOT ?= $(PB_ROOT)/.bender
 BENDER ?= bender -d $(PB_ROOT)
 
-COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
+COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster -t floogen_pkg
 SIM_TARGS += -t simulation -t test -t idma_test
 
 PB_GEN_DIR = $(PB_ROOT)/.generated
@@ -160,7 +160,7 @@ python-venv-clean:
 VERIBLE_FMT ?= verible-verilog-format
 
 verible-fmt:
-	$(VERIBLE_FMT) --flagfile .verilog_format --inplace --verbose $(shell $(BENDER) script flist --no-deps)
+	$(VERIBLE_FMT) --flagfile .verilog_format --inplace --verbose $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
 
 #################
 # Documentation #
