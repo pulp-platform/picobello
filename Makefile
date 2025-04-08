@@ -6,9 +6,9 @@
 
 PB_ROOT ?= $(shell pwd)
 
-############
-# Cheshire #
-############
+##########
+# Bender #
+##########
 
 # Use bender from the picobello root directory
 BENDER_ROOT ?= $(PB_ROOT)/.bender
@@ -141,7 +141,7 @@ BASE_PYTHON ?= python
 # includes `traces` and `annotate` targets
 include $(SN_ROOT)/target/common/common.mk
 
-.PHONY: dvt-flist python-venv python-venv-clean
+.PHONY: dvt-flist python-venv python-venv-clean verible-fmt
 
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
@@ -156,6 +156,11 @@ python-venv: .venv
 
 python-venv-clean:
 	rm -rf .venv
+
+VERIBLE_FMT ?= verible-verilog-format
+
+verible-fmt:
+	$(VERIBLE_FMT) --flagfile .verilog_format --inplace --verbose $(shell $(BENDER) script flist --no-deps)
 
 #################
 # Documentation #
