@@ -6,6 +6,9 @@
 
 PB_ROOT ?= $(shell pwd)
 
+VERIBLE_FMT ?= verible-verilog-format
+VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
+
 ##########
 # Bender #
 ##########
@@ -66,16 +69,17 @@ FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 FLOO_GEN	?= floogen
 FLOO_CFG ?= $(PB_ROOT)/cfg/picobello_noc.yml
 
-# Check if the "verible-verilog-format" is installed in the system
-# otherwise use the "--no-format" flag to generate FlooNoC.
-NO_FORMAT_FLAG ?=
-ifeq ($(shell command -v verible-verilog-format 2>/dev/null),)
-	NO_FORMAT_FLAG += --no-format
+# Check if `VERIBLE_FMT` executable is valid, otherwise don't format FlooGen output
+FLOO_GEN_FLAGS ?=
+ifeq ($(shell $(VERIBLE_FMT) --version >/dev/null 2>&1 && echo OK),OK)
+	FLOO_GEN_FLAGS = --verible-fmt-bin="$(VERIBLE_FMT)" --verible-fmt-args="$(VERIBLE_FMT_ARGS)"
+else
+	FLOO_GEN_FLAGS = --no-format
 endif
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(NO_FORMAT_FLAG)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
@@ -157,10 +161,8 @@ python-venv: .venv
 python-venv-clean:
 	rm -rf .venv
 
-VERIBLE_FMT ?= verible-verilog-format
-
 verible-fmt:
-	$(VERIBLE_FMT) --flagfile .verilog_format --inplace --verbose $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
+	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
 
 #################
 # Documentation #
@@ -209,3 +211,4 @@ help:
 	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."
 	@echo -e "${Green}python-venv          ${Black}Create a Python virtual environment and install the required packages."
 	@echo -e "${Green}python-venv-clean    ${Black}Remove the Python virtual environment."
+	@echo -e "${Green}verible-fmt          ${Black}Format SystemVerilog files using Verible."
