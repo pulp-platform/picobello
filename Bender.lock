@@ -151,8 +151,8 @@ packages:
     dependencies:
     - axi
   floo_noc:
-    revision: 71972efee8c8216af7ed1ee3f640e585cb5ba181
-    version: 0.6.0
+    revision: 92946e2818064d38943390b8c09f30f9d4ded0e0
+    version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
@@ -177,8 +177,8 @@ packages:
     dependencies:
     - common_cells
   idma:
-    revision: ff5d56fffb3767814db88d6bf8f381974ea33aa5
-    version: 0.6.4
+    revision: 1a42da9d5c76f1cff0bcdaaacc474ed85631d734
+    version: null
     source:
       Git: https://github.com/pulp-platform/iDMA.git
     dependencies:

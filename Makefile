@@ -5,37 +5,49 @@
 # Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 PB_ROOT ?= $(shell pwd)
-
-############
-# Cheshire #
-############
-
-# Use bender from the picobello root directory
-BENDER_ROOT ?= $(PB_ROOT)/.bender
-BENDER ?= bender -d $(PB_ROOT)
-
-COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster
-SIM_TARGS += -t simulation -t test -t idma_test
-
 PB_GEN_DIR = $(PB_ROOT)/.generated
+BENDER_ROOT ?= $(PB_ROOT)/.bender
 
 $(PB_GEN_DIR):
 	mkdir -p $(PB_GEN_DIR)
+
+# Configuration files
+FLOO_CFG  ?= $(PB_ROOT)/cfg/picobello_noc.yml
+SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
+PLIC_CFG  ?= $(PB_ROOT)/cfg/rv_plic.cfg.hjson
+SLINK_CFG ?= $(PB_ROOT)/cfg/serial_link.hjson
+
+# Root directories of dependencies
+CHS_ROOT  = $(shell $(BENDER) path cheshire)
+SN_ROOT   = $(shell $(BENDER) path snitch_cluster)
+FLOO_ROOT = $(shell $(BENDER) path floo_noc)
+
+# Executables
+BENDER           ?= bender -d $(PB_ROOT)
+FLOO_GEN	       ?= floogen
+VERIBLE_FMT      ?= verible-verilog-format
+VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
+
+################
+# Bender flags #
+################
+
+COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster -t floogen_pkg
+SIM_TARGS += -t simulation -t test -t idma_test
 
 ############
 # Cheshire #
 ############
 
 CLINTCORES ?= 17
-CHS_ROOT = $(shell $(BENDER) path cheshire)
 include $(CHS_ROOT)/cheshire.mk
 
 $(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
-$(OTPROOT)/.generated2: cfg/rv_plic.cfg.hjson
+$(OTPROOT)/.generated2: $(PLIC_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 $(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
-$(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
+$(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 ##################
@@ -43,9 +55,6 @@ $(CHS_SLINK_DIR)/.generated2:	cfg/serial_link.hjson
 ##################
 
 .PHONY: sn-hw-clean sn-hw-all
-
-SN_ROOT = $(shell $(BENDER) path snitch_cluster)
-SN_CFG ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
 
 include $(SN_ROOT)/target/common/rtl.mk
 sn-hw-all: sn-wrapper
@@ -62,20 +71,15 @@ update-sn-cfg: $(SN_CFG)
 
 .PHONY: floo-hw-all floo-clean
 
-FLOO_ROOT = $(shell $(BENDER) path floo_noc)
-FLOO_GEN	?= floogen
-FLOO_CFG ?= $(PB_ROOT)/cfg/picobello_noc.yml
-
-# Check if the "verible-verilog-format" is installed in the system
-# otherwise use the "--no-format" flag to generate FlooNoC.
-NO_FORMAT_FLAG ?=
-ifeq ($(shell command -v verible-verilog-format 2>/dev/null),)
-	NO_FORMAT_FLAG += --no-format
+# Check if `VERIBLE_FMT` executable is valid, otherwise don't format FlooGen output
+FLOO_GEN_FLAGS = --no-format
+ifeq ($(shell $(VERIBLE_FMT) --version >/dev/null 2>&1 && echo OK),OK)
+	FLOO_GEN_FLAGS = --verible-fmt-bin="$(VERIBLE_FMT)" --verible-fmt-args="$(VERIBLE_FMT_ARGS)"
 endif
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(NO_FORMAT_FLAG)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
@@ -85,7 +89,7 @@ floo-clean:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= 995649785b10c24187ab4c9e189cf5e408588f38
+PD_COMMIT ?= 4b35bdb2108054bc2213b9636090b76172d257ed
 PD_DIR = $(PB_ROOT)/pd
 
 .PHONY: init-pd clean-pd
@@ -141,7 +145,7 @@ BASE_PYTHON ?= python
 # includes `traces` and `annotate` targets
 include $(SN_ROOT)/target/common/common.mk
 
-.PHONY: dvt-flist python-venv python-venv-clean
+.PHONY: dvt-flist python-venv python-venv-clean verible-fmt
 
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
@@ -156,6 +160,9 @@ python-venv: .venv
 
 python-venv-clean:
 	rm -rf .venv
+
+verible-fmt:
+	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
 
 #################
 # Documentation #
@@ -204,3 +211,4 @@ help:
 	@echo -e "${Green}dvt-flist            ${Black}Generate a file list for the VSCode DVT plugin."
 	@echo -e "${Green}python-venv          ${Black}Create a Python virtual environment and install the required packages."
 	@echo -e "${Green}python-venv-clean    ${Black}Remove the Python virtual environment."
+	@echo -e "${Green}verible-fmt          ${Black}Format SystemVerilog files using Verible."

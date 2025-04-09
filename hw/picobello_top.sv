@@ -217,7 +217,6 @@ module picobello_top
     );
   end
 
-
   /////////////////////
   // NoC Connections //
   /////////////////////
@@ -231,27 +230,12 @@ module picobello_top
           assign floo_rsp_in[x][y][Dir]  = '0;
           assign floo_wide_in[x][y][Dir] = '0;
         end else begin : gen_con
-          assign floo_req_in[x][y][Dir] = floo_req_out[neighbor_x(
-              x, Dir
-          )][neighbor_y(
-              y, Dir
-          )][opposite_dir(
-              Dir
-          )];
-          assign floo_rsp_in[x][y][Dir] = floo_rsp_out[neighbor_x(
-              x, Dir
-          )][neighbor_y(
-              y, Dir
-          )][opposite_dir(
-              Dir
-          )];
-          assign floo_wide_in[x][y][Dir] = floo_wide_out[neighbor_x(
-              x, Dir
-          )][neighbor_y(
-              y, Dir
-          )][opposite_dir(
-              Dir
-          )];
+          localparam int Xn = neighbor_x(x, Dir);
+          localparam int Yn = neighbor_y(y, Dir);
+          localparam route_direction_e Dirn = opposite_dir(Dir);
+          assign floo_req_in[x][y][Dir]  = floo_req_out[Xn][Yn][Dirn];
+          assign floo_rsp_in[x][y][Dir]  = floo_rsp_out[Xn][Yn][Dirn];
+          assign floo_wide_in[x][y][Dir] = floo_wide_out[Xn][Yn][Dirn];
         end
       end
     end
