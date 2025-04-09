@@ -67,13 +67,10 @@ module picobello_top
   // Cluster tiles //
   ///////////////////
 
-  logic [NumClusters-1:0][NrCores-1:0] debug_req, meip, mtip, msip;
+  logic [NumClusters-1:0][NrCores-1:0] debug_req, mtip, msip;
 
-  // TODO: Connect the debug and interrupt signals
+  // TODO: Connect the debug signals
   assign debug_req = '0;
-  assign meip      = '0;
-  assign mtip      = '0;
-  assign msip      = '0;
 
   for (genvar c = 0; c < NumClusters; c++) begin : gen_clusters
 
@@ -89,7 +86,7 @@ module picobello_top
       .rst_ni,
       .test_enable_i      (test_mode_i),
       .debug_req_i        (debug_req[c]),
-      .meip_i             (meip[c]),
+      .meip_i             ('0),
       .mtip_i             (mtip[c]),
       .msip_i             (msip[c]),
       .hart_base_id_i     (HartBaseId[9:0]),
@@ -108,11 +105,6 @@ module picobello_top
   // Cheshire tile //
   ///////////////////
 
-  // TODO(fischeti): Connect the interrupt signals
-  logic [iomsb(NumIrqCtxts*CheshireCfg.NumExtIrqHarts):0] xeip_ext;
-  logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] mtip_ext;
-  logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
-
   localparam id_t CheshireId = Sam[CheshireInternalSamIdx].idx;
 
   cheshire_tile i_cheshire_tile (
@@ -121,9 +113,9 @@ module picobello_top
     .test_mode_i,
     .boot_mode_i,
     .rtc_i,
-    .xeip_ext_o (xeip_ext),
-    .mtip_ext_o (mtip_ext),
-    .msip_ext_o (msip_ext),
+    .xeip_ext_o (),
+    .mtip_ext_o (mtip),
+    .msip_ext_o (msip),
     .jtag_tck_i,
     .jtag_trst_ni,
     .jtag_tms_i,

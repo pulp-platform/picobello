@@ -28,6 +28,11 @@ FLOO_GEN	       ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 
+# Query the number of clusters from the FlooNoC config
+NUM_CLUSTERS ?= $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.cluster.num)
+# Every cluster has 9 cores at the moment, plus one for CVA6
+NUM_CORES ?= $(shell expr $(NUM_CLUSTERS) \* 9 + 1)
+
 ################
 # Bender flags #
 ################
@@ -39,12 +44,8 @@ SIM_TARGS += -t simulation -t test -t idma_test
 # Cheshire #
 ############
 
-CLINTCORES ?= 17
+CLINTCORES = $(NUM_CORES)
 include $(CHS_ROOT)/cheshire.mk
-
-$(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
-$(OTPROOT)/.generated2: $(PLIC_CFG)
-	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 $(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
 $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
@@ -64,10 +65,9 @@ sn-hw-clean: sn-clean-wrapper
 # FlooNoC #
 ###########
 
-SN_CLUSTERS = 16
 .PHONY: update-sn-cfg
 update-sn-cfg: $(SN_CFG)
-	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
+	@sed -i 's/nr_clusters: .*/nr_clusters: $(NUM_CLUSTERS),/' $<
 
 .PHONY: floo-hw-all floo-clean
 
