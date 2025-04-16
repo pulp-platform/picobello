@@ -1,7 +1,0 @@
-# Copyright 2025 ETH Zurich and University of Bologna.
-# Solderpad Hardware License, Version 0.51, see LICENSE for details.
-# SPDX-License-Identifier: SHL-0.51
-
-overrides:
-  # Remove when merged into Cheshire
-  axi_rt: { git: "https://github.com/pulp-platform/axi_rt.git", rev: "50153a346b753dc2bc7723c446656a43db35d02d" }
