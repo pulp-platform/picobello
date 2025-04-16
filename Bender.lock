@@ -3,7 +3,7 @@ packages:
     revision: 77ddf073f194d44b9119949d2421be59789e69ae
     version: 0.2.4
     source:
-      Git: https://github.com/pulp-platform/apb.git
+      Git: https://github.com/pulp-platform/apb
     dependencies:
     - common_cells
   apb_uart:
@@ -18,7 +18,7 @@ packages:
     revision: 39f5f2d51c5e524f6fc5cf8b6e901f7dcc5622d7
     version: 0.39.6
     source:
-      Git: https://github.com/pulp-platform/axi.git
+      Git: https://github.com/pulp-platform/axi
     dependencies:
     - common_cells
     - common_verification
@@ -38,7 +38,7 @@ packages:
     revision: 0ac3a78fe342c5a5b9b10bff49d58897f773059e
     version: 0.8.2
     source:
-      Git: https://github.com/pulp-platform/axi_riscv_atomics.git
+      Git: https://github.com/pulp-platform/axi_riscv_atomics
     dependencies:
     - axi
     - common_cells
@@ -69,8 +69,8 @@ packages:
     - common_cells
     - register_interface
   cheshire:
-    revision: d5101a7884be55a3d7da8419353e7c6d34c8fb57
-    version: null
+    revision: 59963f6d25cebaf14ff32bd7f02b3052d3b01351
+    version: 0.3.0
     source:
       Git: https://github.com/pulp-platform/cheshire.git
     dependencies:
@@ -123,7 +123,7 @@ packages:
     revision: 9afda9abb565971649c2aa0985639c096f351171
     version: 1.38.0
     source:
-      Git: https://github.com/pulp-platform/common_cells.git
+      Git: https://github.com/pulp-platform/common_cells
     dependencies:
     - common_verification
     - tech_cells_generic
@@ -151,8 +151,8 @@ packages:
     dependencies:
     - axi
   floo_noc:
-    revision: 92946e2818064d38943390b8c09f30f9d4ded0e0
-    version: null
+    revision: 6ac187326b222a491180cc3f77e0e4e5a69f5167
+    version: 0.6.1
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
@@ -180,7 +180,7 @@ packages:
     revision: 1a42da9d5c76f1cff0bcdaaacc474ed85631d734
     version: null
     source:
-      Git: https://github.com/pulp-platform/iDMA.git
+      Git: https://github.com/pulp-platform/iDMA
     dependencies:
     - axi
     - axi_stream
@@ -218,7 +218,7 @@ packages:
     revision: 5daa85d164cf6b54ad061ea1e4c6f3624556e467
     version: 0.4.5
     source:
-      Git: https://github.com/pulp-platform/register_interface.git
+      Git: https://github.com/pulp-platform/register_interface
     dependencies:
     - apb
     - axi
@@ -228,7 +228,7 @@ packages:
     revision: 358f90110220adf7a083f8b65d157e836d706236
     version: 0.8.1
     source:
-      Git: https://github.com/pulp-platform/riscv-dbg.git
+      Git: https://github.com/pulp-platform/riscv-dbg
     dependencies:
     - common_cells
     - tech_cells_generic
@@ -267,7 +267,7 @@ packages:
     revision: 7968dd6e6180df2c644636bc6d2908a49f2190cf
     version: 0.2.13
     source:
-      Git: https://github.com/pulp-platform/tech_cells_generic.git
+      Git: https://github.com/pulp-platform/tech_cells_generic
     dependencies:
     - common_verification
   unbent:
