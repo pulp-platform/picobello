@@ -68,7 +68,7 @@ endpoints:
   - name: "l2_spm"
     array: [1]
     addr_range:
-      base: 0x3000_0000
+      base: 0x7000_0000
       size: 0x0010_0000
     sbr_port_protocol:
       - "narrow_out"
