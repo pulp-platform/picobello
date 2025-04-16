@@ -138,9 +138,9 @@ package picobello_pkg;
     ret.Vga                  = 1'b0;
     // We do not need/want USB
     ret.Usb                  = 1'b0;
-    // TODO(fischeti): Check if we need/want an AXI to DRAM
+    // TODO(fischeti): Add Serial Link to LLC AXI port
     ret.LlcOutRegionStart    = 'h8000_0000;
-    ret.LlcOutRegionEnd      = 48'h1_0000_0000;
+    ret.LlcOutRegionEnd      = dw_bt'('h12_0000_0000);
     return ret;
   endfunction
 
