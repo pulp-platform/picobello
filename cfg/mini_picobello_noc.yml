@@ -58,7 +58,7 @@ endpoints:
         end: 0x2000_0000
         desc: "internal"
       - start: 0x8000_0000
-        end: 0x2_0000_0000
+        end: 0x200_0000_0000
         desc: "external"
     mgr_port_protocol:
       - "narrow_in"
