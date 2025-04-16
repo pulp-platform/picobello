@@ -25,7 +25,7 @@
         wide_trans: 32,
         cluster_base_expose: true,
         alias_region_enable: true,
-        alias_region_base: 0x28000000,
+        alias_region_base: 0x30000000,
         // TODO(fischeti): Check if we need Snitch VM support
         vm_support: false,
         // Timing parameters
