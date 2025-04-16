@@ -73,7 +73,7 @@
     external_addr_regions: [
         {
             name: "l2spm",
-            address: 0x30000000,
+            address: 0x70000000,
             length: 0x10000000,
             cacheable: true
         },
