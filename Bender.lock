@@ -15,8 +15,8 @@ packages:
     - apb
     - register_interface
   axi:
-    revision: 39f5f2d51c5e524f6fc5cf8b6e901f7dcc5622d7
-    version: 0.39.6
+    revision: fed6a2f3a92ad7d7b7ef42840901eb218a3c5532
+    version: null
     source:
       Git: https://github.com/pulp-platform/axi.git
     dependencies:
@@ -120,8 +120,8 @@ packages:
     - scm
     - tech_cells_generic
   common_cells:
-    revision: 9afda9abb565971649c2aa0985639c096f351171
-    version: 1.38.0
+    revision: 0fd2ba32926c0360534dc3d5795143cb259abb1c
+    version: null
     source:
       Git: https://github.com/pulp-platform/common_cells.git
     dependencies:
@@ -151,8 +151,8 @@ packages:
     dependencies:
     - axi
   floo_noc:
-    revision: 6ac187326b222a491180cc3f77e0e4e5a69f5167
-    version: 0.6.1
+    revision: f2b26a965b45189c106b2cbbfb855f176d5a57fd
+    version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
@@ -177,8 +177,8 @@ packages:
     dependencies:
     - common_cells
   idma:
-    revision: 1a42da9d5c76f1cff0bcdaaacc474ed85631d734
-    version: null
+    revision: ff5d56fffb3767814db88d6bf8f381974ea33aa5
+    version: 0.6.4
     source:
       Git: https://github.com/pulp-platform/iDMA.git
     dependencies:

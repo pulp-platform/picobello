@@ -12,8 +12,8 @@ dependencies:
   axi: { git: "https://github.com/pulp-platform/axi.git", version: "0.39.6" }
   common_cells: { git: "https://github.com/pulp-platform/common_cells.git", version: "1.37.0" }
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "vip-split-slink-bursts" }
-  floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", version: "0.6.1"}
   snitch_cluster:  { git: "https://github.com/colluca/snitch_cluster.git", rev: "soc-integration" }
+  floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "fischeti/new-mcast"}
 
 workspace:
   package_links:
