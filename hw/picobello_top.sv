@@ -167,6 +167,39 @@ module picobello_top
     .floo_wide_i(floo_wide_in[CheshireId.x][CheshireId.y])
   );
 
+  //////////////////
+  // FhG SPU tile //
+  //////////////////
+
+  // TODO: Connect the debug and interrupt signals
+  logic [8:0] fhg_spu_debug_req, fhg_spu_meip, fhg_spu_mtip, fhg_spu_msip;
+
+  assign fhg_spu_debug_req = '0;
+  assign fhg_spu_meip      = '0;
+  assign fhg_spu_mtip      = '0;
+  assign fhg_spu_msip      = '0;
+
+  localparam id_t FhgSpuId = Sam[FhgSpuSamIdx].idx;
+
+  fhg_spu_tile i_fhg_spu_tile (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i      (test_mode_i),
+    .debug_req_i        (fhg_spu_debug_req),
+    .meip_i             (fhg_spu_meip),
+    .mtip_i             (fhg_spu_mtip),
+    .msip_i             (fhg_spu_msip),
+    .hart_base_id_i     ('0), //TODO: connect actual hart_base_id
+    .cluster_base_addr_i(Sam[FhgSpuSamIdx].start_addr),
+    .id_i               (FhgSpuId),
+    .floo_req_o         (floo_req_out[FhgSpuId.x][FhgSpuId.y]),
+    .floo_rsp_i         (floo_rsp_in[FhgSpuId.x][FhgSpuId.y]),
+    .floo_wide_o        (floo_wide_out[FhgSpuId.x][FhgSpuId.y]),
+    .floo_req_i         (floo_req_in[FhgSpuId.x][FhgSpuId.y]),
+    .floo_rsp_o         (floo_rsp_out[FhgSpuId.x][FhgSpuId.y]),
+    .floo_wide_i        (floo_wide_in[FhgSpuId.x][FhgSpuId.y])
+  );
+
   //////////////
   // Mem tile //
   //////////////
