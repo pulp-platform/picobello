@@ -76,6 +76,6 @@ module fhg_spu_tile
   // It's actually a dummy tile: tie the router’s Eject input ports to 0
   assign router_floo_req_in[Eject]       = '0;
   assign router_floo_rsp_in[Eject]       = '0;
-
+  assign router_floo_wide_in[Eject]      = '0;
 
 endmodule : fhg_spu_tile

@@ -65,6 +65,16 @@ endpoints:
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"
+  - name: "fhg_spu"
+    addr_range:
+      - start: 0x4000_0000
+        size: 0x0004_0000
+    mgr_port_protocol:
+      - "narrow_in"
+      - "wide_in"
+    sbr_port_protocol:
+      - "narrow_out"
+      - "wide_out"
   - name: "l2_spm"
     array: [8]
     addr_range:
@@ -92,6 +102,10 @@ connections:
   - src: "cheshire"
     dst: "router"
     dst_idx: [6, 3]
+    dst_dir: "Eject"
+  - src: "fhg_spu"
+    dst: "router"
+    dst_idx: [6, 0]
     dst_dir: "Eject"
   - src: "l2_spm"
     dst: "router"

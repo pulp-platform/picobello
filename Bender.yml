@@ -41,6 +41,7 @@ sources:
   # Level 2
   - hw/cluster_tile.sv
   - hw/cheshire_tile.sv
+  - hw/fhg_spu_tile.sv
   - hw/mem_tile.sv
   - hw/dummy_tile.sv
   # Level 3
