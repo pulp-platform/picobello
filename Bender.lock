@@ -166,8 +166,8 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: 6ac187326b222a491180cc3f77e0e4e5a69f5167
-    version: 0.6.1
+    revision: 457eb0b74aee208a5f144a891f6204f8933fb54c
+    version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
@@ -285,8 +285,8 @@ packages:
     - riscv-dbg
     - tech_cells_generic
   tech_cells_generic:
-    revision: 7968dd6e6180df2c644636bc6d2908a49f2190cf
-    version: 0.2.13
+    revision: a9cae21902e75b1434328ecf36f85327ba5717de
+    version: 0.2.11
     source:
       Git: https://github.com/pulp-platform/tech_cells_generic.git
     dependencies:

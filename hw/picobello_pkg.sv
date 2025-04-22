@@ -102,6 +102,63 @@ package picobello_pkg;
     return Sam[ep].end_addr - Sam[ep].start_addr;
   endfunction
 
+  /////////////////////
+  //   MULTICAST     //
+  /////////////////////
+
+  localparam bit ENABLE_MULTICAST = 1;
+  localparam int unsigned NUM_MULTICAST_ENDPOINTS = NumClusters;
+
+  typedef struct packed {
+    logic [5:0] offset;
+    logic [5:0] len;
+  } mask_sel_t;
+
+
+  typedef struct packed {
+    id_t                                  idx;
+    logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] start_addr;
+    logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] end_addr;
+    mask_sel_t                            mask_x;
+    mask_sel_t                            mask_y;
+  } sam_multicast_rule_t;
+
+
+  // Packed original SAM with extra information necessary for multicast handling
+  function automatic sam_multicast_rule_t [SamNumRules-1:0] get_sam_multicast();
+    sam_multicast_rule_t [SamNumRules-1:0] sam_multicast;
+    int unsigned tileSize;
+    int unsigned len_id_x, len_id_y;
+    int unsigned offset_id_x, offset_id_y;
+
+    for (int rule = 0; rule < SamNumRules; rule++) begin
+      sam_multicast[rule].idx = Sam[rule].idx;
+      sam_multicast[rule].start_addr = Sam[rule].start_addr;
+      sam_multicast[rule].end_addr = Sam[rule].end_addr;
+
+      // Only Cluster tiles can be target of multicast request.
+      if (rule < NUM_MULTICAST_ENDPOINTS) begin
+        // Evaluate extra info for multicast handling:
+        len_id_x = $clog2(NumClusters);
+        len_id_y = $clog2(NumClusters);
+        tileSize = ep_addr_size(sam_idx_e'(rule));
+        offset_id_y = $clog2(tileSize);
+        offset_id_x = $clog2(tileSize) + len_id_y;
+
+        // Fill new Sam struct with the extra multicast info
+        sam_multicast[rule].mask_x = '{offset: offset_id_x, len: len_id_x};
+        sam_multicast[rule].mask_y = '{offset: offset_id_y, len: len_id_y};
+      end else begin
+        sam_multicast[rule].mask_x = '{offset: '0, len: '0};
+        sam_multicast[rule].mask_y = '{offset: '0, len: '0};
+      end
+
+    end
+    return sam_multicast;
+  endfunction
+
+  sam_multicast_rule_t [SamNumRules-1:0] sam_multicast = get_sam_multicast();
+
   ////////////////
   //  Cheshire  //
   ////////////////
