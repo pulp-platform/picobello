@@ -181,6 +181,7 @@ module picobello_top
 
   localparam id_t FhgSpuId = Sam[FhgSpuSamIdx].idx;
 
+  // TODO: connect actual hart_base_id
   fhg_spu_tile i_fhg_spu_tile (
     .clk_i,
     .rst_ni,
@@ -189,7 +190,7 @@ module picobello_top
     .meip_i             (fhg_spu_meip),
     .mtip_i             (fhg_spu_mtip),
     .msip_i             (fhg_spu_msip),
-    .hart_base_id_i     ('0), //TODO: connect actual hart_base_id
+    .hart_base_id_i     ('0),
     .cluster_base_addr_i(Sam[FhgSpuSamIdx].start_addr),
     .id_i               (FhgSpuId),
     .floo_req_o         (floo_req_out[FhgSpuId.x][FhgSpuId.y]),
