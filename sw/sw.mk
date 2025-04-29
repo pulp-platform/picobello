@@ -19,14 +19,37 @@ PB_INCDIR = $(PB_SW_DIR)/include
 ####################
 
 SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
-SNRT_SRCDIR 	      = $(SNRT_TARGET_DIR)
+SNRT_SRCDIR 	    = $(SNRT_TARGET_DIR)
 SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
 SNRT_INCDIRS        = $(PB_INCDIR)
 SNRT_BUILD_APPS    ?= OFF
 
-ifneq (,$(filter chs-sw% snrt% sw,$(MAKECMDGOALS)))
+ifneq (,$(filter chs-sw% snrt% pb-snrt-tests% sw,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
+
+# Collect Snitch tests which should be built
+PB_SNRT_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
+PB_SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
+PB_SNRT_TEST_NAMES = $(basename $(notdir $(wildcard $(PB_SNRT_TESTS_DIR)/*.c)))
+PB_SNRT_TEST_ELFS = $(abspath $(addprefix $(PB_SNRT_TESTS_BUILDDIR)/,$(addsuffix .elf,$(PB_SNRT_TEST_NAMES))))
+PB_SNRT_TEST_DUMP = $(abspath $(addprefix $(PB_SNRT_TESTS_BUILDDIR)/,$(addsuffix .dump,$(PB_SNRT_TEST_NAMES))))
+
+.PHONY: pb-snrt-tests clean-pb-snrt-tests
+
+pb-snrt-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
+
+clean-pb-snrt-tests:
+	rm -rf $(PB_SNRT_TEST_ELFS)
+
+$(PB_SNRT_TESTS_BUILDDIR)/%.d: $(PB_SNRT_TESTS_DIR)/%.c | $(PB_SNRT_TESTS_BUILDDIR)
+	$(RISCV_CC) $(SNRT_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' $< > $@
+
+$(PB_SNRT_TESTS_BUILDDIR)/%.elf: $(PB_SNRT_TESTS_DIR)/%.c $(SNRT_LIB) | $(PB_SNRT_TESTS_BUILDDIR)
+	$(RISCV_CC) $(SNRT_TESTS_RISCV_CFLAGS) $(SNRT_TESTS_RISCV_LDFLAGS) $< -o $@
+
+$(PB_SNRT_TESTS_BUILDDIR)/%.dump: $(PB_SNRT_TESTS_BUILDDIR)/%.elf | $(PB_SNRT_TESTS_BUILDDIR)
+	$(RISCV_OBJDUMP) $(RISCV_OBJDUMP_FLAGS) $< > $@
 
 ######################
 ## Picobello Global ##
@@ -63,12 +86,14 @@ chs-sw-tests: $(PB_CHS_SW_TEST)
 chs-sw-tests-clean:
 	rm -f $(PB_CHS_SW_TEST_DUMP)
 	rm -f $(PB_CHS_SW_TEST_ELF)
+	rm -f $(PB_SN_SW_TEST_ELF)
 
 #########################
 # General Phony targets #
 #########################
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests snrt-tests
+sw sw-tests: chs-sw-tests snrt-tests pb-snrt-tests
 
-sw-clean sw-tests-clean: chs-sw-tests-clean clean-snrt-tests
+sw-clean sw-tests-clean: chs-sw-tests-clean clean-snrt-tests clean-pb-snrt-tests
+
