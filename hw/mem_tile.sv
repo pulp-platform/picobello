@@ -12,14 +12,15 @@ module mem_tile
   import floo_pkg::*;
   import floo_picobello_noc_pkg::*;
   import picobello_pkg::*;
+  import obi_pkg::*;
 #(
   // The maximum data width of the instantiated SRAMs
-  parameter int unsigned SramDataWidth = 256,  // in bits
+  parameter int unsigned SramDataWidth  = 256,   // in bits
   // The number of words in the instantiated SRAMs
-  parameter int unsigned SramNumWords = 512, // in #words
-  parameter bit          AxiUserAtop      = 1'b1,
-  parameter int unsigned AxiUserAtopMsb   = 3,
-  parameter int unsigned AxiUserAtopLsb   = 0
+  parameter int unsigned SramNumWords   = 512,   // in #words
+  parameter bit          AxiUserAtop    = 1'b1,
+  parameter int unsigned AxiUserAtopMsb = 3,
+  parameter int unsigned AxiUserAtopLsb = 0
 ) (
   input  logic                    clk_i,
   input  logic                    rst_ni,
@@ -170,6 +171,7 @@ module mem_tile
     .AxiCfgN         (axi_cfg_swap_iw(AxiCfgN)),
     .AxiCfgW         (axi_cfg_swap_iw(AxiCfgW)),
     .AxiCfgJoin      (axi_cfg_swap_iw(AxiCfgJoin)),
+    .EnAtopAdapter   (1'b0),
     .AtopUserAsId    (1'b1),
     .axi_narrow_req_t(axi_narrow_out_req_t),
     .axi_narrow_rsp_t(axi_narrow_out_rsp_t),
@@ -189,109 +191,65 @@ module mem_tile
     .axi_rsp_i       (axi_rsp)
   );
 
-//  ///////////////////////
-//  // axi2mem converter //
-//  ///////////////////////
-
-//  typedef logic [$clog2(MemTileSize)-1:0] mem_addr_t;
-//  typedef logic [SramDataWidth-1:0] mem_data_t;
-//  typedef logic [SramDataWidth/8-1:0] mem_be_t;
-
-//  logic [NumBanksPerWord-1:0] mem_req, mem_req_q;
-//  logic [NumBanksPerWord-1:0] mem_we;
-//  mem_addr_t [NumBanksPerWord-1:0] mem_addr;
-//  mem_data_t [NumBanksPerWord-1:0] mem_wdata;
-//  mem_be_t [NumBanksPerWord-1:0] mem_be;
-//  mem_data_t [NumBanksPerWord-1:0] mem_rdata;
-
-//  axi_to_mem #(
-//    .AddrWidth  ( $clog2(MemTileSize)   ),
-//    .DataWidth  ( AxiCfgJoin.DataWidth  ),
-//    .IdWidth    ( AxiCfgJoin.OutIdWidth ),
-//    .NumBanks   ( NumBanksPerWord   ),
-//    .axi_req_t  ( axi_nw_join_req_t ),
-//    .axi_resp_t ( axi_nw_join_rsp_t )
-//  ) i_axi_to_mem (
-//    .clk_i,
-//    .rst_ni,
-//    .busy_o       ( ),
-//    .axi_req_i    ( axi_req ),
-//    .axi_resp_o   ( axi_rsp ),
-//    .mem_req_o    ( mem_req ),
-//    .mem_gnt_i    ( {NumBanksPerWord{1'b1}} ),
-//    .mem_addr_o   ( mem_addr  ),
-//    .mem_wdata_o  ( mem_wdata ),
-//    .mem_strb_o   ( mem_be    ),
-//    .mem_atop_o   ( ), // No atops on wide
-//    .mem_we_o     ( mem_we    ),
-//    .mem_rvalid_i ( mem_req_q ),
-//    .mem_rdata_i  ( mem_rdata )
-//  );
-//  `FF(mem_req_q, mem_req, '0)
-
   ///////////////////////
   // axi2obi converter //
   ///////////////////////
 
   // typedef obi for atomic config
-  localparam obi_pkg::obi_optional_cfg_t MgrObiOptionalCfg= '{
-    UseAtop:    1'b1,
-    UseMemtype: 1'b0,
-    UseProt:    1'b0,
-    UseDbg:     1'b0,
-    AUserWidth:    0,
-    WUserWidth:    0,
-    RUserWidth:    0,
-    MidWidth:      0,
-    AChkWidth:     0,
-    RChkWidth:     0
+  localparam obi_pkg::obi_optional_cfg_t MgrObiOptionalCfg = '{
+      UseAtop: 1'b1,
+      UseMemtype: 1'b0,
+      UseProt: 1'b0,
+      UseDbg: 1'b0,
+      AUserWidth: 0,
+      WUserWidth: 0,
+      RUserWidth: 0,
+      MidWidth: 0,
+      AChkWidth: 0,
+      RChkWidth: 0
   };
-  localparam obi_pkg::obi_cfg_t MgrObiCfg =
-            obi_pkg::obi_default_cfg(AxiCfgJoin.AddrWidth,
-                                     AxiCfgJoin.DataWidth,
-                                     (AxiUserAtop ? AxiUserAtopMsb+1-AxiUserAtopLsb : AxiCfgJoin.OutIdWidth),
-                                     MgrObiOptionalCfg);
+  localparam obi_pkg::obi_cfg_t MgrObiCfg = obi_pkg::obi_default_cfg(
+      AxiCfgJoin.AddrWidth,
+      AxiCfgJoin.DataWidth,
+      (AxiUserAtop ? AxiUserAtopMsb + 1 - AxiUserAtopLsb : AxiCfgJoin.OutIdWidth),
+      MgrObiOptionalCfg
+  );
   `OBI_TYPEDEF_ATOP_A_OPTIONAL(mgr_obi_a_optional_t)
-  `OBI_TYPEDEF_A_CHAN_T(mgr_obi_a_chan_t,
-                        MgrObiCfg.AddrWidth,
-                        MgrObiCfg.DataWidth,
-                        MgrObiCfg.IdWidth,
-                        mgr_obi_a_optional_t)
+  `OBI_TYPEDEF_A_CHAN_T(mgr_obi_a_chan_t, MgrObiCfg.AddrWidth, MgrObiCfg.DataWidth,
+                        MgrObiCfg.IdWidth, mgr_obi_a_optional_t)
   `OBI_TYPEDEF_DEFAULT_REQ_T(mgr_obi_req_t, mgr_obi_a_chan_t)
-  typedef struct packed { 
-  	logic exokay; 
-  } mgr_obi_r_optional_t;
-  `OBI_TYPEDEF_R_CHAN_T(mgr_obi_r_chan_t, MgrObiCfg.DataWidth, MgrObiCfg.IdWidth, mgr_obi_r_optional_t)
+  typedef struct packed {logic exokay;} mgr_obi_r_optional_t;
+  `OBI_TYPEDEF_R_CHAN_T(mgr_obi_r_chan_t, MgrObiCfg.DataWidth, MgrObiCfg.IdWidth,
+                        mgr_obi_r_optional_t)
   `OBI_TYPEDEF_RSP_T(mgr_obi_rsp_t, mgr_obi_r_chan_t)
 
 
   // typedef obi for default config
-  localparam obi_pkg::obi_optional_cfg_t SbrObiOptionalCfg= '{
-    UseAtop:    1'b0,
-    UseMemtype: 1'b0,
-    UseProt:    1'b0,
-    UseDbg:     1'b0,
-    AUserWidth:    0,
-    WUserWidth:    0,
-    RUserWidth:    0,
-    MidWidth:      0,
-    AChkWidth:     0,
-    RChkWidth:     0
+  localparam obi_pkg::obi_optional_cfg_t SbrObiOptionalCfg = '{
+      UseAtop: 1'b0,
+      UseMemtype: 1'b0,
+      UseProt: 1'b0,
+      UseDbg: 1'b0,
+      AUserWidth: 0,
+      WUserWidth: 0,
+      RUserWidth: 0,
+      MidWidth: 0,
+      AChkWidth: 0,
+      RChkWidth: 0
   };
-  localparam obi_pkg::obi_cfg_t SbrObiCfg = 
-  	obi_pkg::obi_default_cfg(AxiCfgJoin.AddrWidth,
-														AxiCfgJoin.DataWidth,
-                            AxiCfgJoin.OutIdWidth,
-                            SbrObiOptionalCfg);
+  localparam obi_pkg::obi_cfg_t SbrObiCfg = obi_pkg::obi_default_cfg(
+      AxiCfgJoin.AddrWidth,
+      AxiCfgJoin.DataWidth,
+      (AxiUserAtop ? AxiUserAtopMsb + 1 - AxiUserAtopLsb : AxiCfgJoin.OutIdWidth),
+      SbrObiOptionalCfg
+  );
   `OBI_TYPEDEF_MINIMAL_A_OPTIONAL(sbr_obi_a_optional_t)
-  `OBI_TYPEDEF_A_CHAN_T(sbr_obi_a_chan_t,
-                        SbrObiCfg.AddrWidth,
-                        SbrObiCfg.DataWidth,
-                        SbrObiCfg.IdWidth,
-                        sbr_obi_a_optional_t)
+  `OBI_TYPEDEF_A_CHAN_T(sbr_obi_a_chan_t, SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth,
+                        SbrObiCfg.IdWidth, sbr_obi_a_optional_t)
   `OBI_TYPEDEF_DEFAULT_REQ_T(sbr_obi_req_t, sbr_obi_a_chan_t)
   `OBI_TYPEDEF_MINIMAL_R_OPTIONAL(sbr_obi_r_optional_t)
-  `OBI_TYPEDEF_R_CHAN_T(sbr_obi_r_chan_t, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, sbr_obi_r_optional_t)
+  `OBI_TYPEDEF_R_CHAN_T(sbr_obi_r_chan_t, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth,
+                        sbr_obi_r_optional_t)
   `OBI_TYPEDEF_RSP_T(sbr_obi_rsp_t, sbr_obi_r_chan_t)
 
 
@@ -312,83 +270,85 @@ module mem_tile
 
   if (AxiUserAtop) begin : gen_user_atop
     assign obi_in_write_aid = axi_in_aw_user[AxiUserAtopMsb-1:AxiUserAtopLsb];
-    assign obi_in_read_aid = axi_in_ar_user[AxiUserAtopMsb-1:AxiUserAtopLsb];
+    assign obi_in_read_aid  = axi_in_ar_user[AxiUserAtopMsb-1:AxiUserAtopLsb];
   end else begin : gen_plain_atop
     assign obi_in_write_aid = axi_in_aw_id;
-    assign obi_in_read_aid = axi_in_ar_id;
-  end                                                      
+    assign obi_in_read_aid  = axi_in_ar_id;
+  end
 
   always_comb begin : proc_obi_user
     axi_in_r_user = '0;
     axi_in_b_user = '0;
     // Respond with same ATOP ID
     if (AxiUserAtop) begin
-      axi_in_r_user[AxiUserAtopMsb-1:AxiUserAtopLsb] |= axi_in_rsp_read_size_enable ? obi_in_rsp_read_rid : '0;
+      axi_in_r_user[AxiUserAtopMsb-1:AxiUserAtopLsb] |= axi_in_rsp_read_size_enable ?
+                                                        obi_in_rsp_read_rid : '0;
       // No need to buffer the ATOP ID
-      axi_in_b_user[AxiUserAtopMsb-1:AxiUserAtopLsb] |= axi_in_rsp_write_bank_strobe ? obi_in_rsp_write_rid : '0;
+      axi_in_b_user[AxiUserAtopMsb-1:AxiUserAtopLsb] |= axi_in_rsp_write_bank_strobe ?
+                                                        obi_in_rsp_write_rid : '0;
     end
   end
 
   axi_to_obi #(
-    .ObiCfg       ( MgrObiCfg             ),
-    .obi_req_t 	  ( mgr_obi_req_t         ),
-    .obi_rsp_t 	  ( mgr_obi_rsp_t         ),
-    .obi_a_chan_t ( mgr_obi_a_chan_t      ),
-    .obi_r_chan_t ( mgr_obi_r_chan_t      ),
-    .AxiAddrWidth ( $clog2(MemTileSize)   ),
-    .AxiDataWidth ( AxiCfgJoin.DataWidth  ),
-    .AxiIdWidth	  ( AxiCfgJoin.OutIdWidth ),
-    .AxiUserWidth ( AxiCfgJoin.UserWidth  ),
-    .MaxTrans     ( 2                     ),
-    .axi_req_t    ( axi_nw_join_req_t 	  ),
-    .axi_rsp_t    ( axi_nw_join_rsp_t 	  )
+    .ObiCfg      (MgrObiCfg),
+    .obi_req_t   (mgr_obi_req_t),
+    .obi_rsp_t   (mgr_obi_rsp_t),
+    .obi_a_chan_t(mgr_obi_a_chan_t),
+    .obi_r_chan_t(mgr_obi_r_chan_t),
+    .AxiAddrWidth(AxiCfgJoin.AddrWidth),
+    .AxiDataWidth(AxiCfgJoin.DataWidth),
+    .AxiIdWidth  (AxiCfgJoin.OutIdWidth),
+    .AxiUserWidth(AxiCfgJoin.UserWidth),
+    .MaxTrans    (2),
+    .axi_req_t   (axi_nw_join_req_t),
+    .axi_rsp_t   (axi_nw_join_rsp_t)
   ) i_axi_to_obi (
     .clk_i,
     .rst_ni,
-    .testmode_i        ( test_enable_i    ),
-    .axi_req_i         ( axi_req          ),
-    .axi_rsp_o         ( axi_rsp          ),
-    .obi_req_o         ( obi_req          ),
-    .obi_rsp_i         ( obi_rsp          ),
+    .testmode_i(test_enable_i),
+    .axi_req_i (axi_req),
+    .axi_rsp_o (axi_rsp),
+    .obi_req_o (obi_req),
+    .obi_rsp_i (obi_rsp),
 
-		.req_aw_id_o       ( axi_in_aw_id       ),
-		.req_aw_user_o     ( axi_in_aw_user     ),
-		.req_w_user_o      ( axi_in_w_user      ),
-		.req_write_aid_i   ( obi_in_write_aid   ),
-		.req_write_auser_i ( '0                 ),
-		.req_write_wuser_i ( '0                 ),
+    .req_aw_id_o      (axi_in_aw_id),
+    .req_aw_user_o    (axi_in_aw_user),
+    .req_w_user_o     (axi_in_w_user),
+    .req_write_aid_i  (obi_in_write_aid),
+    .req_write_auser_i('0),
+    .req_write_wuser_i('0),
 
-    .req_ar_id_o      ( axi_in_ar_id      ),
-    .req_ar_user_o    ( axi_in_ar_user    ),
-    .req_read_aid_i   ( obi_in_read_aid   ),
-    .req_read_auser_i ( '0                ),
+    .req_ar_id_o     (axi_in_ar_id),
+    .req_ar_user_o   (axi_in_ar_user),
+    .req_read_aid_i  (obi_in_read_aid),
+    .req_read_auser_i('0),
 
-    .rsp_write_aw_user_o   ( axi_in_rsp_aw_user           ),
-    .rsp_write_w_user_o    ( axi_in_rsp_w_user            ),
-    .rsp_write_bank_strb_o ( axi_in_rsp_write_bank_strobe ),
-    .rsp_write_rid_o       ( obi_in_rsp_write_rid         ),
-    .rsp_write_ruser_o     ( /* Unused */                 ),
-    .rsp_write_last_o      ( /* Unused */                 ),
-    .rsp_write_hs_o        ( /* Unused */                 ),
-    .rsp_b_user_i          ( axi_in_b_user                ),
+    .rsp_write_aw_user_o  (axi_in_rsp_aw_user),
+    .rsp_write_w_user_o   (axi_in_rsp_w_user),
+    .rsp_write_bank_strb_o(axi_in_rsp_write_bank_strobe),
+    .rsp_write_rid_o      (obi_in_rsp_write_rid),
+    .rsp_write_ruser_o    (  /* Unused */),
+    .rsp_write_last_o     (  /* Unused */),
+    .rsp_write_hs_o       (  /* Unused */),
+    .rsp_b_user_i         (axi_in_b_user),
 
-    .rsp_read_ar_user_o    ( /* Unused */                 ),
-    .rsp_read_size_enable_o( axi_in_rsp_read_size_enable  ),
-    .rsp_read_rid_o        ( obi_in_rsp_read_rid          ),
-    .rsp_read_ruser_o      ( /* Unused */                 ),
-    .rsp_r_user_i          ( axi_in_r_user                )
+    .rsp_read_ar_user_o    (  /* Unused */),
+    .rsp_read_size_enable_o(axi_in_rsp_read_size_enable),
+    .rsp_read_rid_o        (obi_in_rsp_read_rid),
+    .rsp_read_ruser_o      (  /* Unused */),
+    .rsp_r_user_i          (axi_in_r_user)
   );
 
   /////////////////
   // SRAM macros //
   /////////////////
 
-  logic mem_req;
-  logic mem_we;
+  logic                            mem_req;
+  logic                            mem_we;
   logic [AxiCfgJoin.AddrWidth-1:0] mem_addr;
-  logic [AxiCfgW.DataWidth-1:0] mem_wdata;
-  logic [AxiCfgW.DataWidth/8-1:0] mem_be;
-  logic [AxiCfgW.DataWidth-1:0] mem_rdata;
+  logic [   AxiCfgW.DataWidth-1:0] mem_wdata;
+  logic [ AxiCfgW.DataWidth/8-1:0] mem_be;
+  logic [   AxiCfgW.DataWidth-1:0] mem_rdata;
 
   obi_atop_resolver #(
     .SbrPortObiCfg            (MgrObiCfg),
@@ -405,48 +365,48 @@ module mem_tile
   ) i_obi_atop_resolver (
     .clk_i,
     .rst_ni,
-    .testmode_i     ( test_enable_i ),
-    .sbr_port_req_i ( obi_req       ),
-    .sbr_port_rsp_o ( obi_rsp       ),
-    .mgr_port_req_o ( mem_obi_req   ),
-    .mgr_port_rsp_i ( mem_obi_rsp   )
+    .testmode_i    (test_enable_i),
+    .sbr_port_req_i(obi_req),
+    .sbr_port_rsp_o(obi_rsp),
+    .mgr_port_req_o(mem_obi_req),
+    .mgr_port_rsp_i(mem_obi_rsp)
   );
 
   obi_sram_shim #(
-    .ObiCfg    ( SbrObiCfg     ),
-    .obi_req_t ( sbr_obi_req_t ),
-    .obi_rsp_t ( sbr_obi_rsp_t )
+    .ObiCfg   (SbrObiCfg),
+    .obi_req_t(sbr_obi_req_t),
+    .obi_rsp_t(sbr_obi_rsp_t)
   ) i_sram_shim_bank (
     .clk_i,
     .rst_ni,
-    .obi_req_i ( mem_obi_req  ),
-    .obi_rsp_o ( mem_obi_rsp  ),
-    .req_o     ( mem_req      ),
-    .we_o      ( mem_we       ),
-    .addr_o    ( mem_addr     ),
-    .wdata_o   ( mem_wdata    ),
-    .be_o      ( mem_be       ),
-    .gnt_i     ( 1'b1         ),
-    .rdata_i   ( mem_rdata    )
+    .obi_req_i(mem_obi_req),
+    .obi_rsp_o(mem_obi_rsp),
+    .req_o    (mem_req),
+    .we_o     (mem_we),
+    .addr_o   (mem_addr),
+    .wdata_o  (mem_wdata),
+    .be_o     (mem_be),
+    .gnt_i    (1'b1),
+    .rdata_i  (mem_rdata)
   );
 
   logic [NumBanksPerWord-1:0][SramMacroSelWidth-1:0] sram_macro_sel, sram_macro_sel_q;
-  logic [NumBanksPerWord-1:0][SramAddrWidth-1:0] sram_addr;
-  logic [NumBankRows-1:0][NumBanksPerWord-1:0][SramDataWidth-1:0] sram_rdata_split;
+  logic [NumBanksPerWord-1:0][  SramAddrWidth-1:0]                    sram_addr;
+  logic [    NumBankRows-1:0][NumBanksPerWord-1:0][SramDataWidth-1:0] sram_rdata_split;
 
-  logic [NumBanksPerWord-1:0][SramDataWidth-1:0] sram_wdata;
-  logic [NumBanksPerWord-1:0][SramDataWidth/8-1:0] sram_be;
+  logic [NumBanksPerWord-1:0][  SramDataWidth-1:0]                    sram_wdata;
+  logic [NumBanksPerWord-1:0][SramDataWidth/8-1:0]                    sram_be;
 
   for (genvar i = 0; i < NumBanksPerWord; i++) begin : gen_addresses
     // Calculate the addresses
-    assign sram_addr[i] = mem_addr[SramAddrWidthOffset +: SramAddrWidth];
-    assign sram_macro_sel[i] = mem_addr[SramMacroSelOffset +: SramMacroSelWidth];
+    assign sram_addr[i]      = mem_addr[SramAddrWidthOffset+:SramAddrWidth];
+    assign sram_macro_sel[i] = mem_addr[SramMacroSelOffset+:SramMacroSelWidth];
     // Register the macro selection to select the correct macro for the next cycle
     `FFL(sram_macro_sel_q[i], sram_macro_sel[i], mem_req & ~mem_we, '0);
     // Assign the data
-    assign sram_wdata[i] = mem_wdata[i*SramDataWidth +: SramDataWidth];
-    assign sram_be[i] = mem_be[i*SramDataWidth/8 +: SramDataWidth/8];
-    assign mem_rdata[i*SramDataWidth +: SramDataWidth] = sram_rdata_split[sram_macro_sel_q[i]][i];
+    assign sram_wdata[i]                             = mem_wdata[i*SramDataWidth+:SramDataWidth];
+    assign sram_be[i]                                = mem_be[i*SramDataWidth/8+:SramDataWidth/8];
+    assign mem_rdata[i*SramDataWidth+:SramDataWidth] = sram_rdata_split[sram_macro_sel_q[i]][i];
   end
 
   for (genvar i = 0; i < NumBanksPerWord; i++) begin : gen_sram_banks
@@ -459,12 +419,12 @@ module mem_tile
       ) i_mem (
         .clk_i,
         .rst_ni,
-        .req_i   ( mem_req && (sram_macro_sel[i] == j) ),
-        .we_i    ( mem_we && (sram_macro_sel[i] == j)  ),
-        .addr_i  ( sram_addr[i]                        ),
-        .wdata_i ( sram_wdata[i]                       ),
-        .be_i    ( sram_be[i]                          ),
-        .rdata_o ( sram_rdata_split[j][i]              )
+        .req_i  (mem_req && (sram_macro_sel[i] == j)),
+        .we_i   (mem_we && (sram_macro_sel[i] == j)),
+        .addr_i (sram_addr[i]),
+        .wdata_i(sram_wdata[i]),
+        .be_i   (sram_be[i]),
+        .rdata_o(sram_rdata_split[j][i])
       );
     end
   end
