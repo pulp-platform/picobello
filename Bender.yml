@@ -14,6 +14,7 @@ dependencies:
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "main" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", version: "0.6.1"}
   snitch_cluster: { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "main" }
+  obi: { git: "https://github.com/pulp-platform/obi.git", rev: "ad1d48f025be540344960ea83b4bff39876f9b36"}
   axi_obi: { path: "hw/axi_obi" }
   picobello-pd:  { path: "./pd" }
 
