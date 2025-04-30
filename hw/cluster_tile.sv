@@ -44,6 +44,7 @@ module cluster_tile
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
+    .EnMultiCast (ENABLE_MULTICAST),
     .RouteAlgo   (RouteCfg.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),
@@ -95,11 +96,14 @@ module cluster_tile
     .RouteCfg            (floo_picobello_noc_pkg::RouteCfg),
     .AtopSupport         (1'b1),
     .MaxAtomicTxns       (1),
-    .Sam                 (floo_picobello_noc_pkg::Sam),
+    .EnMultiCast         (ENABLE_MULTICAST),
+    .Sam                 (picobello_pkg::sam_multicast),
     .id_t                (floo_picobello_noc_pkg::id_t),
     .rob_idx_t           (floo_picobello_noc_pkg::rob_idx_t),
     .hdr_t               (floo_picobello_noc_pkg::hdr_t),
-    .sam_rule_t          (floo_picobello_noc_pkg::sam_rule_t),
+    .sam_rule_t          (picobello_pkg::sam_multicast_rule_t),
+    .sam_idx_t           (picobello_pkg::sam_idx_t),
+    .mask_sel_t          (picobello_pkg::mask_sel_t),
     .axi_narrow_in_req_t (floo_picobello_noc_pkg::axi_narrow_in_req_t),
     .axi_narrow_in_rsp_t (floo_picobello_noc_pkg::axi_narrow_in_rsp_t),
     .axi_narrow_out_req_t(floo_picobello_noc_pkg::axi_narrow_out_req_t),
@@ -111,7 +115,8 @@ module cluster_tile
     .floo_req_t          (floo_picobello_noc_pkg::floo_req_t),
     .floo_rsp_t          (floo_picobello_noc_pkg::floo_rsp_t),
     .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t),
-    .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t)
+    .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t),
+    .user_struct_t       (picobello_pkg::mcast_user_t)
   ) i_chimney (
     .clk_i,
     .rst_ni,

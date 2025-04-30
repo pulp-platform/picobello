@@ -78,7 +78,7 @@ module picobello_top
   for (genvar c = 0; c < NumClusters; c++) begin : gen_clusters
 
     localparam int ClusterSamIdx = c + ClusterX0Y0SamIdx;
-    localparam id_t ClusterId = Sam[ClusterSamIdx].idx;
+    localparam id_t ClusterId = sam_multicast[ClusterSamIdx].idx.id;
     localparam int X = int'(ClusterId.x);
     localparam int Y = int'(ClusterId.y);
     localparam int unsigned HartBaseId = c * NrCores;
@@ -113,7 +113,7 @@ module picobello_top
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] mtip_ext;
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
 
-  localparam id_t CheshireId = Sam[CheshireInternalSamIdx].idx;
+  localparam id_t CheshireId = sam_multicast[CheshireInternalSamIdx].idx.id;
 
   cheshire_tile i_cheshire_tile (
     .clk_i,
@@ -174,7 +174,7 @@ module picobello_top
   for (genvar m = 0; m < NumMemTiles; m++) begin : gen_memtile
 
     localparam int MemTileSamIdx = m + L2Spm0SamIdx;
-    localparam id_t MemTileId = Sam[MemTileSamIdx].idx;
+    localparam id_t MemTileId = sam_multicast[MemTileSamIdx].idx.id;
     localparam int MemTileX = int'(MemTileId.x);
     localparam int MemTileY = int'(MemTileId.y);
 
