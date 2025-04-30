@@ -11,6 +11,9 @@
 .cache/pip
 .venv
 
+# Emacs undo tree
+*undo-tree*
+
 # Generated source files
 .generated
 
