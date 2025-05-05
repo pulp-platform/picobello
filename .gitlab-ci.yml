@@ -6,7 +6,6 @@ stages:
   - init
   - build
   - run
-  - build-run-pd
 
 .init-env:
   before_script:
@@ -171,7 +170,7 @@ init-pd:
       - pd/ci.yml
 
 subpipe:
-  stage: build-run-pd
+  stage: build
   needs:
     - init-pd
   trigger:
