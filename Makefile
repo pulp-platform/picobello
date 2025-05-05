@@ -98,7 +98,7 @@ floo-clean:
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
 # PD_COMMIT ?= eff66a78fa2d7e9940e47429c021ea907652b949
-PD_COMMIT ?= 4b35bdb2108054bc2213b9636090b76172d257ed # pd/verification branch (test CI)
+PD_COMMIT ?= 998e2f03a9c7215a6d37f7e3acad157aec211bcc # pd/verification branch (test CI)
 PD_DIR = $(PB_ROOT)/pd
 
 .PHONY: init-pd clean-pd
