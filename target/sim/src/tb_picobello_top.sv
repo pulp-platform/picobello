@@ -19,13 +19,20 @@ fixture_picobello_top fix ();
   string        snitch_elf;
   logic  [63:0] snitch_entry;
   int           snitch_fn;
+  int           chs_fn;
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
     if (!$value$plusargs("BOOTMODE=%d", boot_mode)) boot_mode = 0;
     if (!$value$plusargs("PRELMODE=%d", preload_mode)) preload_mode = 1;
-    if (!$value$plusargs("CHS_BINARY=%s", preload_elf)) preload_elf = "";
     if (!$value$plusargs("IMAGE=%s", boot_hex)) boot_hex = "";
+
+    if ($value$plusargs("CHS_BINARY=%s", preload_elf)) begin
+      chs_fn = $fopen(".chsbinary", "w");
+      $fwrite(chs_fn, preload_elf);
+    end else begin
+      preload_elf = "";
+    end
 
     if ($value$plusargs("SN_BINARY=%s", snitch_elf)) begin
       snitch_fn = $fopen(".rtlbinary", "w");

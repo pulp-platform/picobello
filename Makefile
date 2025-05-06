@@ -13,7 +13,7 @@ $(PB_GEN_DIR):
 
 # Configuration files
 FLOO_CFG  ?= $(PB_ROOT)/cfg/picobello_noc.yml
-SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.hjson
+SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.json
 PLIC_CFG  ?= $(PB_ROOT)/cfg/rv_plic.cfg.hjson
 SLINK_CFG ?= $(PB_ROOT)/cfg/serial_link.hjson
 
@@ -24,9 +24,13 @@ FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 
 # Executables
 BENDER           ?= bender -d $(PB_ROOT)
-FLOO_GEN	       ?= floogen
+FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
+
+# Bender prerequisites
+BENDER_YML = $(PB_ROOT)/Bender.yml
+BENDER_LOCK = $(PB_ROOT)/Bender.lock
 
 ################
 # Bender flags #
@@ -54,11 +58,15 @@ $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 # Snitch Cluster #
 ##################
 
+SN_GEN_DIR = $(PB_GEN_DIR)
+include $(SN_ROOT)/target/common/common.mk
+include $(SN_ROOT)/target/common/rtl.mk
+
 .PHONY: sn-hw-clean sn-hw-all
 
-include $(SN_ROOT)/target/common/rtl.mk
-sn-hw-all: sn-wrapper
-sn-hw-clean: sn-clean-wrapper
+sn-hw-all: $(SN_CLUSTER_WRAPPER) $(SN_CLUSTER_PKG)
+sn-hw-clean:
+	rm -rf $(SN_CLUSTER_WRAPPER) $(SN_CLUSTER_PKG)
 
 ###########
 # FlooNoC #
@@ -110,16 +118,15 @@ clean-pd:
 
 PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
-PB_HW_ALL += $(SN_GEN_DIR)/snitch_cluster_wrapper.sv
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 PB_HW_ALL += update-sn-cfg
 
 .PHONY: picobello-hw-all picobello-clean clean
 
-picobello-hw-all all: $(PB_HW_ALL)
+picobello-hw-all all: $(PB_HW_ALL) sn-hw-all
 	$(MAKE) $(PB_HW_ALL)
 
-picobello-hw-clean clean: sn-clean-wrapper floo-clean
+picobello-hw-clean clean: sn-hw-clean floo-clean
 	rm -rf $(BENDER_ROOT)
 
 ############
@@ -135,15 +142,13 @@ include $(PB_ROOT)/sw/sw.mk
 TB_DUT = tb_picobello_top
 
 include $(PB_ROOT)/target/sim/vsim/vsim.mk
+include $(PB_ROOT)/target/sim/traces.mk
 
 ########
 # Misc #
 ########
 
 BASE_PYTHON ?= python
-
-# includes `traces` and `annotate` targets
-include $(SN_ROOT)/target/common/common.mk
 
 .PHONY: dvt-flist python-venv python-venv-clean verible-fmt
 
@@ -196,8 +201,8 @@ help:
 	@echo -e "${Green}sw-clean             ${Black}Clean all software tests."
 	@echo -e "${Green}chs-sw-tests         ${Black}Compile Cheshire software tests."
 	@echo -e "${Green}chs-sw-tests-clean   ${Black}Clean Cheshire software tests."
-	@echo -e "${Green}snrt-tests           ${Black}Compile Snitch runtime software tests."
-	@echo -e "${Green}snrt-clean-tests     ${Black}Clean Snitch runtime software tests."
+	@echo -e "${Green}sn-tests             ${Black}Compile Snitch software tests."
+	@echo -e "${Green}sn-clean-tests       ${Black}Clean Snitch software tests."
 	@echo -e ""
 	@echo -e "Simulation targets:"
 	@echo -e "${Green}vsim-compile         ${Black}Compile with Questasim."
