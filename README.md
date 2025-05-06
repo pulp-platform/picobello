@@ -85,7 +85,7 @@ or more selectively:
 
 ```bash
 make chs-sw-tests
-make snrt-tests
+make sn-tests
 ```
 
 ### Platform simulation

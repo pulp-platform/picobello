@@ -19,12 +19,13 @@ PB_INCDIR = $(PB_SW_DIR)/include
 ####################
 
 SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
-SNRT_SRCDIR 	      = $(SNRT_TARGET_DIR)
 SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
+SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
 SNRT_INCDIRS        = $(PB_INCDIR)
-SNRT_BUILD_APPS    ?= OFF
+SNRT_BUILD_APPS     = OFF
+SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 
-ifneq (,$(filter chs-sw% snrt% sw,$(MAKECMDGOALS)))
+ifneq (,$(filter chs-bootrom% chs-sw% sn% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
 
@@ -44,7 +45,7 @@ PB_LINK_MODE ?= spm
 
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
-CHS_SW_INCLUDES += -I$(SNRT_TARGET_C_HDRS_DIR)
+CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
 
 # TODO(fischeti): This does not work yet for some reason
 CHS_SW_GEN_HDRS += $(PB_ADDRMAP)
@@ -68,7 +69,10 @@ chs-sw-tests-clean:
 # General Phony targets #
 #########################
 
-.PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests snrt-tests
+# Alias sn-clean-tests to align target with Picobello naming convention
+sn-tests-clean: sn-clean-tests
 
-sw-clean sw-tests-clean: chs-sw-tests-clean clean-snrt-tests
+.PHONY: sw sw-tests sw-clean sw-tests-clean
+sw sw-tests: chs-sw-tests sn-tests
+
+sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean
