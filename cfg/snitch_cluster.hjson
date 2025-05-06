@@ -25,7 +25,7 @@
         wide_trans: 32,
         cluster_base_expose: true,
         alias_region_enable: true,
-        alias_region_base: 0x2800_0000,
+        alias_region_base: 0x3000_0000,
         // TODO(fischeti): Check if we need Snitch VM support
         vm_support: false,
         // Timing parameters
@@ -73,7 +73,7 @@
     external_addr_regions: [
         {
             name: "l2spm",
-            address: 0x3000_0000,
+            address: 0x7000_0000,
             length: 0x1000_0000
             cacheable: true
         },
