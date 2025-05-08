@@ -105,6 +105,8 @@ init-pd:
   artifacts:
     paths:
       - pd/ci.yml
+      - .gitlab/common.yml
+      - .gitlab/sw-tests.yml
 
 subpipe:
   stage: build
