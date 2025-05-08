@@ -18,7 +18,7 @@
     policy: pull
 
 .init-deps-tpl:
-  script:
+  before_script:
     # Collect bender sourcess
     - bender checkout
     # Install the python venv

@@ -114,6 +114,6 @@ subpipe:
     - init-pd
   trigger:
     include:
-      - artifact: pd/ci.yml
+      - local: pd/ci.yml
         job: init-pd
     strategy: depend
