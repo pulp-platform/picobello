@@ -34,6 +34,15 @@ packages:
     - common_verification
     - register_interface
     - tech_cells_generic
+  axi_obi:
+    revision: null
+    version: null
+    source:
+      Path: hw/axi_obi
+    dependencies:
+    - axi
+    - common_cells
+    - obi
   axi_riscv_atomics:
     revision: 0ac3a78fe342c5a5b9b10bff49d58897f773059e
     version: 0.8.2
@@ -198,8 +207,8 @@ packages:
     - common_cells
     - register_interface
   obi:
-    revision: 8097928cf1b43712f93d5356f336397879b4ad2c
-    version: 0.1.6
+    revision: ad1d48f025be540344960ea83b4bff39876f9b36
+    version: null
     source:
       Git: https://github.com/pulp-platform/obi.git
     dependencies:
