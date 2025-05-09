@@ -19,6 +19,8 @@ init-deps:
   stage: init
   extends:
     - .init-deps-tpl
+  script:
+    - ':'
 
 ########################
 # Build Software Tests #
