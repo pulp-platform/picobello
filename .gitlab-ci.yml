@@ -47,13 +47,13 @@ init-deps:
 # Build Software Tests #
 ########################
 
-snrt-sw:
+sn-sw:
   stage: build
   extends:
     - .cache-deps
     - .init-env
   script:
-    - make snrt-tests
+    - make sn-tests
   artifacts:
     paths:
       - sw/snitch/tests/build/*.elf
@@ -138,7 +138,7 @@ sim-vsim:
     LOG_FILE: target/sim/vsim/transcript
   needs:
     - chs-sw
-    - snrt-sw
+    - sn-sw
     - vsim-compile
   script:
     # Run the simulation

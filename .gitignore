@@ -13,6 +13,9 @@
 # Generated source files
 .generated
 
+# Workspace symlinks
+.deps
+
 # Physical design repository
 pd
 
@@ -25,6 +28,7 @@ target/sim/vsim/compile.tcl
 modelsim.ini
 *.wlf
 .rtlbinary
+.chsbinary
 
 # Software build files
 *.bin

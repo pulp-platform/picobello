@@ -13,7 +13,11 @@ dependencies:
   common_cells: { git: "https://github.com/pulp-platform/common_cells.git", version: "1.37.0" }
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "vip-split-slink-bursts" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", version: "0.6.1"}
-  snitch_cluster:  { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "soc-integration" }
+  snitch_cluster: { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "main" }
+
+workspace:
+  package_links:
+    .deps/snitch_cluster: snitch_cluster
 
 sources:
   # Source files grouped in levels. Files in level 0 have no dependencies on files in this
@@ -23,7 +27,13 @@ sources:
   - target: floogen_pkg
     files:
     - .generated/floo_picobello_noc_pkg.sv
+  - target: snitch_cluster
+    files:
+    - .generated/snitch_cluster_pkg.sv
   # Level 1
+  - target: snitch_cluster
+    files:
+    - .generated/snitch_cluster_wrapper.sv
   - hw/picobello_pkg.sv
   # Level 2
   - hw/cluster_tile.sv

@@ -11,7 +11,7 @@ pydantic
 ruamel.yaml
 
 # Snitch cluster requirements
-hjson
+json5
 jsonref
 jsonschema
 
@@ -19,3 +19,6 @@ jsonschema
 pyyaml
 flatdict
 tabulate
+
+# Miscellaneous requirements
+hjson  # for reggen
