@@ -54,6 +54,7 @@ snrt-sw:
     - .init-env
   script:
     - make snrt-tests
+    - make pb-snrt-tests
   artifacts:
     paths:
       - sw/snitch/tests/build/*.elf
@@ -127,6 +128,7 @@ vsim-compile:
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 1 }
       # - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/simple.elf, PRELMODE: 3 }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/non_null_exitcode.elf, NZ_EXIT_CODE: 896 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/multi_cluster_atomics.elf }
 
 sim-vsim:
   stage: run
