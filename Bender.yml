@@ -40,6 +40,11 @@ sources:
   - hw/cheshire_tile.sv
   - hw/mem_tile.sv
   - hw/dummy_tile.sv
+
+  - target: not(asic)
+    files:
+    - hw/fhg_spu_tile.sv
+
   # Level 3
   - hw/picobello_top.sv
 
