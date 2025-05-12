@@ -2,10 +2,12 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
+# Sources the environment variables for the IIS environment
 .init-env:
   before_script:
     source iis-env.sh
 
+# Check the cache for bender and python dependencies
 .cache-deps:
   cache:
     key:
@@ -17,6 +19,7 @@
       - .venv
     policy: pull
 
+# Update the cache with the bender and python dependencies
 .init-deps-tpl:
   before_script:
     # Collect bender sourcess
@@ -35,6 +38,7 @@
       - .venv
     policy: pull-push
 
+# Generate the RTL sources
 .generate-rtl-tpl:
   extends:
     - .cache-deps
@@ -47,6 +51,7 @@
       - .generated
     expire_in: 1 day
 
+# Compile the snitch software tests
 .sn-sw-tpl:
   stage: build
   extends:
@@ -59,6 +64,7 @@
       - sw/snitch/tests/build/*.elf
     expire_in: 1 day
 
+# Compile the cheshire software tests
 .chs-sw-tpl:
   extends:
     - .cache-deps
