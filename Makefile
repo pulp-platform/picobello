@@ -24,7 +24,7 @@ FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 
 # Executables
 BENDER           ?= bender -d $(PB_ROOT)
-FLOO_GEN	     ?= floogen
+FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 
@@ -97,7 +97,7 @@ floo-clean:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= cc80ce023da3ad8732f1f2de9430be30c7fba3a0 			# point to commit in GitLab/picobello-PD
+PD_COMMIT ?= 59a018649f40dee3da0645ac97df06f4e45c73ff
 PD_DIR = $(PB_ROOT)/pd
 
 .PHONY: init-pd clean-pd
