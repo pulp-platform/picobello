@@ -1,0 +1,77 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+# Sources the environment variables for the IIS environment
+.init-env:
+  before_script:
+    source iis-env.sh
+
+# Check the cache for bender and python dependencies
+.cache-deps:
+  cache:
+    key:
+      files:
+        - Bender.lock
+        - requirements.txt
+    paths:
+      - .bender
+      - .venv
+    policy: pull
+
+# Update the cache with the bender and python dependencies
+.init-deps-tpl:
+  before_script:
+    # Collect bender sourcess
+    - bender checkout
+    # Install the python venv
+    - make python-venv
+    # Pull the PD repository
+    - make init-pd
+  cache:
+    key:
+      files:
+        - Bender.lock
+        - requirements.txt
+    paths:
+      - .bender
+      - .venv
+    policy: pull-push
+
+# Generate the RTL sources
+.generate-rtl-tpl:
+  extends:
+    - .cache-deps
+    - .init-env
+  script:
+    - make picobello-hw-all
+  artifacts:
+    paths:
+      - .bender
+      - .generated
+    expire_in: 1 day
+
+# Compile the snitch software tests
+.sn-sw-tpl:
+  stage: build
+  extends:
+    - .cache-deps
+    - .init-env
+  script:
+    - make sn-tests
+  artifacts:
+    paths:
+      - sw/snitch/tests/build/*.elf
+    expire_in: 1 day
+
+# Compile the cheshire software tests
+.chs-sw-tpl:
+  extends:
+    - .cache-deps
+    - .init-env
+  script:
+    - make chs-sw-tests
+  artifacts:
+    paths:
+      - sw/cheshire/tests/*.elf
+    expire_in: 1 day

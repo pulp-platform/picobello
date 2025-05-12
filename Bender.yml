@@ -14,6 +14,7 @@ dependencies:
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "vip-split-slink-bursts" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", version: "0.6.1"}
   snitch_cluster: { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "main" }
+  picobello-pd:  { path: "./pd" }
 
 workspace:
   package_links:
@@ -49,3 +50,15 @@ sources:
     files:
       - target/sim/src/fixture_picobello_top.sv
       - target/sim/src/tb_picobello_top.sv
+
+
+  - target: asic
+    files:
+    - pd/hw/picobello_chip.sv
+
+  - target: all(any(simulation, test), asic)
+    include_dirs:
+      - pd/target/sim/include
+    files:
+      - pd/target/sim/src/fixture_picobello_chip.sv
+      - pd/target/sim/src/tb_picobello_chip.sv
