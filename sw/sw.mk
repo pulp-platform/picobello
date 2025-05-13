@@ -25,7 +25,7 @@ SNRT_INCDIRS        = $(PB_INCDIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 
-ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-snrt-tests% sw%,$(MAKECMDGOALS)))
+ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
 
@@ -38,9 +38,9 @@ PB_SNRT_TEST_DUMP = $(abspath $(addprefix $(PB_SNRT_TESTS_BUILDDIR)/,$(addsuffix
 
 .PHONY: pb-snrt-tests clean-pb-snrt-tests
 
-pb-snrt-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
+pb-sn-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
 
-clean-pb-snrt-tests:
+clean-pb-sn-tests:
 	rm -rf $(PB_SNRT_TEST_ELFS)
 
 $(PB_SNRT_TESTS_BUILDDIR)/%.d: $(PB_SNRT_TESTS_DIR)/%.c | $(PB_SNRT_TESTS_BUILDDIR)
@@ -97,6 +97,6 @@ chs-sw-tests-clean:
 sn-tests-clean: sn-clean-tests
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests sn-tests pb-snrt-tests
+sw sw-tests: chs-sw-tests sn-tests pb-sn-tests
 
-sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean clean-pb-snrt-tests
+sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean clean-pb-sn-tests
