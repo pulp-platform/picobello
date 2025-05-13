@@ -69,7 +69,7 @@ packages:
     - common_cells
     - register_interface
   cheshire:
-    revision: 59ab9d48f6d12120150b58684a4ad358558a9aaf
+    revision: ae5795dfdb177a8dc3ef2f43dcc7ceaa36fd9238
     version: null
     source:
       Git: https://github.com/pulp-platform/cheshire.git
@@ -177,8 +177,8 @@ packages:
     dependencies:
     - common_cells
   idma:
-    revision: 1a42da9d5c76f1cff0bcdaaacc474ed85631d734
-    version: null
+    revision: ff5d56fffb3767814db88d6bf8f381974ea33aa5
+    version: 0.6.4
     source:
       Git: https://github.com/pulp-platform/iDMA.git
     dependencies:
