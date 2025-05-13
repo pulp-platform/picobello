@@ -59,6 +59,7 @@
     - .init-env
   script:
     - make sn-tests
+    - make pb-sn-tests
   artifacts:
     paths:
       - sw/snitch/tests/build/*.elf
