@@ -113,9 +113,9 @@ package picobello_pkg;
   // encode the X/Y coordinate.
   // TODO (lleone): Extend FlooGen to support multicast and genearate the corect SAM.
   //
-  localparam bit ENABLE_MULTICAST = 1;
+  localparam bit EnMulticast = 1;
   // Support multicast only to the clusters tiles.
-  localparam int unsigned NUM_MULTICAST_ENDPOINTS = NumClusters;
+  localparam int unsigned NumMcastEndPoints = NumClusters;
 
   typedef logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] user_mask_t;
 
@@ -164,7 +164,7 @@ package picobello_pkg;
       sam_multicast[rule].end_addr   = Sam[rule].end_addr;
 
       // Only Cluster tiles can be target of multicast request.
-      if (rule < NUM_MULTICAST_ENDPOINTS) begin
+      if (rule < NumMcastEndPoints) begin
 
         // Fill new Sam struct with the extra multicast info
         sam_multicast[rule].idx.mask_x = '{offset: offset_id_x, len: len_id_x};
@@ -178,25 +178,27 @@ package picobello_pkg;
     return sam_multicast;
   endfunction
 
-  localparam sam_multicast_rule_t [SamNumRules-1:0] sam_multicast = get_sam_multicast();
+  localparam sam_multicast_rule_t [SamNumRules-1:0] SamMcast = get_sam_multicast();
 
   // Print the system address map for th emulticast rules.
   // TODO(lleone): Generalize for normal address map
   function automatic print_sam_multicast(sam_multicast_rule_t [SamNumRules-1:0] sam_multicast);
     $display("\n--- [SAM] System Address Map (%0d entries) ---", SamNumRules);
-    $display ("[");
+    $display("[");
     for (int i = 0; i < SamNumRules; i++) begin
-      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d}, mask_x: {offset: %0d, len: %0d}, mask_y: {offset: %0d, len: %0d} }, ",
-             sam_multicast[i].idx.id.x,
-             sam_multicast[i].idx.id.y,
-             sam_multicast[i].idx.id.port_id,
-             sam_multicast[i].idx.mask_x.offset,
-             sam_multicast[i].idx.mask_x.len,
-             sam_multicast[i].idx.mask_y.offset,
-             sam_multicast[i].idx.mask_y.len);
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},",
+             SamMcast[i].idx.id.x,
+             SamMcast[i].idx.id.y,
+             SamMcast[i].idx.id.port_id);
+      $write("  mask_x: {offset: %0d, len: %0d},",
+             SamMcast[i].idx.mask_x.offset,
+             SamMcast[i].idx.mask_x.len);
+      $write("  mask_y: {offset: %0d, len: %0d} },",
+             SamMcast[i].idx.mask_y.offset,
+             SamMcast[i].idx.mask_y.len);
       $write("start: 0x%0h, end: 0x%0h }\n",
-             sam_multicast[i].start_addr,
-             sam_multicast[i].end_addr);
+             SamMcast[i].start_addr,
+             SamMcast[i].end_addr);
     end
     $display("]");
     $display("----------------------------------------------------------");
