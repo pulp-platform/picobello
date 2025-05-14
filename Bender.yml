@@ -12,6 +12,7 @@ dependencies:
   axi: { git: "https://github.com/pulp-platform/axi.git", version: "0.39.6" }
   common_cells: { git: "https://github.com/pulp-platform/common_cells.git", version: "1.37.0" }
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "main" }
+  snitch_cluster:  { git: "https://github.com/Lore0599/snitch_cluster.git", rev: "multicast-integration" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "fischeti/new-mcast"}
   snitch_cluster: { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "main" }
   obi: { git: "https://github.com/pulp-platform/obi.git", rev: "ad1d48f025be540344960ea83b4bff39876f9b36"}

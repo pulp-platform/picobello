@@ -15,10 +15,10 @@ packages:
     - apb
     - register_interface
   axi:
-    revision: 39f5f2d51c5e524f6fc5cf8b6e901f7dcc5622d7
-    version: 0.39.6
+    revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
+    version: null
     source:
-      Git: https://github.com/pulp-platform/axi.git
+      Git: https://github.com/colluca/axi.git
     dependencies:
     - common_cells
     - common_verification
@@ -129,8 +129,8 @@ packages:
     - scm
     - tech_cells_generic
   common_cells:
-    revision: 9afda9abb565971649c2aa0985639c096f351171
-    version: 1.38.0
+    revision: 0fd2ba32926c0360534dc3d5795143cb259abb1c
+    version: null
     source:
       Git: https://github.com/pulp-platform/common_cells.git
     dependencies:
@@ -166,7 +166,7 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: 457eb0b74aee208a5f144a891f6204f8933fb54c
+    revision: 9f6f4d223a1016d0ab26229831fc8d120f85bf59
     version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
@@ -270,10 +270,10 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: b60f5574053ba1a808d4547a31be14efee1c0e39
+    revision: c69cd3713d0a9ad6159fd1db9ab2b4bd58c0fb81
     version: null
     source:
-      Git: https://github.com/pulp-platform/snitch_cluster.git
+      Git: https://github.com/Lore0599/snitch_cluster.git
     dependencies:
     - axi
     - axi_riscv_atomics
@@ -285,8 +285,8 @@ packages:
     - riscv-dbg
     - tech_cells_generic
   tech_cells_generic:
-    revision: a9cae21902e75b1434328ecf36f85327ba5717de
-    version: 0.2.11
+    revision: 7968dd6e6180df2c644636bc6d2908a49f2190cf
+    version: 0.2.13
     source:
       Git: https://github.com/pulp-platform/tech_cells_generic.git
     dependencies:
