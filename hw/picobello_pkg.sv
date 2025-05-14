@@ -106,6 +106,9 @@ package picobello_pkg;
   //  Cheshire  //
   ////////////////
 
+  localparam int unsigned CshRegExtDramSerialLink = 0;
+  localparam int unsigned CshNumRegExt = 1;
+
   // Define function to derive configuration from Cheshire defaults.
   function automatic cheshire_pkg::cheshire_cfg_t gen_cheshire_cfg();
     cheshire_pkg::cheshire_cfg_t ret = cheshire_pkg::DefaultCfg;
@@ -113,9 +116,14 @@ package picobello_pkg;
     ret.AxiExtNumMst         = 1;
     ret.AxiExtNumSlv         = 1;
     ret.AxiExtNumRules       = 1;
+    ret.RegExtNumSlv         = CshNumRegExt;
+    ret.RegExtNumRules       = CshNumRegExt;
     ret.AxiExtRegionIdx[0]   = 0;
     ret.AxiExtRegionStart[0] = 'h2000_0000;
     ret.AxiExtRegionEnd[0]   = 'h8000_0000;
+    ret.RegExtRegionIdx[0]   = CshRegExtDramSerialLink;
+    ret.RegExtRegionStart[0] = 'h3100_0000;
+    ret.RegExtRegionEnd[0]   = 'h3100_1000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just put the CIE region after the on-chip region for now
     ret.Cva6ExtCieOnTop      = 1;
@@ -126,9 +134,9 @@ package picobello_pkg;
     ret.AxiMstIdWidth        = aw_bt'(max(AxiCfgN.OutIdWidth, AxiCfgW.OutIdWidth));
     // TODO(fischeti): Check if we need external interrupts for each hart/cluster
     ret.NumExtIrqHarts       = doub_bt'(NumClusters);
-    // TODO(fischeti): Check if we need/want VGA
+    // We do not need/want VGA
     ret.Vga                  = 1'b0;
-    // TODO(fischeti): Check if we need/want USB
+    // We do not need/want USB
     ret.Usb                  = 1'b0;
     // TODO(fischeti): Check if we need/want an AXI to DRAM
     ret.LlcOutRegionStart    = 'h8000_0000;

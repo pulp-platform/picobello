@@ -55,6 +55,11 @@ module fixture_picobello_top;
   logic [SlinkNumChan-1:0]                    slink_rcv_clk_o;
   logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] slink_i;
   logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] slink_o;
+
+  logic [SlinkNumChan-1:0]                    dram_slink_rcv_clk_i;
+  logic [SlinkNumChan-1:0]                    dram_slink_rcv_clk_o;
+  logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] dram_slink_i;
+  logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] dram_slink_o;
   // verilog_format: on
 
   picobello_top dut (
@@ -96,7 +101,11 @@ module fixture_picobello_top;
     .slink_rcv_clk_i(slink_rcv_clk_i),
     .slink_rcv_clk_o(slink_rcv_clk_o),
     .slink_i        (slink_i),
-    .slink_o        (slink_o)
+    .slink_o        (slink_o),
+    .dram_slink_rcv_clk_i(dram_slink_rcv_clk_i),
+    .dram_slink_rcv_clk_o(dram_slink_rcv_clk_o),
+    .dram_slink_i   (dram_slink_i),
+    .dram_slink_o   (dram_slink_o)
   );
 
   ////////////////////////
