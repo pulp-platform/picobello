@@ -231,14 +231,14 @@ module cheshire_tile
 
   `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
 
-  csh_axi_llc_req_t axi_llc_req;
-  csh_axi_llc_rsp_t axi_llc_rsp;
+  csh_axi_llc_req_t                                axi_llc_req;
+  csh_axi_llc_rsp_t                                axi_llc_rsp;
   csh_axi_mst_req_t [CheshireCfg.AxiExtNumMst-1:0] axi_ext_mst_req_in;
   csh_axi_mst_rsp_t [CheshireCfg.AxiExtNumMst-1:0] axi_ext_mst_rsp_out;
   csh_axi_slv_req_t [CheshireCfg.AxiExtNumSlv-1:0] axi_ext_slv_req_out;
   csh_axi_slv_rsp_t [CheshireCfg.AxiExtNumSlv-1:0] axi_ext_slv_rsp_in;
-  csh_reg_req_t [CheshireCfg.RegExtNumSlv-1:0] reg_ext_req;
-  csh_reg_rsp_t [CheshireCfg.RegExtNumSlv-1:0] reg_ext_rsp;
+  csh_reg_req_t     [CheshireCfg.RegExtNumSlv-1:0] reg_ext_req;
+  csh_reg_rsp_t     [CheshireCfg.RegExtNumSlv-1:0] reg_ext_rsp;
 
   `AXI_ASSIGN_REQ_STRUCT(axi_ext_mst_req_in[0], nw_join_req)
   `AXI_ASSIGN_RESP_STRUCT(nw_join_rsp, axi_ext_mst_rsp_out[0])
@@ -336,59 +336,61 @@ module cheshire_tile
   csh_axi_llc_rsp_t dram_slink_err_rsp;
 
   serial_link #(
-    .axi_req_t    ( csh_axi_llc_req_t ),
-    .axi_rsp_t    ( csh_axi_llc_rsp_t ),
-    .cfg_req_t    ( csh_reg_req_t ),
-    .cfg_rsp_t    ( csh_reg_rsp_t ),
-    .aw_chan_t    ( csh_axi_llc_aw_chan_t ),
-    .ar_chan_t    ( csh_axi_llc_ar_chan_t ),
-    .r_chan_t     ( csh_axi_llc_r_chan_t  ),
-    .w_chan_t     ( csh_axi_llc_w_chan_t  ),
-    .b_chan_t     ( csh_axi_llc_b_chan_t  ),
-    .hw2reg_t     ( serial_link_single_channel_reg_pkg::serial_link_single_channel_hw2reg_t ),
-    .reg2hw_t     ( serial_link_single_channel_reg_pkg::serial_link_single_channel_reg2hw_t ),
-    .NumChannels  ( SlinkNumChan   ),
-    .NumLanes     ( SlinkNumLanes  ),
-    .MaxClkDiv    ( SlinkMaxClkDiv )
+    .axi_req_t  (csh_axi_llc_req_t),
+    .axi_rsp_t  (csh_axi_llc_rsp_t),
+    .cfg_req_t  (csh_reg_req_t),
+    .cfg_rsp_t  (csh_reg_rsp_t),
+    .aw_chan_t  (csh_axi_llc_aw_chan_t),
+    .ar_chan_t  (csh_axi_llc_ar_chan_t),
+    .r_chan_t   (csh_axi_llc_r_chan_t),
+    .w_chan_t   (csh_axi_llc_w_chan_t),
+    .b_chan_t   (csh_axi_llc_b_chan_t),
+    .hw2reg_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_hw2reg_t),
+    .reg2hw_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_reg2hw_t),
+    .NumChannels(SlinkNumChan),
+    .NumLanes   (SlinkNumLanes),
+    .MaxClkDiv  (SlinkMaxClkDiv)
   ) i_dram_serial_link (
     .clk_i,
     .rst_ni,
-    .clk_sl_i       ( clk_i  ),
-    .rst_sl_ni      ( rst_ni ),
-    .clk_reg_i      ( clk_i  ),
-    .rst_reg_ni     ( rst_ni ),
-    .testmode_i     ( test_mode_i ),
-    .axi_in_req_i   ( axi_llc_req ),
-    .axi_in_rsp_o   ( axi_llc_rsp ),
-    .axi_out_req_o  ( dram_slink_err_req   ),
-    .axi_out_rsp_i  ( dram_slink_err_rsp   ),
-    .cfg_req_i      ( reg_ext_req[CshRegExtDramSerialLink] ),
-    .cfg_rsp_o      ( reg_ext_rsp[CshRegExtDramSerialLink] ),
-    .ddr_rcv_clk_i  ( dram_slink_rcv_clk_i ),
-    .ddr_rcv_clk_o  ( dram_slink_rcv_clk_o ),
-    .ddr_i          ( dram_slink_i ),
-    .ddr_o          ( dram_slink_o ),
-    .isolated_i     ( '0 ),
-    .isolate_o      ( ),
-    .clk_ena_o      ( ),
-    .reset_no       ( )
+    .clk_sl_i     (clk_i),
+    .rst_sl_ni    (rst_ni),
+    .clk_reg_i    (clk_i),
+    .rst_reg_ni   (rst_ni),
+    .testmode_i   (test_mode_i),
+    .axi_in_req_i (axi_llc_req),
+    .axi_in_rsp_o (axi_llc_rsp),
+    .axi_out_req_o(dram_slink_err_req),
+    .axi_out_rsp_i(dram_slink_err_rsp),
+    .cfg_req_i    (reg_ext_req[CshRegExtDramSerialLink]),
+    .cfg_rsp_o    (reg_ext_rsp[CshRegExtDramSerialLink]),
+    .ddr_rcv_clk_i(dram_slink_rcv_clk_i),
+    .ddr_rcv_clk_o(dram_slink_rcv_clk_o),
+    .ddr_i        (dram_slink_i),
+    .ddr_o        (dram_slink_o),
+    .isolated_i   ('0),
+    .isolate_o    (),
+    .clk_ena_o    (),
+    .reset_no     ()
   );
 
   axi_err_slv #(
-    .AxiIdWidth (CheshireCfg.AxiMstIdWidth + $clog2(csh_axi__AxiIn.num_in) + CheshireCfg.LlcNotBypass),
-    .axi_req_t  (csh_axi_llc_req_t),
-    .axi_resp_t (csh_axi_llc_rsp_t),
-    .Resp       (axi_pkg::RESP_DECERR),
-    .RespWidth  (CheshireCfg.AxiDataWidth),
-    .RespData   (64'hCA11AB1EBADCAB1E),
-    .ATOPs      (1'b1),
-    .MaxTrans   (4) // TODO maybe tune, but this block should never be used.
+    .AxiIdWidth(CheshireCfg.AxiMstIdWidth + $clog2(
+        csh_axi__AxiIn.num_in
+    ) + CheshireCfg.LlcNotBypass),
+    .axi_req_t(csh_axi_llc_req_t),
+    .axi_resp_t(csh_axi_llc_rsp_t),
+    .Resp(axi_pkg::RESP_DECERR),
+    .RespWidth(CheshireCfg.AxiDataWidth),
+    .RespData(64'hCA11AB1EBADCAB1E),
+    .ATOPs(1'b1),
+    .MaxTrans(4)  // TODO maybe tune, but this block should never be used.
   ) i_dram_slink_err (
     .clk_i,
     .rst_ni,
-    .test_i     ( test_mode_i ),
-    .slv_req_i  (dram_slink_err_req),
-    .slv_resp_o (dram_slink_err_rsp)
+    .test_i    (test_mode_i),
+    .slv_req_i (dram_slink_err_req),
+    .slv_resp_o(dram_slink_err_rsp)
   );
 
 endmodule
