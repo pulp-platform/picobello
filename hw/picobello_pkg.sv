@@ -106,14 +106,21 @@ package picobello_pkg;
   //   MULTICAST     //
   /////////////////////
 
-  localparam bit ENABLE_MULTICAST = 1;
+  // Helper functions to support multicast feature.
+  // The original System Address Map must be modified in order to encode in the
+  // IDX also the mask X and Y offset/len, that are respectively the offset of
+  // the X/Y coordinate in the address and the number of bits that are used to
+  // encode the X/Y coordinate.
+  // TODO (lleone): Extend FlooGen to support multicast and genearate the corect SAM.
+  //
+  localparam bit EnMulticast = 1;
   // Support multicast only to the clusters tiles.
-  localparam int unsigned NUM_MULTICAST_ENDPOINTS = NumClusters;
+  localparam int unsigned NumMcastEndPoints = NumClusters;
 
   typedef logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] user_mask_t;
 
   typedef struct packed {
-    user_mask_t                     mask;
+    user_mask_t                     mcast_mask;
     logic [$clog2(NumClusters)-1:0] atomic;
   } mcast_user_t;
 
@@ -144,9 +151,9 @@ package picobello_pkg;
 
     // Evaluate where the X and Y node coordinate associated with the multicast endpoints
     // are actaully located
-    // Evaluate extra info for multicast handling:
-    len_id_x    = $clog2(Sam[NumClusters-1].idx.x);
-    len_id_y    = $clog2(Sam[NumClusters-1].idx.y);
+    // clog2 returns 0 when idx.x = 1. To workaround this problem, separate the case where max idx is 1
+    len_id_x    = (Sam[NumClusters-1].idx.x == 1) ? 1 : $clog2(Sam[NumClusters-1].idx.x);
+    len_id_y    = (Sam[NumClusters-1].idx.y == 1) ? 1 : $clog2(Sam[NumClusters-1].idx.y);
     tileSize    = ep_addr_size(sam_idx_e'(NumClusters - 1));
     offset_id_y = $clog2(tileSize);
     offset_id_x = $clog2(tileSize) + len_id_y;
@@ -157,7 +164,7 @@ package picobello_pkg;
       sam_multicast[rule].end_addr   = Sam[rule].end_addr;
 
       // Only Cluster tiles can be target of multicast request.
-      if (rule < NUM_MULTICAST_ENDPOINTS) begin
+      if (rule < NumMcastEndPoints) begin
 
         // Fill new Sam struct with the extra multicast info
         sam_multicast[rule].idx.mask_x = '{offset: offset_id_x, len: len_id_x};
@@ -171,7 +178,31 @@ package picobello_pkg;
     return sam_multicast;
   endfunction
 
-  localparam sam_multicast_rule_t [SamNumRules-1:0] sam_multicast = get_sam_multicast();
+  localparam sam_multicast_rule_t [SamNumRules-1:0] SamMcast = get_sam_multicast();
+
+  // Print the system address map for th emulticast rules.
+  // TODO(lleone): Generalize for normal address map
+  function automatic print_sam_multicast(sam_multicast_rule_t [SamNumRules-1:0] sam_multicast);
+    $display("\n--- [SAM] System Address Map (%0d entries) ---", SamNumRules);
+    $display("[");
+    for (int i = 0; i < SamNumRules; i++) begin
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},",
+             SamMcast[i].idx.id.x,
+             SamMcast[i].idx.id.y,
+             SamMcast[i].idx.id.port_id);
+      $write("  mask_x: {offset: %0d, len: %0d},",
+             SamMcast[i].idx.mask_x.offset,
+             SamMcast[i].idx.mask_x.len);
+      $write("  mask_y: {offset: %0d, len: %0d} },",
+             SamMcast[i].idx.mask_y.offset,
+             SamMcast[i].idx.mask_y.len);
+      $write("start: 0x%0h, end: 0x%0h }\n",
+             SamMcast[i].start_addr,
+             SamMcast[i].end_addr);
+    end
+    $display("]");
+    $display("----------------------------------------------------------");
+  endfunction
 
   ////////////////
   //  Cheshire  //
