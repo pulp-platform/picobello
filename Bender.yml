@@ -17,6 +17,7 @@ dependencies:
   obi: { git: "https://github.com/pulp-platform/obi.git", rev: "ad1d48f025be540344960ea83b4bff39876f9b36"}
   axi_obi: { path: "hw/axi_obi" }
   picobello-pd:  { path: "./pd" }
+  fhg_spu_cluster:  { path: "./deps/fhg_spu_cluster" }
 
 workspace:
   package_links:
@@ -47,6 +48,10 @@ sources:
   - target: not(asic)
     files:
     - hw/fhg_spu_tile.sv
+
+  - target: asic
+    files:
+    - deps/fhg_spu_cluster/hw/fhg_spu_tile.sv
 
   # Level 3
   - hw/picobello_top.sv
