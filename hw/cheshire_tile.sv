@@ -64,6 +64,11 @@ module cheshire_tile
   output logic [SlinkNumChan-1:0] slink_rcv_clk_o,
   input logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] slink_i,
   output logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] slink_o,
+  // DRAM Serial link interface
+  input logic [SlinkNumChan-1:0] dram_slink_rcv_clk_i,
+  output logic [SlinkNumChan-1:0] dram_slink_rcv_clk_o,
+  input logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] dram_slink_i,
+  output logic [SlinkNumChan-1:0][SlinkNumLanes-1:0] dram_slink_o,
   // Chimney ports
   input id_t id_i,
   // Router ports
@@ -226,15 +231,19 @@ module cheshire_tile
 
   `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
 
-  csh_axi_mst_req_t axi_ext_mst_req_in;
-  csh_axi_mst_rsp_t axi_ext_mst_rsp_out;
-  csh_axi_slv_req_t axi_ext_slv_req_out;
-  csh_axi_slv_rsp_t axi_ext_slv_rsp_in;
+  csh_axi_llc_req_t                                axi_llc_req;
+  csh_axi_llc_rsp_t                                axi_llc_rsp;
+  csh_axi_mst_req_t [CheshireCfg.AxiExtNumMst-1:0] axi_ext_mst_req_in;
+  csh_axi_mst_rsp_t [CheshireCfg.AxiExtNumMst-1:0] axi_ext_mst_rsp_out;
+  csh_axi_slv_req_t [CheshireCfg.AxiExtNumSlv-1:0] axi_ext_slv_req_out;
+  csh_axi_slv_rsp_t [CheshireCfg.AxiExtNumSlv-1:0] axi_ext_slv_rsp_in;
+  csh_reg_req_t     [CheshireCfg.RegExtNumSlv-1:0] reg_ext_req;
+  csh_reg_rsp_t     [CheshireCfg.RegExtNumSlv-1:0] reg_ext_rsp;
 
-  `AXI_ASSIGN_REQ_STRUCT(axi_ext_mst_req_in, nw_join_req)
-  `AXI_ASSIGN_RESP_STRUCT(nw_join_rsp, axi_ext_mst_rsp_out)
-  `AXI_ASSIGN_REQ_STRUCT(narrow_in_req, axi_ext_slv_req_out)
-  `AXI_ASSIGN_RESP_STRUCT(axi_ext_slv_rsp_in, narrow_in_rsp)
+  `AXI_ASSIGN_REQ_STRUCT(axi_ext_mst_req_in[0], nw_join_req)
+  `AXI_ASSIGN_RESP_STRUCT(nw_join_rsp, axi_ext_mst_rsp_out[0])
+  `AXI_ASSIGN_REQ_STRUCT(narrow_in_req, axi_ext_slv_req_out[0])
+  `AXI_ASSIGN_RESP_STRUCT(axi_ext_slv_rsp_in[0], narrow_in_rsp)
 
   cheshire_soc #(
     .Cfg              (CheshireCfg),
@@ -252,16 +261,14 @@ module cheshire_tile
     .test_mode_i,
     .boot_mode_i,
     .rtc_i,
-    // TODO(fischeti): Connect if we will use DRAM/Hyperram
-    .axi_llc_mst_req_o(),
-    .axi_llc_mst_rsp_i('0),
+    .axi_llc_mst_req_o(axi_llc_req),
+    .axi_llc_mst_rsp_i(axi_llc_rsp),
     .axi_ext_mst_req_i(axi_ext_mst_req_in),
     .axi_ext_mst_rsp_o(axi_ext_mst_rsp_out),
     .axi_ext_slv_req_o(axi_ext_slv_req_out),
     .axi_ext_slv_rsp_i(axi_ext_slv_rsp_in),
-    // TODO(fischeti): Connect to SoC config registers if needed
-    .reg_ext_slv_req_o(),
-    .reg_ext_slv_rsp_i('0),
+    .reg_ext_slv_req_o(reg_ext_req),
+    .reg_ext_slv_rsp_i(reg_ext_rsp),
     // TODO(fischeti): Do we need external interrupts?
     .intr_ext_i       ('0),
     .intr_ext_o       (),
@@ -306,13 +313,13 @@ module cheshire_tile
     .slink_rcv_clk_o,
     .slink_i,
     .slink_o,
-    // TODO(fischeti): Check if we need/want VGA
+    // We do not need/want VGA
     .vga_hsync_o      (),
     .vga_vsync_o      (),
     .vga_red_o        (),
     .vga_green_o      (),
     .vga_blue_o       (),
-    // TODO(fischeti): Check if we need/want USB
+    // We do not need/want USB
     .usb_clk_i        ('0),
     .usb_rst_ni       ('0),
     .usb_dm_i         ('0),
@@ -321,6 +328,69 @@ module cheshire_tile
     .usb_dp_i         ('0),
     .usb_dp_o         (),
     .usb_dp_oe_o      ()
+  );
+
+  // Serial Link to connect to DRAM on an FPGA
+
+  csh_axi_llc_req_t dram_slink_err_req;
+  csh_axi_llc_rsp_t dram_slink_err_rsp;
+
+  serial_link #(
+    .axi_req_t  (csh_axi_llc_req_t),
+    .axi_rsp_t  (csh_axi_llc_rsp_t),
+    .cfg_req_t  (csh_reg_req_t),
+    .cfg_rsp_t  (csh_reg_rsp_t),
+    .aw_chan_t  (csh_axi_llc_aw_chan_t),
+    .ar_chan_t  (csh_axi_llc_ar_chan_t),
+    .r_chan_t   (csh_axi_llc_r_chan_t),
+    .w_chan_t   (csh_axi_llc_w_chan_t),
+    .b_chan_t   (csh_axi_llc_b_chan_t),
+    .hw2reg_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_hw2reg_t),
+    .reg2hw_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_reg2hw_t),
+    .NumChannels(SlinkNumChan),
+    .NumLanes   (SlinkNumLanes),
+    .MaxClkDiv  (SlinkMaxClkDiv)
+  ) i_dram_serial_link (
+    .clk_i,
+    .rst_ni,
+    .clk_sl_i     (clk_i),
+    .rst_sl_ni    (rst_ni),
+    .clk_reg_i    (clk_i),
+    .rst_reg_ni   (rst_ni),
+    .testmode_i   (test_mode_i),
+    .axi_in_req_i (axi_llc_req),
+    .axi_in_rsp_o (axi_llc_rsp),
+    .axi_out_req_o(dram_slink_err_req),
+    .axi_out_rsp_i(dram_slink_err_rsp),
+    .cfg_req_i    (reg_ext_req[CshRegExtDramSerialLink]),
+    .cfg_rsp_o    (reg_ext_rsp[CshRegExtDramSerialLink]),
+    .ddr_rcv_clk_i(dram_slink_rcv_clk_i),
+    .ddr_rcv_clk_o(dram_slink_rcv_clk_o),
+    .ddr_i        (dram_slink_i),
+    .ddr_o        (dram_slink_o),
+    .isolated_i   ('0),
+    .isolate_o    (),
+    .clk_ena_o    (),
+    .reset_no     ()
+  );
+
+  axi_err_slv #(
+    .AxiIdWidth(CheshireCfg.AxiMstIdWidth + $clog2(
+        csh_axi__AxiIn.num_in
+    ) + CheshireCfg.LlcNotBypass),
+    .axi_req_t(csh_axi_llc_req_t),
+    .axi_resp_t(csh_axi_llc_rsp_t),
+    .Resp(axi_pkg::RESP_DECERR),
+    .RespWidth(CheshireCfg.AxiDataWidth),
+    .RespData(64'hCA11AB1EBADCAB1E),
+    .ATOPs(1'b1),
+    .MaxTrans(4)  // TODO maybe tune, but this block should never be used.
+  ) i_dram_slink_err (
+    .clk_i,
+    .rst_ni,
+    .test_i    (test_mode_i),
+    .slv_req_i (dram_slink_err_req),
+    .slv_resp_o(dram_slink_err_rsp)
   );
 
 endmodule
