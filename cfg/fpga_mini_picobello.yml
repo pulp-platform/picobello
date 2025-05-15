@@ -1,0 +1,101 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+name: picobello
+description: "picobello NoC configuration"
+network_type: "narrow-wide"
+
+routing:
+  route_algo: "XY"
+  use_id_table: true
+
+protocols:
+  - name: "narrow_in"
+    type: "narrow"
+    protocol: "AXI4"
+    data_width: 64
+    addr_width: 64
+    id_width: 1
+    user_width: 1
+  - name: "narrow_out"
+    type: "narrow"
+    protocol: "AXI4"
+    data_width: 64
+    addr_width: 64
+    id_width: 1
+    user_width: 1
+  - name: "wide_in"
+    type: "wide"
+    protocol: "AXI4"
+    data_width: 64
+    addr_width: 64
+    id_width: 1
+    user_width: 1
+  - name: "wide_out"
+    type: "wide"
+    protocol: "AXI4"
+    data_width: 64
+    addr_width: 64
+    id_width: 1
+    user_width: 1
+
+endpoints:
+  - name: "cluster"
+    array: [2, 2]
+    addr_range:
+      base: 0x2000_0000
+      size: 0x0004_0000
+    mgr_port_protocol:
+      - "narrow_in"
+      - "wide_in"
+    sbr_port_protocol:
+      - "narrow_out"
+      - "wide_out"
+  - name: "cheshire"
+    addr_range:
+      - start: 0x0000_0000
+        end: 0x2000_0000
+        desc: "internal"
+      - start: 0x8000_0000
+        end: 0x2_0000_0000
+        desc: "external"
+    mgr_port_protocol:
+      - "narrow_in"
+    sbr_port_protocol:
+      - "narrow_out"
+      - "wide_out"
+  - name: "l2_spm"
+    array: [1]
+    addr_range:
+      base: 0x3000_0000
+      size: 0x0010_0000
+    sbr_port_protocol:
+      - "narrow_out"
+      - "wide_out"
+
+routers:
+  - name: "router"
+    array: [3, 2]
+    degree: 5
+
+connections:
+  - src: "cluster"
+    dst: "router"
+    src_range:
+    - [0, 1]
+    - [0, 1]
+    dst_range:
+    - [0, 1]
+    - [0, 1]
+    dst_dir: "Eject"
+  - src: "cheshire"
+    dst: "router"
+    dst_idx: [2, 0]
+    dst_dir: "Eject"
+  - src: "l2_spm"
+    dst: "router"
+    src_range:
+      - [0, 0]
+    dst_idx: [2, 1]
+    dst_dir: "Eject"
