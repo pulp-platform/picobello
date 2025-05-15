@@ -1,0 +1,18 @@
+// Copyright 2025 ETH Zurich and University of Bologna.
+// Solderpad Hardware License, Version 0.51, see LICENSE for details.
+// SPDX-License-Identifier: SHL-0.51
+
+`ifndef __MEM_TILE_RDL__
+`define __MEM_TILE_RDL__
+
+addrmap mem_tile #(
+    longint unsigned SIZE_IN_BYTES = 1024,
+    longint unsigned DATA_WIDTH = 256
+) {
+    external mem {
+        mementries = SIZE_IN_BYTES / (DATA_WIDTH / 8);
+        memwidth = DATA_WIDTH;
+    } TILE_MEM;
+};
+
+`endif // __MEM_TILE_RDL__

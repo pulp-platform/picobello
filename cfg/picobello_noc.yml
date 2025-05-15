@@ -46,6 +46,7 @@ endpoints:
     addr_range:
       base: 0x2000_0000
       size: 0x0004_0000
+      rdl_name: "snitch_tile"
     mgr_port_protocol:
       - "narrow_in"
       - "wide_in"
@@ -57,9 +58,11 @@ endpoints:
       - start: 0x0000_0000
         end: 0x2000_0000
         desc: "internal"
+        rdl_name: "cheshire_tile"
       - start: 0x8000_0000
         end: 0x2_0000_0000
         desc: "external"
+        rdl_name: "cheshire_external"
     mgr_port_protocol:
       - "narrow_in"
     sbr_port_protocol:
@@ -70,6 +73,9 @@ endpoints:
     addr_range:
       base: 0x3000_0000
       size: 0x0010_0000
+      rdl_name: "mem_tile #(
+        .SIZE_IN_BYTES(0x0010_0000),
+        .DATA_WIDTH(256))"
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"

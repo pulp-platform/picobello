@@ -89,6 +89,10 @@ floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
 
+floo-rdl: $(PB_ROOT)/cfg/rdl/picobello.rdl
+$(FLOO_CFG)/rdl/picobello.rdl: $(FLOO_CFG)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_ROOT)/cfg/rdl --rdl
+
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 
@@ -168,6 +172,10 @@ python-venv-clean:
 
 verible-fmt:
 	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
+
+.PHONY: test-peakrdl
+test-peakrdl:
+	peakrdl raw-header cfg/rdl/picobello.rdl -I cfg/rdl -o picobello_addrmap.svh --format svh
 
 #################
 # Documentation #
