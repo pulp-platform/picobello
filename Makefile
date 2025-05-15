@@ -24,6 +24,7 @@ BENDER           ?= bender -d $(PB_ROOT)
 FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
+PEAKRDL 	     ?= peakrdl
 
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
@@ -85,6 +86,10 @@ endif
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
+
+floo-rdl: $(PB_ROOT)/cfg/rdl/picobello.rdl
+$(PB_ROOT)/cfg/rdl/picobello.rdl: $(FLOO_CFG)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_ROOT)/cfg/rdl --rdl --rdl-as-mem
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
@@ -174,6 +179,15 @@ python-venv-clean:
 
 verible-fmt:
 	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
+
+PEAKRDL_INCLUDES := -I $(PB_ROOT)/cfg/rdl
+PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
+PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
+
+.PHONY: test-peakrdl
+test-peakrdl: $(PB_ROOT)/picobello_addrmap.svh
+$(PB_ROOT)/picobello_addrmap.svh: $(PB_ROOT)/cfg/rdl/picobello.rdl $(SN_CLUSTER_RDL)
+	$(PEAKRDL) raw-header $(PB_ROOT)/cfg/rdl/picobello.rdl $(PEAKRDL_INCLUDES) -o picobello_addrmap.svh --format svh
 
 #################
 # Documentation #
