@@ -121,7 +121,7 @@ package picobello_pkg;
 
   typedef struct packed {
     user_mask_t                     mcast_mask;
-    logic [$clog2(NumClusters)-1:0] atomic;
+    logic [snitch_cluster_pkg::AtomicIdWidth-1:0] atomic;
   } mcast_user_t;
 
   typedef struct packed {
