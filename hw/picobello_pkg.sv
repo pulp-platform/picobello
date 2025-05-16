@@ -122,8 +122,8 @@ package picobello_pkg;
     ret.AxiExtRegionStart[0] = 'h2000_0000;
     ret.AxiExtRegionEnd[0]   = 'h8000_0000;
     ret.RegExtRegionIdx[0]   = CshRegExtDramSerialLink;
-    ret.RegExtRegionStart[0] = 'h3100_0000;
-    ret.RegExtRegionEnd[0]   = 'h3100_1000;
+    ret.RegExtRegionStart[0] = 'h1800_0000;
+    ret.RegExtRegionEnd[0]   = 'h1800_1000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just put the CIE region after the on-chip region for now
     ret.Cva6ExtCieOnTop      = 1;
