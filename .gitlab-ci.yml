@@ -54,6 +54,9 @@ generate-rtl:
 
 vsim-compile:
   stage: build
+  extends:
+    - .cache-deps
+    - .init-env
   needs:
     - generate-rtl
   variables:
