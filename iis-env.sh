@@ -14,5 +14,7 @@ if [ ! -d ".venv" ]; then
   make python-venv
 fi
 
-# Activate the python venv
-source .venv/bin/activate
+# Activate the python venv only if not already active
+if [ -z "$VIRTUAL_ENV" ] || [ "$VIRTUAL_ENV" != "$(realpath .venv)" ]; then
+  source .venv/bin/activate
+fi
