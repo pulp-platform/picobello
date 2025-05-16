@@ -122,8 +122,8 @@ package picobello_pkg;
     ret.AxiExtRegionStart[0] = 'h2000_0000;
     ret.AxiExtRegionEnd[0]   = 'h8000_0000;
     ret.RegExtRegionIdx[0]   = CshRegExtDramSerialLink;
-    ret.RegExtRegionStart[0] = 'h3100_0000;
-    ret.RegExtRegionEnd[0]   = 'h3100_1000;
+    ret.RegExtRegionStart[0] = 'h1800_0000;
+    ret.RegExtRegionEnd[0]   = 'h1800_1000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just put the CIE region after the on-chip region for now
     ret.Cva6ExtCieOnTop      = 1;
@@ -138,9 +138,11 @@ package picobello_pkg;
     ret.Vga                  = 1'b0;
     // We do not need/want USB
     ret.Usb                  = 1'b0;
-    // TODO(fischeti): Check if we need/want an AXI to DRAM
+    // TODO(fischeti): Add Serial Link to LLC AXI port
     ret.LlcOutRegionStart    = 'h8000_0000;
-    ret.LlcOutRegionEnd      = 48'h1_0000_0000;
+    ret.LlcOutRegionEnd      = dw_bt'('h12_0000_0000);
+    ret.SlinkRegionStart     = dw_bt'('h100_0000_0000);
+    ret.SlinkRegionEnd       = dw_bt'('h200_0000_0000);
     return ret;
   endfunction
 
