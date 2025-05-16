@@ -66,6 +66,7 @@ module mem_tile
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
+    .EnMultiCast (EnMulticast),
     .RouteAlgo   (RouteCfg.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),

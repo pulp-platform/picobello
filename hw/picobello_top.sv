@@ -83,10 +83,10 @@ module picobello_top
   for (genvar c = 0; c < NumClusters; c++) begin : gen_clusters
 
     localparam int ClusterSamIdx = c + ClusterX0Y0SamIdx;
-    localparam id_t ClusterId = Sam[ClusterSamIdx].idx;
+    localparam id_t ClusterId = SamMcast[ClusterSamIdx].idx.id;
     localparam int X = int'(ClusterId.x);
     localparam int Y = int'(ClusterId.y);
-    localparam int unsigned HartBaseId = c * NrCores;
+    localparam int unsigned HartBaseId = c * NrCores + 1;  // Cheshire is hart 0
     localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
 
     cluster_tile i_cluster_tile (
@@ -118,7 +118,7 @@ module picobello_top
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] mtip_ext;
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
 
-  localparam id_t CheshireId = Sam[CheshireInternalSamIdx].idx;
+  localparam id_t CheshireId = SamMcast[CheshireInternalSamIdx].idx.id;
 
   cheshire_tile i_cheshire_tile (
     .clk_i,
@@ -190,7 +190,8 @@ module picobello_top
 
   localparam id_t FhgSpuId = Sam[FhgSpuSamIdx].idx;
 
-  // TODO: connect actual hart_base_id
+  // Add offset to consider chehire as hart 0
+  localparam int unsigned FhGHartBaseId = NumClusters * NrCores + 1;
   fhg_spu_tile i_fhg_spu_tile (
     .clk_i,
     .rst_ni,
@@ -199,7 +200,7 @@ module picobello_top
     .meip_i             (fhg_spu_meip),
     .mtip_i             (fhg_spu_mtip),
     .msip_i             (fhg_spu_msip),
-    .hart_base_id_i     ('0),
+    .hart_base_id_i     (FhGHartBaseId),
     .cluster_base_addr_i(Sam[FhgSpuSamIdx].start_addr),
     .id_i               (FhgSpuId),
     .floo_req_o         (floo_req_out[FhgSpuId.x][FhgSpuId.y]),
@@ -217,7 +218,7 @@ module picobello_top
   for (genvar m = 0; m < NumMemTiles; m++) begin : gen_memtile
 
     localparam int MemTileSamIdx = m + L2Spm0SamIdx;
-    localparam id_t MemTileId = Sam[MemTileSamIdx].idx;
+    localparam id_t MemTileId = SamMcast[MemTileSamIdx].idx.id;
     localparam int MemTileX = int'(MemTileId.x);
     localparam int MemTileY = int'(MemTileId.y);
 
