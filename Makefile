@@ -97,18 +97,26 @@ floo-clean:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= 1c0dd5204bd517cf0d16f7a7169220a06d544443
+PD_COMMIT ?= d3676160037185b556da3eb364b83ac527a73034
 PD_DIR = $(PB_ROOT)/pd
+SPU_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/fhg_spu_cluster.git
+SPU_COMMIT ?= 52ff92b99d07f7fa48d9b81c5d713c369bd4faa6
+SPU_DIR = $(PB_ROOT)/deps/fhg_spu_cluster
 
 .PHONY: init-pd clean-pd
 
-init-pd: $(PD_DIR)
+init-pd: $(PD_DIR) $(SPU_DIR)
 $(PD_DIR):
 	git clone $(PD_REMOTE) $(PD_DIR)
 	cd $(PD_DIR) && git checkout $(PD_COMMIT)
 
+$(SPU_DIR):
+	-git clone $(SPU_REMOTE) $(SPU_DIR)
+	-cd $(SPU_DIR) && git checkout $(SPU_COMMIT)
+
 clean-pd:
 	rm -rf $(PD_DIR)
+	rm -rf $(SPU_DIR)
 
 -include $(PD_DIR)/pd.mk
 
