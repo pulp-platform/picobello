@@ -8,9 +8,6 @@ PB_ROOT ?= $(shell pwd)
 PB_GEN_DIR = $(PB_ROOT)/.generated
 BENDER_ROOT ?= $(PB_ROOT)/.bender
 
-$(PB_GEN_DIR):
-	mkdir -p $(PB_GEN_DIR)
-
 # Configuration files
 FLOO_CFG  ?= $(PB_ROOT)/cfg/picobello_noc.yml
 SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.json
