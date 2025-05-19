@@ -8,7 +8,7 @@
     cluster: {
         cluster_base_addr: 0x20000000,
         cluster_base_offset: 0x40000,
-        cluster_base_hartid: 0,
+        cluster_base_hartid: 1,
         addr_width: 48,
         data_width: 64,
         user_width: 3, // clog2(nr_clusters + 1)
