@@ -63,7 +63,6 @@ sources:
       - target/sim/src/fixture_picobello_top.sv
       - target/sim/src/tb_picobello_top.sv
 
-
   - target: asic
     files:
     - pd/hw/picobello_chip.sv
@@ -74,3 +73,17 @@ sources:
     files:
       - pd/target/sim/src/fixture_picobello_chip.sv
       - pd/target/sim/src/tb_picobello_chip.sv
+
+  - target: any(fpga, simulation, test)
+    include_dirs:
+      - target/fpga/include
+    files:
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_mul_56ns_64s_64_3_1.v  
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_narrow_port_m_axi.v  
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_control_s_axi.v  
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_wide_port_m_axi.v
+      - target/fpga/src/axi_hls_tg/axi_hls_tg.v  
+      - target/fpga/src/axi_hls_tg_wrapper.sv
+      - target/fpga/src/traffic_gen_tile.sv
+      - target/fpga/src/fpga_picobello_top.sv
+      - target/sim/src/tb_picobello_fpga.sv
