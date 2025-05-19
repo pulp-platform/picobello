@@ -154,6 +154,7 @@ include $(PB_ROOT)/target/sim/traces.mk
 ########
 
 BASE_PYTHON ?= python
+PIP_CACHE_DIR ?= $(PB_ROOT)/.cache/pip
 
 .PHONY: dvt-flist python-venv python-venv-clean verible-fmt
 
