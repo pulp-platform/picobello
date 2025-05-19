@@ -7,19 +7,17 @@
   before_script:
     source iis-env.sh
 
-# Check the cache for bender and python dependencies
+# Check the cache for bender dependencies
 .cache-deps:
   cache:
     key:
       files:
         - Bender.lock
-        - requirements.txt
     paths:
       - .bender
-      - .venv
     policy: pull
 
-# Update the cache with the bender and python dependencies
+# Update the cache with the bender dependencies
 .init-deps-tpl:
   before_script:
     # Collect bender sourcess
@@ -32,10 +30,8 @@
     key:
       files:
         - Bender.lock
-        - requirements.txt
     paths:
       - .bender
-      - .venv
     policy: pull-push
 
 # Generate the RTL sources
