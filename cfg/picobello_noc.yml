@@ -58,7 +58,7 @@ endpoints:
         end: 0x2000_0000
         desc: "internal"
       - start: 0x8000_0000
-        end: 0x2_0000_0000
+        end: 0x200_0000_0000
         desc: "external"
     mgr_port_protocol:
       - "narrow_in"
@@ -78,7 +78,7 @@ endpoints:
   - name: "l2_spm"
     array: [8]
     addr_range:
-      base: 0x3000_0000
+      base: 0x7000_0000
       size: 0x0010_0000
     sbr_port_protocol:
       - "narrow_out"

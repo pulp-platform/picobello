@@ -4,5 +4,5 @@
 
 MEMORY
 {
-    L3 (rwxa) : ORIGIN = 0x30000000, LENGTH = 0x80000000
+    L3 (rwxa) : ORIGIN = 0x70000000, LENGTH = 0x10000000
 }
