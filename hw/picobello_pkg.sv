@@ -140,9 +140,9 @@ package picobello_pkg;
     ret.Usb                  = 1'b0;
     // TODO(fischeti): Add Serial Link to LLC AXI port
     ret.LlcOutRegionStart    = 'h8000_0000;
-    ret.LlcOutRegionEnd      = dw_bt'('h12_0000_0000);
-    ret.SlinkRegionStart     = dw_bt'('h100_0000_0000);
-    ret.SlinkRegionEnd       = dw_bt'('h200_0000_0000);
+    ret.LlcOutRegionEnd      = 'h12_0000_0000;
+    ret.SlinkRegionStart     = 'h100_0000_0000;
+    ret.SlinkRegionEnd       = 'h200_0000_0000;
     return ret;
   endfunction
 
