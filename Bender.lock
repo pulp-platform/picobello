@@ -163,7 +163,7 @@ packages:
     revision: null
     version: null
     source:
-      Path: deps/fhg_spu_cluster
+      Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
     revision: 6ac187326b222a491180cc3f77e0e4e5a69f5167
