@@ -2,6 +2,9 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
 # Sources the environment variables for the IIS environment
 .init-env:
   before_script:
@@ -9,17 +12,17 @@
 
 # Check the cache for bender and python dependencies
 .cache-deps:
-  cache:
+  cache: &global_cache
     key:
       files:
         - Bender.lock
         - requirements.txt
     paths:
       - .bender
-      - .venv
+      - .cache/pip
     policy: pull
 
-# Update the cache with the bender and python dependencies
+# Update the cache with bender and python dependencies
 .init-deps-tpl:
   before_script:
     # Collect bender sourcess
@@ -29,13 +32,8 @@
     # Pull the PD repository
     - make init-pd
   cache:
-    key:
-      files:
-        - Bender.lock
-        - requirements.txt
-    paths:
-      - .bender
-      - .venv
+    # inherit all global cache settings
+    <<: *global_cache
     policy: pull-push
 
 # Generate the RTL sources

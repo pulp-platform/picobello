@@ -21,6 +21,9 @@ init-deps:
     - .init-deps-tpl
   script:
     - ':'
+  artifacts:
+    paths:
+      - pd/ci.yml
 
 ########################
 # Build Software Tests #
@@ -98,22 +101,12 @@ sim-vsim:
 # Physical Design #
 ###################
 
-init-pd:
-  stage: init
-  extends:
-    - .cache-deps
-    - .init-env
-  script: make init-pd
-  artifacts:
-    paths:
-      - pd/ci.yml
-
 subpipe:
   stage: build
   needs:
-    - init-pd
+    - init-deps
   trigger:
     include:
       - artifact: pd/ci.yml
-        job: init-pd
+        job: init-deps
     strategy: depend
