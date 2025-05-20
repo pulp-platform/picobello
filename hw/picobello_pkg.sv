@@ -125,7 +125,7 @@ package picobello_pkg;
     ret.RegExtRegionStart[0] = 'h1800_0000;
     ret.RegExtRegionEnd[0]   = 'h1800_1000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
-    // Which is why we just put the CIE region after the on-chip region for now
+    // Which is why we just set the CIE region to size 0 for now
     ret.Cva6ExtCieOnTop      = 0;
     ret.Cva6ExtCieLength     = 'h0;
     ret.AddrWidth            = aw_bt'(AxiCfgN.AddrWidth);
@@ -138,7 +138,6 @@ package picobello_pkg;
     ret.Vga                  = 1'b0;
     // We do not need/want USB
     ret.Usb                  = 1'b0;
-    // TODO(fischeti): Add Serial Link to LLC AXI port
     ret.LlcOutRegionStart    = 'h8000_0000;
     ret.LlcOutRegionEnd      = 'h12_0000_0000;
     ret.SlinkRegionStart     = 'h100_0000_0000;
