@@ -8,7 +8,7 @@
 #include "picobello_addrmap.h"
 
 // This needs to be in a region which is not cached
-volatile uint32_t (*return_code_array)[CFG_CLUSTER_NR_CORES] = (uint32_t (*)[CFG_CLUSTER_NR_CORES])0x30008000;
+volatile uint32_t (*return_code_array)[CFG_CLUSTER_NR_CORES] = (uint32_t (*)[CFG_CLUSTER_NR_CORES])0x70008000;
 
 int main() {
 
