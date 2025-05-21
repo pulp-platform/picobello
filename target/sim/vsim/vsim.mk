@@ -23,6 +23,9 @@ VSIM_FLAGS += -64
 
 VSIM_FLAGS_GUI = -voptargs=+acc
 
+VSIM_COMMON_CMD = log -r /*; run -a;
+VSIM_WAVES_CMD = source "$(VSIM_DIR)/utils/tb-waves-fpga.tcl";
+
 define add_vsim_flag
 ifdef $(1)
 	VSIM_FLAGS += +$(1)=$$($(1))
@@ -49,7 +52,7 @@ $(VSIM_DIR)/compile.tcl: $(BENDER_YML) $(BENDER_LOCK)
 	echo 'vlog -work $(VSIM_WORK) "$(realpath $(CHS_ROOT))/target/sim/src/elfloader.cpp" -ccflags "-std=c++11"' >> $@
 
 vsim-run:
-	$(VSIM) $(VSIM_FLAGS) $(VSIM_FLAGS_GUI) $(TB_DUT) -do "log -r /*"
+	$(VSIM) $(VSIM_FLAGS) $(VSIM_FLAGS_GUI) $(TB_DUT) -do "$(VSIM_COMMON_CMD)" &>/dev/null
 
 vsim-run-batch:
 	$(VSIM) -c $(VSIM_FLAGS) $(TB_DUT) -do "run -all; quit"

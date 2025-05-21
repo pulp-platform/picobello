@@ -11,47 +11,59 @@ module fpga_picobello_top
   import picobello_pkg::*; 
   import floo_pkg::*; 
   import floo_picobello_noc_pkg::*; #(
-  parameter int unsigned NumTrafficGenerators = NumClusters + 1
+  // Number of host processor ports
+  parameter int unsigned NumHostPorts = 1,
+  // Number of traffic generators
+  parameter int unsigned NumTrafficGenerators = NumClusters + 1,
+  // AXI4 parameters
+  parameter int unsigned HostAxiAddrWidth = 64,
+  parameter int unsigned HostAxiDataWidth = 64,
+  parameter int unsigned HostAxiUserWidth = 1,
+  parameter int unsigned HostAxiIdWidth = 1,
+  // AXI4-Lite parameters
+  parameter int unsigned HostAxiLiteAddrWidth = 32,
+  parameter int unsigned HostAxiLiteDataWidth = 32,
+  // AXI4 channel types
+  parameter type axi_host_req_t = logic,
+  parameter type axi_host_rsp_t = logic,
+  parameter type axi_host_aw_chan_t = logic,
+  parameter type axi_host_w_chan_t = logic,
+  parameter type axi_host_b_chan_t = logic,
+  parameter type axi_host_ar_chan_t = logic,
+  parameter type axi_host_r_chan_t = logic,
+  // AXI4-Lite channel types
+  parameter type axi_lite_host_req_t = logic,
+  parameter type axi_lite_host_rsp_t = logic,
+  parameter type axi_lite_host_aw_chan_t = logic,
+  parameter type axi_lite_host_w_chan_t = logic,
+  parameter type axi_lite_host_b_chan_t = logic,
+  parameter type axi_lite_host_ar_chan_t = logic,
+  parameter type axi_lite_host_r_chan_t = logic
 ) (
-  input  logic clk_i,
-  input  logic rst_ni,
-  input  logic test_mode_i,
+  input  logic                        clk_i,
+  input  logic                        rst_ni,
+  input  logic                        test_mode_i,
   // Host control port
-  input  axi_narrow_in_req_t axi_host_req_i,
-  output axi_narrow_in_rsp_t axi_host_rsp_o
-  // AXI_BUS.Slave host_tg_progr
+  input  axi_host_req_t               axi_host_req_i,
+  output axi_host_rsp_t               axi_host_rsp_o
 );
   ///////////////////////////////
   // Parameters and Interfaces //
   ///////////////////////////////
 
   // Address map - TG regfiles
-  sam_rule_t [NumTrafficGenerators-1:0] host_tg_addr_map;
+  axi_pkg::xbar_rule_32_t [NumTrafficGenerators-1:0] host_tg_addr_map;
 
   // AXI4 interfaces - TG regfiles
-  axi_narrow_in_req_t axi_tg_cfg_req_i[NumTrafficGenerators-1:0];
-  axi_narrow_in_rsp_t axi_tg_cfg_rsp_o[NumTrafficGenerators-1:0];
+  axi_host_req_t [NumTrafficGenerators-1:0] axi_tg_cfg_req_i;
+  axi_host_rsp_t [NumTrafficGenerators-1:0] axi_tg_cfg_rsp_o;
 
-  // AXI4 interfaces - TG regfiles
-  axi_narrow_in_req_t axi_tg_cfg_req_i_downsized[NumTrafficGenerators-1:0];
-  axi_narrow_in_rsp_t axi_tg_cfg_rsp_o_downsized[NumTrafficGenerators-1:0];
-
-  // AXI4-Lite interfaces - TG regfiles
-  localparam int unsigned AxiLiteAddrWidth = 32;
-  localparam int unsigned AxiLiteDataWidth = 32;
-
-  typedef logic [AxiLiteAddrWidth-1:0] axi_lite_in_addr_t;
-  typedef logic [AxiLiteAddrWidth-1:0] axi_lite_in_data_t;
-  typedef logic [AxiLiteDataWidth/8-1:0] axi_lite_in_strb_t;
-  `AXI_LITE_TYPEDEF_ALL_CT(axi_lite_in, axi_lite_in_req_t, axi_lite_in_rsp_t, 
-                           axi_lite_in_addr_t, axi_lite_in_data_t, axi_lite_in_strb_t)
-
-  axi_lite_in_req_t axi_lite_tg_cfg_req_i[NumTrafficGenerators-1:0];
-  axi_lite_in_rsp_t axi_lite_tg_cfg_rsp_o[NumTrafficGenerators-1:0];
+  axi_lite_host_req_t [NumTrafficGenerators-1:0] axi_lite_tg_cfg_req_i;
+  axi_lite_host_rsp_t [NumTrafficGenerators-1:0] axi_lite_tg_cfg_rsp_o;
 
   AXI_LITE #(
-    .AXI_ADDR_WIDTH (AxiLiteAddrWidth),
-    .AXI_DATA_WIDTH (AxiLiteDataWidth)
+    .AXI_ADDR_WIDTH (HostAxiLiteAddrWidth),
+    .AXI_DATA_WIDTH (HostAxiLiteDataWidth)
   ) axi_lite_tg_cfg[NumTrafficGenerators-1:0]();
 
   // NoC interfaces
@@ -64,26 +76,26 @@ module fpga_picobello_top
   /////////////////////////////
 
   localparam axi_pkg::xbar_cfg_t PicobelloHostXbarCfg = '{
-    NoSlvPorts:         1,
+    NoSlvPorts:         NumHostPorts,
     NoMstPorts:         NumTrafficGenerators,
-    MaxMstTrans:        4,
-    MaxSlvTrans:        4,
+    MaxMstTrans:        HostAxiDataWidth/HostAxiLiteDataWidth,
+    MaxSlvTrans:        HostAxiDataWidth/HostAxiLiteDataWidth,
     FallThrough:        1'b0,
     LatencyMode:        axi_pkg::CUT_ALL_PORTS,
     PipelineStages:     0,
-    AxiIdWidthSlvPorts: AxiCfgN.InIdWidth,
-    AxiIdUsedSlvPorts:  AxiCfgN.InIdWidth,
+    AxiIdWidthSlvPorts: HostAxiIdWidth,
+    AxiIdUsedSlvPorts:  HostAxiIdWidth,
     UniqueIds:          0,
-    AxiAddrWidth:       AxiCfgN.AddrWidth,
-    AxiDataWidth:       AxiCfgN.DataWidth,
+    AxiAddrWidth:       HostAxiAddrWidth,
+    AxiDataWidth:       HostAxiDataWidth,
     NoAddrRules:        NumTrafficGenerators
   };
 
   for (genvar i = 0; i < NumTrafficGenerators; i++) begin : gen_addr_map_tg
-    assign host_tg_addr_map[1+i] = '{
-      idx:        '{x: 0, y: 0, port_id: i},
-      start_addr: 64'h0000_0000_1000_0000 + i * 32'h0002_0000,
-      end_addr:   64'h0000_0000_1000_0000 + i * 32'h0002_0000 + 32'h0001_FFFF
+    assign host_tg_addr_map[i] = '{
+      idx:        i,
+      start_addr: 32'h2000_0000 + i * 32'h0004_0000,
+      end_addr:   32'h2000_0000 + i * 32'h0004_0000 + 32'h0003_FFFF
     };
   end
 
@@ -91,20 +103,20 @@ module fpga_picobello_top
     .Cfg            (PicobelloHostXbarCfg),
     .ATOPs          (1'b1),
     .Connectivity   ('1),
-    .slv_aw_chan_t  (axi_narrow_in_aw_chan_t),
-    .mst_aw_chan_t  (axi_narrow_in_aw_chan_t),
-    .w_chan_t       (axi_narrow_in_w_chan_t),
-    .slv_b_chan_t   (axi_narrow_in_b_chan_t),
-    .mst_b_chan_t   (axi_narrow_in_b_chan_t),
-    .slv_ar_chan_t  (axi_narrow_in_ar_chan_t),
-    .mst_ar_chan_t  (axi_narrow_in_ar_chan_t),
-    .slv_r_chan_t   (axi_narrow_in_r_chan_t),
-    .mst_r_chan_t   (axi_narrow_in_r_chan_t),
-    .slv_req_t      (axi_narrow_in_req_t),
-    .slv_resp_t     (axi_narrow_in_rsp_t),
-    .mst_req_t      (axi_narrow_in_req_t),
-    .mst_resp_t     (axi_narrow_in_rsp_t),
-    .rule_t         (sam_rule_t)
+    .slv_aw_chan_t  (axi_host_aw_chan_t),
+    .mst_aw_chan_t  (axi_host_aw_chan_t),
+    .w_chan_t       (axi_host_w_chan_t),
+    .slv_b_chan_t   (axi_host_b_chan_t),
+    .mst_b_chan_t   (axi_host_b_chan_t),
+    .slv_ar_chan_t  (axi_host_ar_chan_t),
+    .mst_ar_chan_t  (axi_host_ar_chan_t),
+    .slv_r_chan_t   (axi_host_r_chan_t),
+    .mst_r_chan_t   (axi_host_r_chan_t),
+    .slv_req_t      (axi_host_req_t),
+    .slv_resp_t     (axi_host_rsp_t),
+    .mst_req_t      (axi_host_req_t),
+    .mst_resp_t     (axi_host_rsp_t),
+    .rule_t         (axi_pkg::xbar_rule_32_t)
   ) i_host_tg_xbar (
     .clk_i                  (clk_i),
     .rst_ni                 (rst_ni),
@@ -120,51 +132,25 @@ module fpga_picobello_top
 
   for (genvar i = 0; i < NumTrafficGenerators; i++) begin : gen_tg_axi_lite
 
-    axi_dw_converter #(
-      .AxiMaxReads        (AxiCfgN.DataWidth/AxiLiteDataWidth),
-      .AxiSlvPortDataWidth(AxiCfgN.DataWidth),
-      .AxiMstPortDataWidth(AxiLiteDataWidth),
-      .AxiAddrWidth       (AxiCfgN.AddrWidth),
-      .AxiIdWidth         (AxiCfgN.InIdWidth),
-      .aw_chan_t          (axi_narrow_in_aw_chan_t),
-      .mst_w_chan_t       (axi_narrow_in_w_chan_t),
-      .slv_w_chan_t       (axi_narrow_in_w_chan_t),
-      .b_chan_t           (axi_narrow_in_b_chan_t),
-      .ar_chan_t          (axi_narrow_in_ar_chan_t),
-      .mst_r_chan_t       (axi_narrow_in_r_chan_t),
-      .slv_r_chan_t       (axi_narrow_in_req_t    ),
-      .axi_mst_req_t      (axi_narrow_in_req_t),
-      .axi_mst_resp_t     (axi_narrow_in_rsp_t),
-      .axi_slv_req_t      (axi_narrow_in_req_t),
-      .axi_slv_resp_t     (axi_narrow_in_rsp_t)
-    ) i_axi_dw_converter (
-      .clk_i      (clk_i),
-      .rst_ni     (rst_ni),
-      .slv_req_i  (axi_tg_cfg_req_i[i]),
-      .slv_resp_o (axi_tg_cfg_rsp_o[i]),
-      .mst_req_o  (axi_tg_cfg_req_i_downsized[i]),
-      .mst_resp_i (axi_tg_cfg_rsp_o_downsized[i])
-    );
-
     axi_to_axi_lite #(
-      .AxiAddrWidth    (AxiCfgN.AddrWidth),
-      .AxiDataWidth    (AxiCfgN.DataWidth),
-      .AxiIdWidth      (AxiCfgN.InIdWidth),
-      .AxiUserWidth    (AxiCfgN.UserWidth),
-      .AxiMaxWriteTxns (AxiCfgN.DataWidth/AxiLiteDataWidth),
-      .AxiMaxReadTxns  (AxiCfgN.DataWidth/AxiLiteDataWidth),
+      .AxiAddrWidth    (HostAxiAddrWidth),
+      .AxiDataWidth    (HostAxiDataWidth),
+      .AxiIdWidth      (HostAxiIdWidth),
+      .AxiUserWidth    (HostAxiUserWidth),
+      .AxiMaxWriteTxns (HostAxiDataWidth/HostAxiLiteDataWidth),
+      .AxiMaxReadTxns  (HostAxiDataWidth/HostAxiLiteDataWidth),
       .FallThrough     (1'b0),
       .FullBW          (0),
-      .full_req_t      (axi_narrow_in_req_t),
-      .full_resp_t     (axi_narrow_in_rsp_t),
-      .lite_req_t      (axi_lite_in_req_t),
-      .lite_resp_t     (axi_lite_in_rsp_t)
+      .full_req_t      (axi_host_req_t),
+      .full_resp_t     (axi_host_rsp_t),
+      .lite_req_t      (axi_lite_host_req_t),
+      .lite_resp_t     (axi_lite_host_rsp_t)
     ) i_axi_to_axi_lite (
       .clk_i      (clk_i),
       .rst_ni     (rst_ni),
       .test_i     (test_mode_i),
-      .slv_req_i  (axi_tg_cfg_req_i_downsized[i]),
-      .slv_resp_o (axi_tg_cfg_rsp_o_downsized[i]),
+      .slv_req_i  (axi_tg_cfg_req_i[i]),
+      .slv_resp_o (axi_tg_cfg_rsp_o[i]),
       .mst_req_o  (axi_lite_tg_cfg_req_i[i]),
       .mst_resp_i (axi_lite_tg_cfg_rsp_o[i])
     );
@@ -173,9 +159,9 @@ module fpga_picobello_top
     `AXI_LITE_ASSIGN_TO_RESP(axi_lite_tg_cfg_rsp_o[i], axi_lite_tg_cfg[i])
   end
 
-  //////////////////////
-  // Cluster TG tiles //
-  //////////////////////
+  ///////////////////
+  // Cluster tiles //
+  ///////////////////
 
   for (genvar c = 0; c < NumClusters; c++) begin : gen_clusters
 
@@ -185,8 +171,8 @@ module fpga_picobello_top
     localparam int Y = int'(ClusterId.y);
 
     traffic_gen_tile #(
-      .AxiLiteAddrWidth (AxiLiteAddrWidth),
-      .AxiLiteDataWidth (AxiLiteDataWidth)
+      .AxiLiteAddrWidth (HostAxiLiteAddrWidth),
+      .AxiLiteDataWidth (HostAxiLiteDataWidth)
     ) i_cluster_tg_tile (
       .clk_i,
       .rst_ni,
@@ -202,15 +188,15 @@ module fpga_picobello_top
     );
   end
 
-  //////////////////////
-  // Cheshire TG tile //
-  //////////////////////
+  ///////////////////
+  // Cheshire tile //
+  ///////////////////
 
   localparam id_t CheshireId = Sam[CheshireInternalSamIdx].idx;
 
   traffic_gen_tile #(
-    .AxiLiteAddrWidth (AxiLiteAddrWidth),
-    .AxiLiteDataWidth (AxiLiteDataWidth)
+    .AxiLiteAddrWidth (HostAxiLiteAddrWidth),
+    .AxiLiteDataWidth (HostAxiLiteDataWidth)
   ) i_cheshire_tg_tile (
     .clk_i,
     .rst_ni,
@@ -225,8 +211,31 @@ module fpga_picobello_top
     .traffic_gen_progr  (axi_lite_tg_cfg[NumClusters])
   );
 
+  //////////////////
+  // FhG SPU tile //
+  //////////////////
+
+  localparam id_t FhgSpuId = Sam[FhgSpuSamIdx].idx;
+
+  traffic_gen_tile #(
+    .AxiLiteAddrWidth (HostAxiLiteAddrWidth),
+    .AxiLiteDataWidth (HostAxiLiteDataWidth)
+  ) i_fhg_spu_tile (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i      (test_mode_i),
+    .id_i               (FhgSpuId),
+    .floo_req_o         (floo_req_out[FhgSpuId.x][FhgSpuId.y]),
+    .floo_rsp_i         (floo_rsp_in[FhgSpuId.x][FhgSpuId.y]),
+    .floo_wide_o        (floo_wide_out[FhgSpuId.x][FhgSpuId.y]),
+    .floo_req_i         (floo_req_in[FhgSpuId.x][FhgSpuId.y]),
+    .floo_rsp_o         (floo_rsp_out[FhgSpuId.x][FhgSpuId.y]),
+    .floo_wide_i        (floo_wide_in[FhgSpuId.x][FhgSpuId.y]),
+    .traffic_gen_progr  (axi_lite_tg_cfg[NumClusters+1])
+  );
+
   //////////////
-  // Mem tile //
+  // Mem tile // 
   //////////////
 
   for (genvar m = 0; m < NumMemTiles; m++) begin : gen_memtile
@@ -236,7 +245,11 @@ module fpga_picobello_top
     localparam int MemTileX = int'(MemTileId.x);
     localparam int MemTileY = int'(MemTileId.y);
 
-    mem_tile i_mem_tile (
+    mem_tile #(
+      .AxiUserAtop (1'b0),
+      .AxiUserAtopMsb (1),
+      .AxiUserAtopLsb (0)
+    ) i_mem_tile (
       .clk_i,
       .rst_ni,
       .test_enable_i(test_mode_i),

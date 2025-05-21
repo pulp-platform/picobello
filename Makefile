@@ -35,6 +35,7 @@ BENDER_LOCK = $(PB_ROOT)/Bender.lock
 
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster -t floogen_pkg
 SIM_TARGS += -t simulation -t test -t idma_test
+FPGA_TARGS += -t fpga
 
 ############
 # Cheshire #
@@ -144,7 +145,7 @@ include $(PB_ROOT)/sw/sw.mk
 # Simulation #
 ##############
 
-TB_DUT = tb_picobello_top
+TB_DUT ?= tb_picobello_top
 
 include $(PB_ROOT)/target/sim/vsim/vsim.mk
 include $(PB_ROOT)/target/sim/traces.mk

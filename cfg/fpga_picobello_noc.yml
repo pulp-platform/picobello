@@ -42,7 +42,7 @@ protocols:
 
 endpoints:
   - name: "cluster"
-    array: [2, 2]
+    array: [4, 4]
     addr_range:
       base: 0x2000_0000
       size: 0x0004_0000
@@ -65,8 +65,18 @@ endpoints:
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"
+  - name: "fhg_spu"
+    addr_range:
+      - start: 0x4000_0000
+        size: 0x0004_0000
+    mgr_port_protocol:
+      - "narrow_in"
+      - "wide_in"
+    sbr_port_protocol:
+      - "narrow_out"
+      - "wide_out"
   - name: "l2_spm"
-    array: [1]
+    array: [8]
     addr_range:
       base: 0x3000_0000
       size: 0x0010_0000
@@ -76,26 +86,40 @@ endpoints:
 
 routers:
   - name: "router"
-    array: [3, 2]
+    array: [7, 4]
     degree: 5
 
 connections:
   - src: "cluster"
     dst: "router"
     src_range:
-    - [0, 1]
-    - [0, 1]
+    - [0, 3]
+    - [0, 3]
     dst_range:
-    - [0, 1]
-    - [0, 1]
+    - [1, 4]
+    - [0, 3]
     dst_dir: "Eject"
   - src: "cheshire"
     dst: "router"
-    dst_idx: [2, 0]
+    dst_idx: [6, 3]
+    dst_dir: "Eject"
+  - src: "fhg_spu"
+    dst: "router"
+    dst_idx: [6, 0]
     dst_dir: "Eject"
   - src: "l2_spm"
     dst: "router"
     src_range:
+      - [0, 3]
+    dst_range:
       - [0, 0]
-    dst_idx: [2, 1]
+      - [0, 3]
+    dst_dir: "Eject"
+  - src: "l2_spm"
+    dst: "router"
+    src_range:
+      - [4, 7]
+    dst_range:
+      - [5, 5]
+      - [0, 3]
     dst_dir: "Eject"

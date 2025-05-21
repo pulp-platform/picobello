@@ -74,7 +74,7 @@ sources:
       - pd/target/sim/src/fixture_picobello_chip.sv
       - pd/target/sim/src/tb_picobello_chip.sv
 
-  - target: any(fpga, simulation, test)
+  - target: all(any(fpga, simulation, test), not(asic))
     include_dirs:
       - target/fpga/include
     files:
