@@ -8,6 +8,7 @@
 #include "picobello_addrmap.h"
 
 // This needs to be in a region which is not cached
+// TODO(lleone): Make sure snitch return address is not in the runtime
 volatile uint32_t (*return_code_array)[CFG_CLUSTER_NR_CORES] = (uint32_t (*)[CFG_CLUSTER_NR_CORES])0x30008000;
 
 int main() {
@@ -24,8 +25,8 @@ int main() {
     }
   }
 
-  // Start all cores by setting the clint interrupt
-  for (int i = 0; i < SNRT_CLUSTER_NUM; i++) {
+  // Start only clusters 0 that will be responsible for waking up all other clusters
+  for (int i = 0; i < 1; i++) {
     *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_CLINT_SET_ADDR(i)) = (1 << CFG_CLUSTER_NR_CORES) - 1;
   }
 
