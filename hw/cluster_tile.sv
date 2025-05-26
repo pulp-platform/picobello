@@ -88,7 +88,7 @@ module cluster_tile
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
-    .EnMultiCast (EnMulticast),
+    .EnMultiCast (RouteCfg.EnMultiCast),
     .RouteAlgo   (RouteCfg.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),
@@ -131,7 +131,6 @@ module cluster_tile
     .RouteCfg            (floo_picobello_noc_pkg::RouteCfg),
     .AtopSupport         (1'b1),
     .MaxAtomicTxns       (1),
-    .EnMultiCast         (EnMulticast),
     .Sam                 (picobello_pkg::SamMcast),
     .id_t                (floo_picobello_noc_pkg::id_t),
     .rob_idx_t           (floo_picobello_noc_pkg::rob_idx_t),

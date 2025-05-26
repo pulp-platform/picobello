@@ -113,7 +113,7 @@ package picobello_pkg;
   // encode the X/Y coordinate.
   // TODO (lleone): Extend FlooGen to support multicast and genearate the corect SAM.
   //
-  localparam bit EnMulticast = 1;
+  // localparam bit EnMulticast = 1;
   // Support multicast only to the clusters tiles.
   localparam int unsigned NumMcastEndPoints = NumClusters;
 
@@ -179,6 +179,16 @@ package picobello_pkg;
   endfunction
 
   localparam sam_multicast_rule_t [SamNumRules-1:0] SamMcast = get_sam_multicast();
+
+  function automatic floo_pkg::route_cfg_t gen_nomcast_route_cfg();
+    floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
+    // Disable multicast for non-cluster tiles
+    ret.EnMultiCast = 1'b0;
+    return ret;
+  endfunction
+
+  // Define no multicast RouteCfg for Memory tiles, Chehsihre and FhG
+  localparam floo_pkg::route_cfg_t RouteCfg_NoMcast = gen_nomcast_route_cfg();
 
   // Print the system address map for th emulticast rules.
   // TODO(lleone): Generalize for normal address map
