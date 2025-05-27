@@ -358,10 +358,10 @@ module mem_tile
     .sbr_port_obi_rsp_t       (mgr_obi_rsp_t),
     .mgr_port_obi_req_t       (sbr_obi_req_t),
     .mgr_port_obi_rsp_t       (sbr_obi_rsp_t),
-    .mgr_port_obi_a_optional_t(mgr_obi_a_optional_t),
-    .mgr_port_obi_r_optional_t(mgr_obi_r_optional_t),
+    .mgr_port_obi_a_optional_t(sbr_obi_a_optional_t),
+    .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
-    .RegisterAmo              (1'b0),
+    .RegisterAmo              (1'b1),
     .RiscvWordWidth           (32)
   ) i_obi_atop_resolver (
     .clk_i,
