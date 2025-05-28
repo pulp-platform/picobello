@@ -84,8 +84,9 @@ module picobello_top
 
     localparam int ClusterSamIdx = c + ClusterX0Y0SamIdx;
     localparam id_t ClusterId = SamMcast[ClusterSamIdx].idx.id;
-    localparam int X = int'(ClusterId.x);
-    localparam int Y = int'(ClusterId.y);
+    localparam id_t ClusterShiftedId = picobello_pkg::SamShifted[ClusterSamIdx].idx;
+    localparam int X = int'(ClusterShiftedId.x);
+    localparam int Y = int'(ClusterShiftedId.y);
     localparam int unsigned HartBaseId = c * NrCores + 1;  // Cheshire is hart 0
     localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
 
@@ -119,6 +120,7 @@ module picobello_top
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
 
   localparam id_t CheshireId = SamMcast[CheshireInternalSamIdx].idx.id;
+  localparam id_t CheshireShitedId =SamShifted[CheshireInternalSamIdx].idx;
 
   cheshire_tile i_cheshire_tile (
     .clk_i,
@@ -168,12 +170,12 @@ module picobello_top
     .dram_slink_i,
     .dram_slink_o,
     .id_i       (CheshireId),
-    .floo_req_o (floo_req_out[CheshireId.x][CheshireId.y]),
-    .floo_rsp_i (floo_rsp_in[CheshireId.x][CheshireId.y]),
-    .floo_wide_o(floo_wide_out[CheshireId.x][CheshireId.y]),
-    .floo_req_i (floo_req_in[CheshireId.x][CheshireId.y]),
-    .floo_rsp_o (floo_rsp_out[CheshireId.x][CheshireId.y]),
-    .floo_wide_i(floo_wide_in[CheshireId.x][CheshireId.y])
+    .floo_req_o (floo_req_out[CheshireShitedId.x][CheshireShitedId.y]),
+    .floo_rsp_i (floo_rsp_in[CheshireShitedId.x][CheshireShitedId.y]),
+    .floo_wide_o(floo_wide_out[CheshireShitedId.x][CheshireShitedId.y]),
+    .floo_req_i (floo_req_in[CheshireShitedId.x][CheshireShitedId.y]),
+    .floo_rsp_o (floo_rsp_out[CheshireShitedId.x][CheshireShitedId.y]),
+    .floo_wide_i(floo_wide_in[CheshireShitedId.x][CheshireShitedId.y])
   );
 
   //////////////////
@@ -192,6 +194,8 @@ module picobello_top
 
   // Add offset to consider Cheshire as hart 0
   localparam int unsigned FhgSpuHartBaseId = NumClusters * NrCores + 1;
+  localparam id_t FhgSpuShiftedId = SamShifted[FhgSpuSamIdx].idx;
+
   fhg_spu_tile i_fhg_spu_tile (
     .clk_i,
     .rst_ni,
@@ -203,12 +207,12 @@ module picobello_top
     .hart_base_id_i     (FhgSpuHartBaseId[9:0]),
     .cluster_base_addr_i(Sam[FhgSpuSamIdx].start_addr),
     .id_i               (FhgSpuId),
-    .floo_req_o         (floo_req_out[FhgSpuId.x][FhgSpuId.y]),
-    .floo_rsp_i         (floo_rsp_in[FhgSpuId.x][FhgSpuId.y]),
-    .floo_wide_o        (floo_wide_out[FhgSpuId.x][FhgSpuId.y]),
-    .floo_req_i         (floo_req_in[FhgSpuId.x][FhgSpuId.y]),
-    .floo_rsp_o         (floo_rsp_out[FhgSpuId.x][FhgSpuId.y]),
-    .floo_wide_i        (floo_wide_in[FhgSpuId.x][FhgSpuId.y])
+    .floo_req_o         (floo_req_out[FhgSpuShiftedId.x][FhgSpuShiftedId.y]),
+    .floo_rsp_i         (floo_rsp_in[FhgSpuShiftedId.x][FhgSpuShiftedId.y]),
+    .floo_wide_o        (floo_wide_out[FhgSpuShiftedId.x][FhgSpuShiftedId.y]),
+    .floo_req_i         (floo_req_in[FhgSpuShiftedId.x][FhgSpuShiftedId.y]),
+    .floo_rsp_o         (floo_rsp_out[FhgSpuShiftedId.x][FhgSpuShiftedId.y]),
+    .floo_wide_i        (floo_wide_in[FhgSpuShiftedId.x][FhgSpuShiftedId.y])
   );
 
   //////////////
@@ -219,8 +223,9 @@ module picobello_top
 
     localparam int MemTileSamIdx = m + L2Spm0SamIdx;
     localparam id_t MemTileId = SamMcast[MemTileSamIdx].idx.id;
-    localparam int MemTileX = int'(MemTileId.x);
-    localparam int MemTileY = int'(MemTileId.y);
+    localparam id_t MemTileShiftedId = SamShifted[MemTileSamIdx].idx;
+    localparam int MemTileX = int'(MemTileShiftedId.x);
+    localparam int MemTileY = int'(MemTileShiftedId.y);
 
     mem_tile i_mem_tile (
       .clk_i,
@@ -244,8 +249,8 @@ module picobello_top
   for (genvar d = 0; d < NumDummyTiles; d++) begin : gen_dummytiles
 
     localparam id_t DummyTileId = DummyIdx[d];
-    localparam int DummyTileX = int'(DummyIdx[d].x);
-    localparam int DummyTileY = int'(DummyIdx[d].y);
+    localparam int DummyTileX = int'(DummyShiftedIdx[d].x);
+    localparam int DummyTileY = int'(DummyShiftedIdx[d].y);
 
     dummy_tile i_dummy_tile (
       .clk_i,
