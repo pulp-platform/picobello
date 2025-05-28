@@ -129,7 +129,7 @@ packages:
     - scm
     - tech_cells_generic
   common_cells:
-    revision: 0fd2ba32926c0360534dc3d5795143cb259abb1c
+    revision: 265b4cf5fe561cb837899c580f392ea93bf7e147
     version: null
     source:
       Git: https://github.com/pulp-platform/common_cells.git
@@ -166,7 +166,7 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: a86e8b307d147e567ea3c8da924b774a7f15e08b
+    revision: 496949fde5e1be132681887df1495efa29f4fb3b
     version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
@@ -192,7 +192,7 @@ packages:
     dependencies:
     - common_cells
   idma:
-    revision: 5ccd718224ad76f2d0ce5fe512ad6c5e47c71844
+    revision: c396bbf477457b184a74b7f2386302f5895bb522
     version: null
     source:
       Git: https://github.com/pulp-platform/iDMA.git
@@ -270,7 +270,7 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: 03ef4285322df422e32d06a1116d4ddde8bccd23
+    revision: e1740c219339938a79c12e601f5ca161ad22638d
     version: null
     source:
       Git: https://github.com/Lore0599/snitch_cluster.git
