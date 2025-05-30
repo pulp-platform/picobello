@@ -173,7 +173,8 @@ package picobello_pkg;
   // physical topology (i.e., 7×4), ensuring that the tiles are aligned and connected
   // correctly within the adjusted coordinate space.
   localparam bit [MaxId.x:0] EmptyCols = get_empty_cols(MeshMap);
-  localparam sam_rule_t [SamNumRules-1:0] SamShifted = align_x_coordinate(floo_picobello_noc_pkg::Sam, EmptyCols);
+  localparam sam_rule_t [SamNumRules-1:0] SamShifted = align_x_coordinate(
+                                                      floo_picobello_noc_pkg::Sam, EmptyCols);
 
   // Dummy tiles X, Y coordinates
   typedef id_t [NumDummyTiles-1:0] dummy_idx_t;
@@ -347,7 +348,7 @@ package picobello_pkg;
   endfunction
 
   // Define no multicast RouteCfg for Memory tiles, Chehsihre and FhG
-  localparam floo_pkg::route_cfg_t RouteCfg_NoMcast = gen_nomcast_route_cfg();
+  localparam floo_pkg::route_cfg_t RouteCfgNoMcast = gen_nomcast_route_cfg();
 
   // Print the system address map for th emulticast rules.
   // TODO(lleone): Generalize for normal address map

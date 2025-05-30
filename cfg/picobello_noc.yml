@@ -9,6 +9,7 @@ network_type: "narrow-wide"
 routing:
   route_algo: "XY"
   use_id_table: true
+  en_multicast: true
 
 protocols:
   - name: "narrow_in"
@@ -85,30 +86,42 @@ endpoints:
       - "wide_out"
 
 routers:
-  - name: "router"
-    array: [7, 4]
+  - name: "router_left"
+    array: [1, 4]
     degree: 5
+  - name: "router_center"
+    array: [4, 4]
+    degree: 5
+    xy_id_offset:
+      y: 0
+      x: 4
+  - name: "router_right"
+    array: [2, 4]
+    degree: 5
+    xy_id_offset:
+      y: 0
+      x: 8
 
 connections:
   - src: "cluster"
-    dst: "router"
+    dst: "router_center"
     src_range:
     - [0, 3]
     - [0, 3]
     dst_range:
-    - [1, 4]
+    - [0, 3]
     - [0, 3]
     dst_dir: "Eject"
   - src: "cheshire"
-    dst: "router"
-    dst_idx: [6, 3]
+    dst: "router_right"
+    dst_idx: [1, 3]
     dst_dir: "Eject"
   - src: "fhg_spu"
-    dst: "router"
-    dst_idx: [6, 0]
+    dst: "router_right"
+    dst_idx: [1, 0]
     dst_dir: "Eject"
   - src: "l2_spm"
-    dst: "router"
+    dst: "router_left"
     src_range:
       - [0, 3]
     dst_range:
@@ -116,10 +129,10 @@ connections:
       - [0, 3]
     dst_dir: "Eject"
   - src: "l2_spm"
-    dst: "router"
+    dst: "router_right"
     src_range:
       - [4, 7]
     dst_range:
-      - [5, 5]
+      - [0, 0]
       - [0, 3]
     dst_dir: "Eject"

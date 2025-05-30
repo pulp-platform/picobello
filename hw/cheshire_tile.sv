@@ -91,7 +91,7 @@ module cheshire_tile
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
-    .RouteAlgo   (RouteCfg_NoMcast.RouteAlgo),
+    .RouteAlgo   (RouteCfgNoMcast.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),
     .OutFifoDepth(2),
@@ -140,7 +140,7 @@ module cheshire_tile
     .AxiCfgW             (AxiCfgW),
     .ChimneyCfgN         (ChimneyCfgN),
     .ChimneyCfgW         (ChimneyCfgW),
-    .RouteCfg            (RouteCfg_NoMcast),
+    .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
     .MaxAtomicTxns       (AxiCfgN.OutIdWidth - 1),
     .Sam                 (Sam),
