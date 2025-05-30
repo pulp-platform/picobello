@@ -120,7 +120,7 @@ module picobello_top
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
 
   localparam id_t CheshireId = SamMcast[CheshireInternalSamIdx].idx.id;
-  localparam id_t CheshireShitedId =SamShifted[CheshireInternalSamIdx].idx;
+  localparam id_t CheshireShitedId = SamShifted[CheshireInternalSamIdx].idx;
 
   cheshire_tile i_cheshire_tile (
     .clk_i,

@@ -131,14 +131,14 @@ package picobello_pkg;
   // ensures that all tiles are properly connected, regardless of any XY coordinate offset.
   // It preserves all other fields of each SAM rule.
   function automatic sam_rule_t [SamNumRules-1:0] align_x_coordinate(
-                                                  sam_rule_t [SamNumRules-1:0] sam_to_convert,
-                                                  bit [MaxId.x:0] empty_cols);
-    sam_rule_t [SamNumRules-1:0] ret_sam;
-    int unsigned left_empty_cols;
-    int unsigned current_x;
+      sam_rule_t [SamNumRules-1:0] sam_to_convert, bit [MaxId.x:0] empty_cols);
+
+    sam_rule_t   [SamNumRules-1:0] ret_sam;
+    int unsigned                   left_empty_cols;
+    int unsigned                   current_x;
 
     for (int rule = 0; rule < SamNumRules; rule++) begin
-      current_x = int'(sam_to_convert[rule].idx.x);
+      current_x       = int'(sam_to_convert[rule].idx.x);
       left_empty_cols = 0;
 
       // Count how many empty columns are to the left of the current tile
@@ -156,10 +156,10 @@ package picobello_pkg;
       end
 
       // Copy the remaining fields of the rule
-      ret_sam[rule].idx.y = sam_to_convert[rule].idx.y;
+      ret_sam[rule].idx.y       = sam_to_convert[rule].idx.y;
       ret_sam[rule].idx.port_id = sam_to_convert[rule].idx.port_id;
-      ret_sam[rule].start_addr = sam_to_convert[rule].start_addr;
-      ret_sam[rule].end_addr = sam_to_convert[rule].end_addr;
+      ret_sam[rule].start_addr  = sam_to_convert[rule].start_addr;
+      ret_sam[rule].end_addr    = sam_to_convert[rule].end_addr;
     end
     return ret_sam;
   endfunction
@@ -174,7 +174,8 @@ package picobello_pkg;
   // correctly within the adjusted coordinate space.
   localparam bit [MaxId.x:0] EmptyCols = get_empty_cols(MeshMap);
   localparam sam_rule_t [SamNumRules-1:0] SamShifted = align_x_coordinate(
-                                                      floo_picobello_noc_pkg::Sam, EmptyCols);
+      floo_picobello_noc_pkg::Sam, EmptyCols
+  );
 
   // Dummy tiles X, Y coordinates
   typedef id_t [NumDummyTiles-1:0] dummy_idx_t;
@@ -199,7 +200,7 @@ package picobello_pkg;
         end else begin
           // If the full column is empty, we don't need to insert dummy tiles
           found_tiles -= empty_tile;
-          break; // No more empty tiles in this column
+          break;
         end
       end
     end
@@ -207,13 +208,10 @@ package picobello_pkg;
   endfunction
 
   // localparam dummy_idx_t DummyIdx = get_dummy_idx(MeshMap, MeshDim.x, MeshDim.y);
-  localparam dummy_idx_t DummyIdx = '{
-    '{x: 9, y: 2, port_id: 1},
-    '{x: 9, y: 1, port_id: 0}
-  };
+  localparam dummy_idx_t DummyIdx = '{'{x: 9, y: 2, port_id: 1}, '{x: 9, y: 1, port_id: 0}};
   localparam dummy_idx_t DummyShiftedIdx = '{
-    '{x: 6, y: 2, port_id: 1},
-    '{x: 6, y: 1, port_id: 0}
+      '{x: 6, y: 2, port_id: 1},
+      '{x: 6, y: 1, port_id: 0}
   };
 
 
@@ -292,11 +290,10 @@ package picobello_pkg;
   function automatic sam_multicast_rule_t [SamNumRules-1:0] get_sam_multicast();
     sam_multicast_rule_t [SamNumRules-1:0] sam_multicast;
 
-    int unsigned tileSize;
     int unsigned len_id_x, len_id_y;
     int unsigned offset_id_x, offset_id_y;
     int unsigned empty_cols, empty_rows;
-
+    int unsigned tileSize;
     // Evaluate where the X and Y node coordinate associated with the multicast endpoints
     // are actaully located
     // clog2 returns 0 when idx.x = 1. To workaround this problem, separate the case where max idx is 1
@@ -313,8 +310,8 @@ package picobello_pkg;
     // TODO(lleone): This is a temporary solution. In a fully configurable system,
     // the base ID doesn't match with the number of empty rows/columns. This is
     // true only in the 7x4 mesh.
-    empty_cols = $countones(get_empty_cols(MeshMap) + 1);
-    empty_rows = $countones(get_empty_rows(MeshMap));
+    empty_cols  = $countones(get_empty_cols(MeshMap) + 1);
+    empty_rows  = $countones(get_empty_rows(MeshMap));
 
     for (int rule = 0; rule < SamNumRules; rule++) begin
       sam_multicast[rule].idx.id     = Sam[rule].idx;
@@ -325,10 +322,16 @@ package picobello_pkg;
       if (rule < NumMcastEndPoints) begin
 
         // Fill new Sam struct with the extra multicast info
-        sam_multicast[rule].idx.mask_x = '{offset: offset_id_x, len: len_id_x,
-                                          grp_base_id: empty_cols};
-        sam_multicast[rule].idx.mask_y = '{offset: offset_id_y, len: len_id_y,
-                                          grp_base_id: empty_rows};
+        sam_multicast[rule].idx.mask_x = '{
+            offset: offset_id_x,
+            len: len_id_x,
+            grp_base_id: empty_cols
+        };
+        sam_multicast[rule].idx.mask_y = '{
+            offset: offset_id_y,
+            len: len_id_y,
+            grp_base_id: empty_rows
+        };
       end else begin
         sam_multicast[rule].idx.mask_x = '{offset: '0, len: '0, grp_base_id: 0};
         sam_multicast[rule].idx.mask_y = '{offset: '0, len: '0, grp_base_id: 0};
@@ -356,21 +359,13 @@ package picobello_pkg;
     $display("\n--- [SAM] System Address Map (%0d entries) ---", SamNumRules);
     $display("[");
     for (int i = 0; i < SamNumRules; i++) begin
-      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},",
-             SamMcast[i].idx.id.x,
-             SamMcast[i].idx.id.y,
-             SamMcast[i].idx.id.port_id);
-      $write("  mask_x: {offset: %0d, len: %0d, base_id: %0d},",
-             SamMcast[i].idx.mask_x.offset,
-             SamMcast[i].idx.mask_x.len,
-             SamMcast[i].idx.mask_x.grp_base_id);
-      $write("  mask_y: {offset: %0d, len: %0d, base_id: %0d} },",
-             SamMcast[i].idx.mask_y.offset,
-             SamMcast[i].idx.mask_y.len,
-             SamMcast[i].idx.mask_y.grp_base_id);
-      $write("start: 0x%0h, end: 0x%0h }\n",
-             SamMcast[i].start_addr,
-             SamMcast[i].end_addr);
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamMcast[i].idx.id.x,
+             SamMcast[i].idx.id.y, SamMcast[i].idx.id.port_id);
+      $write("  mask_x: {offset: %0d, len: %0d, base_id: %0d},", SamMcast[i].idx.mask_x.offset,
+             SamMcast[i].idx.mask_x.len, SamMcast[i].idx.mask_x.grp_base_id);
+      $write("  mask_y: {offset: %0d, len: %0d, base_id: %0d} },", SamMcast[i].idx.mask_y.offset,
+             SamMcast[i].idx.mask_y.len, SamMcast[i].idx.mask_y.grp_base_id);
+      $write("start: 0x%0h, end: 0x%0h }\n", SamMcast[i].start_addr, SamMcast[i].end_addr);
     end
     $display("]");
     $display("----------------------------------------------------------");
@@ -388,13 +383,9 @@ package picobello_pkg;
     $display("\n--- SHIFTED System Address Map (%0d entries) ---", SamNumRules);
     $display("[");
     for (int i = 0; i < SamNumRules; i++) begin
-      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},",
-             SamShifted[i].idx.x,
-             SamShifted[i].idx.y,
-             SamShifted[i].idx.port_id);
-      $write("start: 0x%0h, end: 0x%0h }\n",
-             SamShifted[i].start_addr,
-             SamShifted[i].end_addr);
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamShifted[i].idx.x,
+             SamShifted[i].idx.y, SamShifted[i].idx.port_id);
+      $write("start: 0x%0h, end: 0x%0h }\n", SamShifted[i].start_addr, SamShifted[i].end_addr);
     end
     $display("]");
     $display("----------------------------------------------------------");

@@ -71,6 +71,7 @@ sources:
   - target: all(any(simulation, test), asic)
     include_dirs:
       - pd/target/sim/include
+      - target/sim/include
     files:
       - pd/target/sim/src/fixture_picobello_chip.sv
       - pd/target/sim/src/tb_picobello_chip.sv
