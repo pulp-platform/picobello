@@ -396,7 +396,8 @@ package picobello_pkg;
   ////////////////
 
   localparam int unsigned CshRegExtDramSerialLink = 0;
-  localparam int unsigned CshNumRegExt = 1;
+  localparam int unsigned CshRegExtClkGatingRst = 1;
+  localparam int unsigned CshNumRegExt = 2;
 
   // Define function to derive configuration from Cheshire defaults.
   function automatic cheshire_pkg::cheshire_cfg_t gen_cheshire_cfg();
@@ -413,6 +414,9 @@ package picobello_pkg;
     ret.RegExtRegionIdx[0]   = CshRegExtDramSerialLink;
     ret.RegExtRegionStart[0] = 'h1800_0000;
     ret.RegExtRegionEnd[0]   = 'h1800_1000;
+    ret.RegExtRegionIdx[1]   = CshRegExtClkGatingRst;
+    ret.RegExtRegionStart[1] = 'h1800_1000;
+    ret.RegExtRegionEnd[1]   = 'h1800_2000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just set the CIE region to size 0 for now
     ret.Cva6ExtCieOnTop      = 0;
