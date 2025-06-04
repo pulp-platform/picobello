@@ -173,7 +173,7 @@ package picobello_pkg;
   // physical topology (i.e., 7×4), ensuring that the tiles are aligned and connected
   // correctly within the adjusted coordinate space.
   localparam bit [MaxId.x:0] EmptyCols = get_empty_cols(MeshMap);
-  localparam sam_rule_t [SamNumRules-1:0] SamShifted = align_x_coordinate(
+  localparam sam_rule_t [SamNumRules-1:0] SamPhysical = align_x_coordinate(
       floo_picobello_noc_pkg::Sam, EmptyCols
   );
 
@@ -209,7 +209,7 @@ package picobello_pkg;
 
   // localparam dummy_idx_t DummyIdx = get_dummy_idx(MeshMap, MeshDim.x, MeshDim.y);
   localparam dummy_idx_t DummyIdx = '{'{x: 9, y: 2, port_id: 1}, '{x: 9, y: 1, port_id: 0}};
-  localparam dummy_idx_t DummyShiftedIdx = '{
+  localparam dummy_idx_t DummyPhysicalIdx = '{
       '{x: 6, y: 2, port_id: 1},
       '{x: 6, y: 1, port_id: 0}
   };
@@ -380,12 +380,12 @@ package picobello_pkg;
       end
       $display("");
     end
-    $display("\n--- SHIFTED System Address Map (%0d entries) ---", SamNumRules);
+    $display("\n--- Physical System Address Map (%0d entries) ---", SamNumRules);
     $display("[");
     for (int i = 0; i < SamNumRules; i++) begin
-      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamShifted[i].idx.x,
-             SamShifted[i].idx.y, SamShifted[i].idx.port_id);
-      $write("start: 0x%0h, end: 0x%0h }\n", SamShifted[i].start_addr, SamShifted[i].end_addr);
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamPhysical[i].idx.x,
+             SamPhysical[i].idx.y, SamPhysical[i].idx.port_id);
+      $write("start: 0x%0h, end: 0x%0h }\n", SamPhysical[i].start_addr, SamPhysical[i].end_addr);
     end
     $display("]");
     $display("----------------------------------------------------------");
