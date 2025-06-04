@@ -14,6 +14,8 @@ module fhg_spu_tile
   input  logic                            clk_i,
   input  logic                            rst_ni,
   input  logic                            test_enable_i,
+  input  logic                            tile_clk_en_i,
+  input  logic                            tile_rst_ni,
   // Cluster ports
   input  logic                      [8:0] debug_req_i,
   input  logic                      [8:0] meip_i,

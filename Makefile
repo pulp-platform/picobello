@@ -26,6 +26,9 @@ VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 PEAKRDL          ?= peakrdl
 
+# Tiles configuration
+SN_CLUSTERS = 16
+
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
 BENDER_LOCK = $(PB_ROOT)/Bender.lock
@@ -52,6 +55,12 @@ $(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
 $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
+$(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
+	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P NumClusters=$(SN_CLUSTERS)
+
+.PHONY: pb-soc-regs
+pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
+
 ##################
 # Snitch Cluster #
 ##################
@@ -69,8 +78,6 @@ sn-hw-clean:
 ###########
 # FlooNoC #
 ###########
-
-SN_CLUSTERS = 16
 .PHONY: update-sn-cfg
 update-sn-cfg: $(SN_CFG)
 	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
@@ -130,6 +137,7 @@ PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 PB_HW_ALL += update-sn-cfg
+PB_HW_ALL += pb-soc-regs
 
 .PHONY: picobello-hw-all picobello-clean clean
 
