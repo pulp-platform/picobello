@@ -22,3 +22,8 @@ tabulate
 
 # Miscellaneous requirements
 hjson  # for reggen
+
+# For peakrdl
+peakrdl
+peakrdl-rawheader @ git+https://github.com/micprog/peakrdl-rawheader.git
+peakrdl-markdown

@@ -68,6 +68,10 @@ module picobello_top
   floo_rsp_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_rsp_in, floo_rsp_out;
   floo_wide_t [MeshDim.x-1:0][MeshDim.y-1:0][West:North] floo_wide_in, floo_wide_out;
 
+  logic [NumClusters-1:0] cluster_clk_en, cluster_rst_n;
+  logic [NumMemTiles-1:0] mem_tile_clk_en, mem_tile_rst_n;
+  logic fhg_spu_clk_en, fhg_spu_rst_n;
+
   ///////////////////
   // Cluster tiles //
   ///////////////////
@@ -93,6 +97,8 @@ module picobello_top
       .clk_i,
       .rst_ni,
       .test_enable_i      (test_mode_i),
+      .tile_clk_en_i      (cluster_clk_en[c]),
+      .tile_rst_ni        (cluster_rst_n[c]),
       .debug_req_i        (debug_req[c]),
       .meip_i             (meip[c]),
       .mtip_i             (mtip[c]),
@@ -167,13 +173,19 @@ module picobello_top
     .dram_slink_rcv_clk_o,
     .dram_slink_i,
     .dram_slink_o,
-    .id_i       (CheshireId),
-    .floo_req_o (floo_req_out[CheshireId.x][CheshireId.y]),
-    .floo_rsp_i (floo_rsp_in[CheshireId.x][CheshireId.y]),
-    .floo_wide_o(floo_wide_out[CheshireId.x][CheshireId.y]),
-    .floo_req_i (floo_req_in[CheshireId.x][CheshireId.y]),
-    .floo_rsp_o (floo_rsp_out[CheshireId.x][CheshireId.y]),
-    .floo_wide_i(floo_wide_in[CheshireId.x][CheshireId.y])
+    .id_i             (CheshireId),
+    .floo_req_o       (floo_req_out[CheshireId.x][CheshireId.y]),
+    .floo_rsp_i       (floo_rsp_in[CheshireId.x][CheshireId.y]),
+    .floo_wide_o      (floo_wide_out[CheshireId.x][CheshireId.y]),
+    .floo_req_i       (floo_req_in[CheshireId.x][CheshireId.y]),
+    .floo_rsp_o       (floo_rsp_out[CheshireId.x][CheshireId.y]),
+    .floo_wide_i      (floo_wide_in[CheshireId.x][CheshireId.y]),
+    .cluster_clk_en_o (cluster_clk_en),
+    .cluster_rst_no   (cluster_rst_n),
+    .mem_tile_clk_en_o(mem_tile_clk_en),
+    .mem_tile_rst_no  (mem_tile_rst_n),
+    .fhg_spu_clk_en_o (fhg_spu_clk_en),
+    .fhg_spu_rst_no   (fhg_spu_rst_n)
   );
 
   //////////////////
@@ -196,6 +208,8 @@ module picobello_top
     .clk_i,
     .rst_ni,
     .test_enable_i      (test_mode_i),
+    .tile_clk_en_i      (fhg_spu_clk_en),
+    .tile_rst_ni        (fhg_spu_rst_n),
     .debug_req_i        (fhg_spu_debug_req),
     .meip_i             (fhg_spu_meip),
     .mtip_i             (fhg_spu_mtip),
@@ -226,6 +240,8 @@ module picobello_top
       .clk_i,
       .rst_ni,
       .test_enable_i(test_mode_i),
+      .tile_clk_en_i(mem_tile_clk_en[m]),
+      .tile_rst_ni  (mem_tile_rst_n[m]),
       .id_i         (MemTileId),
       .floo_req_o   (floo_req_out[MemTileX][MemTileY]),
       .floo_rsp_i   (floo_rsp_in[MemTileX][MemTileY]),

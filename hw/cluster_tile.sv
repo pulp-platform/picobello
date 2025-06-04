@@ -15,6 +15,8 @@ module cluster_tile
   input  logic                                    clk_i,
   input  logic                                    rst_ni,
   input  logic                                    test_enable_i,
+  input  logic                                    tile_clk_en_i,
+  input  logic                                    tile_rst_ni,
   // Cluster ports
   input  logic                      [NrCores-1:0] debug_req_i,
   input  logic                      [NrCores-1:0] meip_i,
@@ -32,6 +34,12 @@ module cluster_tile
   output floo_rsp_t                 [ West:North] floo_rsp_o,
   input  floo_wide_t                [ West:North] floo_wide_i
 );
+
+  logic clk_rst_bypass_i;         // TODO cdurrer: replace with actual signal
+  assign clk_rst_bypass_i = 0;
+
+  logic tile_clk;
+  logic tile_rst_n;
 
   ////////////
   // Router //
@@ -113,8 +121,8 @@ module cluster_tile
     .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t),
     .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t)
   ) i_chimney (
-    .clk_i,
-    .rst_ni,
+    .clk_i               (tile_clk),
+    .rst_ni              (tile_rst_n),
     .test_enable_i,
     .id_i,
     .route_table_i       ('0),
@@ -149,8 +157,8 @@ module cluster_tile
   snitch_cluster_pkg::wide_in_resp_t    cluster_wide_in_rsp;
 
   snitch_cluster_wrapper i_cluster (
-    .clk_i,
-    .rst_ni,
+    .clk_i            (tile_clk),
+    .rst_ni           (tile_rst_n),
     .debug_req_i,
     .meip_i,
     .mtip_i,
@@ -168,6 +176,30 @@ module cluster_tile
     .wide_in_req_i    (cluster_wide_in_req),
     .wide_in_resp_o   (cluster_wide_in_rsp)
   );
+
+  //////////////////////////
+  // Clock Gating & Reset //
+  //////////////////////////
+
+  tc_clk_gating i_tc_clk_gating_cluster (
+    .clk_i,
+    .en_i       (tile_clk_en_i),
+    .test_en_i  (clk_rst_bypass_i),
+    .clk_o      (tile_clk)
+  );
+
+`ifdef TARGET_XILINX
+  // Using clk cells makes Vivado flag the reset as a clock tree
+  assign assign tile_rst_n = (clk_rst_bypass_i) ? rst_ni : tile_rst_ni;
+`else
+  tc_clk_mux2 i_tc_reset_mux (
+    .clk0_i (tile_rst_ni),
+    .clk1_i (rst_ni),
+    .clk_sel_i (clk_rst_bypass_i),
+    .clk_o (tile_rst_n)
+  );
+`endif
+
 
 
   `AXI_ASSIGN_REQ_STRUCT(cluster_narrow_in_req, chimney_narrow_out_req);
