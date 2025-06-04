@@ -67,16 +67,6 @@ module cluster_tile
     .wide_in_resp_o   (cluster_wide_in_rsp)
   );
 
-
-  // `AXI_ASSIGN_REQ_STRUCT(cluster_narrow_in_req, chimney_narrow_out_req);
-  // `AXI_ASSIGN_RESP_STRUCT(chimney_narrow_out_rsp, cluster_narrow_in_rsp);
-  // `AXI_ASSIGN_REQ_STRUCT(chimney_narrow_in_req, cluster_narrow_out_req);
-  // `AXI_ASSIGN_RESP_STRUCT(cluster_narrow_out_rsp, chimney_narrow_in_rsp);
-  // `AXI_ASSIGN_REQ_STRUCT(cluster_wide_in_req, chimney_wide_out_req);
-  // `AXI_ASSIGN_RESP_STRUCT(chimney_wide_out_rsp, cluster_wide_in_rsp);
-  // `AXI_ASSIGN_REQ_STRUCT(chimney_wide_in_req, cluster_wide_out_req);
-  // `AXI_ASSIGN_RESP_STRUCT(cluster_wide_out_rsp, chimney_wide_in_rsp);
-
   ////////////
   // Router //
   ////////////
