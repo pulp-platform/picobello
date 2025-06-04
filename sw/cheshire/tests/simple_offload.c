@@ -24,10 +24,8 @@ int main() {
     }
   }
 
-  // Start all cores by setting the clint interrupt
-  for (int i = 0; i < SNRT_CLUSTER_NUM; i++) {
-    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_CLINT_SET_ADDR(i)) = (1 << CFG_CLUSTER_NR_CORES) - 1;
-  }
+  // Start only Cluster 0 core 0 which will wake up all other clusters
+  *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_CLINT_SET_ADDR(0)) = (1 << CFG_CLUSTER_NR_CORES) - 1;
 
   // Wait until all cores have finished
   int all_finished = 0;

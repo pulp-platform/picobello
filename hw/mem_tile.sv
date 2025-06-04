@@ -66,7 +66,8 @@ module mem_tile
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
-    .RouteAlgo   (RouteCfg.RouteAlgo),
+    .EnMultiCast (RouteCfgNoMcast.EnMultiCast),
+    .RouteAlgo   (RouteCfgNoMcast.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),
     .OutFifoDepth(2),
@@ -110,7 +111,7 @@ module mem_tile
     .AxiCfgW             (AxiCfgW),
     .ChimneyCfgN         (set_ports(ChimneyDefaultCfg, 1'b1, 1'b0)),
     .ChimneyCfgW         (set_ports(ChimneyDefaultCfg, 1'b1, 1'b0)),
-    .RouteCfg            (RouteCfg),
+    .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
     .MaxAtomicTxns       (1),
     .Sam                 (Sam),

@@ -11,7 +11,8 @@
         cluster_base_hartid: 1,
         addr_width: 48,
         data_width: 64,
-        user_width: 3, // clog2(nr_clusters + 1)
+        atomic_id_width: 5, // clog2(total number of clusters) + 1
+        user_width: 51, // clog2(nr_clusters + 1)
         tcdm: {
             size: 128,
             banks: 32,
@@ -23,6 +24,8 @@
         dma_req_fifo_depth: 3,
         narrow_trans: 4,
         wide_trans: 32,
+        dma_user_width: 48,
+        enable_multicast: true,
         cluster_base_expose: true,
         alias_region_enable: true,
         alias_region_base: 0x30000000,

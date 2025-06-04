@@ -9,6 +9,7 @@ network_type: "narrow-wide"
 routing:
   route_algo: "XY"
   use_id_table: true
+  en_multicast: true
 
 protocols:
   - name: "narrow_in"

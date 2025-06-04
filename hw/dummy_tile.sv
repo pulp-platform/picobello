@@ -31,10 +31,11 @@ module dummy_tile
   floo_rsp_t [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
   floo_wide_t [Eject:North] router_floo_wide_out, router_floo_wide_in;
 
+  // TODO(lleone: Check if dummy tile router need multicast support)
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
-    .RouteAlgo   (RouteCfg.RouteAlgo),
+    .RouteAlgo   (RouteCfgNoMcast.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),
     .OutFifoDepth(2),

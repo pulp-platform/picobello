@@ -83,9 +83,10 @@ module picobello_top
   for (genvar c = 0; c < NumClusters; c++) begin : gen_clusters
 
     localparam int ClusterSamIdx = c + ClusterX0Y0SamIdx;
-    localparam id_t ClusterId = Sam[ClusterSamIdx].idx;
-    localparam int X = int'(ClusterId.x);
-    localparam int Y = int'(ClusterId.y);
+    localparam id_t ClusterId = SamMcast[ClusterSamIdx].idx.id;
+    localparam id_t ClusterPhysicalId = picobello_pkg::SamPhysical[ClusterSamIdx].idx;
+    localparam int X = int'(ClusterPhysicalId.x);
+    localparam int Y = int'(ClusterPhysicalId.y);
     localparam int unsigned HartBaseId = c * NrCores + 1;  // Cheshire is hart 0
     localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
 
@@ -118,7 +119,8 @@ module picobello_top
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] mtip_ext;
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
 
-  localparam id_t CheshireId = Sam[CheshireInternalSamIdx].idx;
+  localparam id_t CheshireId = SamMcast[CheshireInternalSamIdx].idx.id;
+  localparam id_t CheshirePhysicalId = SamPhysical[CheshireInternalSamIdx].idx;
 
   cheshire_tile i_cheshire_tile (
     .clk_i,
@@ -168,12 +170,12 @@ module picobello_top
     .dram_slink_i,
     .dram_slink_o,
     .id_i       (CheshireId),
-    .floo_req_o (floo_req_out[CheshireId.x][CheshireId.y]),
-    .floo_rsp_i (floo_rsp_in[CheshireId.x][CheshireId.y]),
-    .floo_wide_o(floo_wide_out[CheshireId.x][CheshireId.y]),
-    .floo_req_i (floo_req_in[CheshireId.x][CheshireId.y]),
-    .floo_rsp_o (floo_rsp_out[CheshireId.x][CheshireId.y]),
-    .floo_wide_i(floo_wide_in[CheshireId.x][CheshireId.y])
+    .floo_req_o (floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y]),
+    .floo_rsp_i (floo_rsp_in[CheshirePhysicalId.x][CheshirePhysicalId.y]),
+    .floo_wide_o(floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y]),
+    .floo_req_i (floo_req_in[CheshirePhysicalId.x][CheshirePhysicalId.y]),
+    .floo_rsp_o (floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y]),
+    .floo_wide_i(floo_wide_in[CheshirePhysicalId.x][CheshirePhysicalId.y])
   );
 
   //////////////////
@@ -192,6 +194,8 @@ module picobello_top
 
   // Add offset to consider Cheshire as hart 0
   localparam int unsigned FhgSpuHartBaseId = NumClusters * NrCores + 1;
+  localparam id_t FhgSpuPhysicalId = SamPhysical[FhgSpuSamIdx].idx;
+
   fhg_spu_tile i_fhg_spu_tile (
     .clk_i,
     .rst_ni,
@@ -203,12 +207,12 @@ module picobello_top
     .hart_base_id_i     (FhgSpuHartBaseId[9:0]),
     .cluster_base_addr_i(Sam[FhgSpuSamIdx].start_addr),
     .id_i               (FhgSpuId),
-    .floo_req_o         (floo_req_out[FhgSpuId.x][FhgSpuId.y]),
-    .floo_rsp_i         (floo_rsp_in[FhgSpuId.x][FhgSpuId.y]),
-    .floo_wide_o        (floo_wide_out[FhgSpuId.x][FhgSpuId.y]),
-    .floo_req_i         (floo_req_in[FhgSpuId.x][FhgSpuId.y]),
-    .floo_rsp_o         (floo_rsp_out[FhgSpuId.x][FhgSpuId.y]),
-    .floo_wide_i        (floo_wide_in[FhgSpuId.x][FhgSpuId.y])
+    .floo_req_o         (floo_req_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
+    .floo_rsp_i         (floo_rsp_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
+    .floo_wide_o        (floo_wide_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
+    .floo_req_i         (floo_req_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
+    .floo_rsp_o         (floo_rsp_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
+    .floo_wide_i        (floo_wide_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y])
   );
 
   //////////////
@@ -218,9 +222,10 @@ module picobello_top
   for (genvar m = 0; m < NumMemTiles; m++) begin : gen_memtile
 
     localparam int MemTileSamIdx = m + L2Spm0SamIdx;
-    localparam id_t MemTileId = Sam[MemTileSamIdx].idx;
-    localparam int MemTileX = int'(MemTileId.x);
-    localparam int MemTileY = int'(MemTileId.y);
+    localparam id_t MemTileId = SamMcast[MemTileSamIdx].idx.id;
+    localparam id_t MemTilePhysicalId = SamPhysical[MemTileSamIdx].idx;
+    localparam int MemTileX = int'(MemTilePhysicalId.x);
+    localparam int MemTileY = int'(MemTilePhysicalId.y);
 
     mem_tile i_mem_tile (
       .clk_i,
@@ -244,8 +249,8 @@ module picobello_top
   for (genvar d = 0; d < NumDummyTiles; d++) begin : gen_dummytiles
 
     localparam id_t DummyTileId = DummyIdx[d];
-    localparam int DummyTileX = int'(DummyIdx[d].x);
-    localparam int DummyTileY = int'(DummyIdx[d].y);
+    localparam int DummyTileX = int'(DummyPhysicalIdx[d].x);
+    localparam int DummyTileY = int'(DummyPhysicalIdx[d].y);
 
     dummy_tile i_dummy_tile (
       .clk_i,
