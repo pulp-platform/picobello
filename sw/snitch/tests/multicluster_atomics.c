@@ -72,9 +72,9 @@ uint32_t test_atomics(volatile uint32_t* atomic_var) {
      * Test 2: AMOADD
      ******************************************************/
     amo_operand = 1;
+    expected_val += amo_operand * cluster_num;
     __atomic_add_fetch(atomic_var, amo_operand, __ATOMIC_RELAXED);
     snrt_inter_cluster_barrier();
-    expected_val += amo_operand * cluster_num;
     if (*atomic_var != expected_val) nerrors++;
     snrt_inter_cluster_barrier();
 
@@ -82,9 +82,9 @@ uint32_t test_atomics(volatile uint32_t* atomic_var) {
      * Test 3: AMOSUB
      ******************************************************/
     amo_operand = 1;
+    expected_val -= amo_operand * cluster_num;
     __atomic_sub_fetch(atomic_var, amo_operand, __ATOMIC_RELAXED);
     snrt_inter_cluster_barrier();
-    expected_val -= amo_operand * cluster_num;
     if (*atomic_var != expected_val) nerrors++;
     snrt_inter_cluster_barrier();
 
