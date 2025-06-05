@@ -151,6 +151,12 @@ include $(PB_ROOT)/target/sim/vsim/vsim.mk
 include $(PB_ROOT)/target/sim/traces.mk
 
 ########
+# FPGA #
+########
+
+include $(PB_ROOT)/target/fpga/fpga.mk
+
+########
 # Misc #
 ########
 

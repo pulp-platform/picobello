@@ -75,8 +75,6 @@ sources:
       - pd/target/sim/src/tb_picobello_chip.sv
 
   - target: all(any(fpga, simulation, test), not(asic))
-    include_dirs:
-      - target/fpga/include
     files:
       # Level 0
       - target/fpga/src/fpga_picobello_pkg.sv
@@ -101,4 +99,11 @@ sources:
       - target/fpga/src/fpga_host_tile.sv
       # Level 4
       - target/fpga/src/fpga_picobello_top.sv
+      - target/fpga/src/fpga_picobello_top_wrapper.sv
+      # Level 5
       - target/sim/src/tb_picobello_fpga.sv
+
+  - target: all(any(fpga), not(any(asic, simulation, test)))
+    files:
+      - target/fpga/src/axi_iw_converter_flat/axi_iw_converter_flat.sv
+      - target/fpga/vivado/build/picobello_ip.v
