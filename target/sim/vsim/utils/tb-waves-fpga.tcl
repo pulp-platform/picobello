@@ -11,16 +11,16 @@ add wave -noupdate -group {tb} {/tb_picobello_fpga/*}
 add wave -noupdate -group {picobello} -group {top} {/tb_picobello_fpga/dut/*}
 
 # AXI4 host interface
-add wave -noupdate -group {picobello} -group {host} -group {axi_host_req_i} {/tb_picobello_fpga/dut/axi_host_req_i}
-add wave -noupdate -group {picobello} -group {host} -group {axi_host_rsp_o} {/tb_picobello_fpga/dut/axi_host_rsp_o}
+add wave -noupdate -group {picobello} -group {host} -group {ext_axi_host_req_i} {/tb_picobello_fpga/dut/ext_axi_host_req_i}
+add wave -noupdate -group {picobello} -group {host} -group {ext_axi_host_rsp_o} {/tb_picobello_fpga/dut/ext_axi_host_rsp_o}
 
 # # AXI4 tg configuration interface
-add wave -noupdate -group {picobello} -group {host} -group {axi_tg_cfg_req_i} {/tb_picobello_fpga/dut/axi_tg_cfg_req_i}
-add wave -noupdate -group {picobello} -group {host} -group {axi_tg_cfg_rsp_o} {/tb_picobello_fpga/dut/axi_tg_cfg_rsp_o}
+# add wave -noupdate -group {picobello} -group {host} -group {axi_tg_cfg_req_i} {/tb_picobello_fpga/dut/axi_tg_cfg_req_i}
+# add wave -noupdate -group {picobello} -group {host} -group {axi_tg_cfg_rsp_o} {/tb_picobello_fpga/dut/axi_tg_cfg_rsp_o}
 
-# Host AXI4-Lite interface
-add wave -noupdate -group {picobello} -group {host} -group {axi_lite_tg_cfg_req_i} {/tb_picobello_fpga/dut/axi_lite_tg_cfg_req_i}
-add wave -noupdate -group {picobello} -group {host} -group {axi_lite_tg_cfg_rsp_o} {/tb_picobello_fpga/dut/axi_lite_tg_cfg_rsp_o}
+# # Host AXI4-Lite interface
+# add wave -noupdate -group {picobello} -group {host} -group {axi_lite_tg_cfg_req_i} {/tb_picobello_fpga/dut/axi_lite_tg_cfg_req_i}
+# add wave -noupdate -group {picobello} -group {host} -group {axi_lite_tg_cfg_rsp_o} {/tb_picobello_fpga/dut/axi_lite_tg_cfg_rsp_o}
 
 # Cluster tiles
 add wave -noupdate -group {picobello} -group {cluster_tile[0]} {/tb_picobello_fpga/dut/gen_clusters[0]/i_cluster_tg_tile/*}
@@ -176,14 +176,10 @@ add wave -noupdate -group {picobello} -group {mem_tile[7]} -group {router} {/tb_
 add wave -noupdate -group {picobello} -group {mem_tile[7]} -group {ni} {/tb_picobello_fpga/dut/gen_memtile[7]/i_mem_tile/i_chimney/*}
 add wave -noupdate -group {picobello} -group {mem_tile[7]} -group {axi_to_obi} {/tb_picobello_fpga/dut/gen_memtile[7]/i_mem_tile/i_axi_to_obi/*}
 
-# Cheshire tile
-add wave -noupdate -group {picobello} -group {cheshire_tile} {/tb_picobello_fpga/dut/i_cheshire_tg_tile/*}
-add wave -noupdate -group {picobello} -group {cheshire_tile} -group {router} {/tb_picobello_fpga/dut/i_cheshire_tg_tile/i_router/*}
-add wave -noupdate -group {picobello} -group {cheshire_tile} -group {ni} {/tb_picobello_fpga/dut/i_cheshire_tg_tile/i_chimney/*}
-add wave -noupdate -group {picobello} -group {cheshire_tile} -group {traffic_gen} -group {wrapper} {/tb_picobello_fpga/dut/i_cheshire_tg_tile/i_axi_hls_tg_wrapper/*}
-add wave -noupdate -group {picobello} -group {cheshire_tile} -group {traffic_gen} -group {top} {/tb_picobello_fpga/dut/i_cheshire_tg_tile/i_axi_hls_tg_wrapper/i_axi_hls_tg/*}
-add wave -noupdate -group {picobello} -group {cheshire_tile} -group {traffic_gen} -group {regfile} {/tb_picobello_fpga/dut/i_cheshire_tg_tile/i_axi_hls_tg_wrapper/i_axi_hls_tg/control_s_axi_U/*}
-
+# FPGA host tile
+add wave -noupdate -group {picobello} -group {host_tile} {/tb_picobello_fpga/dut/i_fpga_host_tile/*}
+add wave -noupdate -group {picobello} -group {host_tile} -group {router} {/tb_picobello_fpga/dut/i_fpga_host_tile/i_router/*}
+add wave -noupdate -group {picobello} -group {host_tile} -group {ni} {/tb_picobello_fpga/dut/i_fpga_host_tile/i_chimney/*}
 # SPU tile
 add wave -noupdate -group {picobello} -group {fhg_spu_tile} {/tb_picobello_fpga/dut/i_fhg_spu_tile/*}
 add wave -noupdate -group {picobello} -group {fhg_spu_tile} -group {ni} {/tb_picobello_fpga/dut/i_fhg_spu_tile/i_chimney/*}
@@ -198,19 +194,3 @@ add wave -noupdate -group {picobello} -group {dummy_tile[0]} -group {router} {/t
 
 add wave -noupdate -group {picobello} -group {dummy_tile[1]} {/tb_picobello_fpga/dut/gen_dummytiles[1]/i_dummy_tile/*}
 add wave -noupdate -group {picobello} -group {dummy_tile[1]} -group {router} {/tb_picobello_fpga/dut/gen_dummytiles[1]/i_dummy_tile/i_router/*}
-
-quietly wave cursor active 1
-configure wave -namecolwidth 271
-configure wave -valuecolwidth 483
-configure wave -justifyvalue left
-configure wave -signalnamewidth 1
-configure wave -snapdistance 10
-configure wave -datasetprefix 0
-configure wave -rowmargin 4
-configure wave -childrowmargin 2
-configure wave -gridoffset 0
-configure wave -gridperiod 1
-configure wave -griddelta 40
-configure wave -timeline 0
-configure wave -timelineunits ns
-update

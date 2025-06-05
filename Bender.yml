@@ -78,12 +78,27 @@ sources:
     include_dirs:
       - target/fpga/include
     files:
-      - target/fpga/src/axi_hls_tg/axi_hls_tg_mul_56ns_64s_64_3_1.v  
-      - target/fpga/src/axi_hls_tg/axi_hls_tg_narrow_port_m_axi.v  
-      - target/fpga/src/axi_hls_tg/axi_hls_tg_control_s_axi.v  
+      # Level 0
+      - target/fpga/src/fpga_picobello_pkg.sv
+      # Level 1
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_wide_buffer_V_RAM_AUTO_1R1W.v
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_flow_control_loop_pipe_sequential_init.v  
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_2.v 
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_3.v 
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_6.v     
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_7.v                      
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_compute1.v  
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_compute.v 
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_axi_hls_tg_Pipeline_init_buffers.v 
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_control_s_axi.v 
+      - target/fpga/src/axi_hls_tg/axi_hls_tg_narrow_port_m_axi.v                       
       - target/fpga/src/axi_hls_tg/axi_hls_tg_wide_port_m_axi.v
-      - target/fpga/src/axi_hls_tg/axi_hls_tg.v  
+      - target/fpga/src/axi_hls_tg/axi_hls_tg.v
+      # Level 2
       - target/fpga/src/axi_hls_tg_wrapper.sv
+      # Level 3
       - target/fpga/src/traffic_gen_tile.sv
+      - target/fpga/src/fpga_host_tile.sv
+      # Level 4
       - target/fpga/src/fpga_picobello_top.sv
       - target/sim/src/tb_picobello_fpga.sv

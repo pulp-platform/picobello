@@ -10,8 +10,12 @@ module traffic_gen_tile
   import floo_pkg::*;
   import floo_picobello_noc_pkg::*;
   import picobello_pkg::*; #(
+    // AXI4-Lite parameters
     parameter int unsigned AxiLiteAddrWidth = 32,
-    parameter int unsigned AxiLiteDataWidth = 32
+    parameter int unsigned AxiLiteDataWidth = 32,
+    // AXI4-Lite channel types
+    parameter type axi_lite_req_t = logic,
+    parameter type axi_lite_rsp_t = logic
 ) (
   input  logic                                    clk_i,
   input  logic                                    rst_ni,
@@ -24,9 +28,7 @@ module traffic_gen_tile
   output floo_wide_t                [ West:North] floo_wide_o,
   input  floo_req_t                 [ West:North] floo_req_i,
   output floo_rsp_t                 [ West:North] floo_rsp_o,
-  input  floo_wide_t                [ West:North] floo_wide_i,
-  // Host control port
-  AXI_LITE.Slave                                  traffic_gen_progr
+  input  floo_wide_t                [ West:North] floo_wide_i
 );
 
   ////////////
@@ -76,14 +78,19 @@ module traffic_gen_tile
 
   floo_picobello_noc_pkg::axi_narrow_in_req_t  chimney_narrow_in_req;
   floo_picobello_noc_pkg::axi_narrow_in_rsp_t  chimney_narrow_in_rsp;
+  floo_picobello_noc_pkg::axi_narrow_in_req_t  chimney_narrow_out_req;
+  floo_picobello_noc_pkg::axi_narrow_in_rsp_t  chimney_narrow_out_rsp;
   floo_picobello_noc_pkg::axi_wide_in_req_t    chimney_wide_in_req;
   floo_picobello_noc_pkg::axi_wide_in_rsp_t    chimney_wide_in_rsp;
+
+  localparam chimney_cfg_t ChimneyCfgN = floo_pkg::ChimneyDefaultCfg;
+  localparam chimney_cfg_t ChimneyCfgW = set_ports(ChimneyDefaultCfg, 1'b0, 1'b1);
 
   floo_nw_chimney #(
     .AxiCfgN             (floo_picobello_noc_pkg::AxiCfgN),
     .AxiCfgW             (floo_picobello_noc_pkg::AxiCfgW),
-    .ChimneyCfgN         (floo_pkg::set_ports(ChimneyDefaultCfg, 1'b0, 1'b1)),
-    .ChimneyCfgW         (floo_pkg::set_ports(ChimneyDefaultCfg, 1'b0, 1'b1)),
+    .ChimneyCfgN         (ChimneyCfgN),
+    .ChimneyCfgW         (ChimneyCfgW),
     .RouteCfg            (floo_picobello_noc_pkg::RouteCfg),
     .AtopSupport         (1'b1),
     .MaxAtomicTxns       (1),
@@ -102,8 +109,7 @@ module traffic_gen_tile
     .axi_wide_out_rsp_t  (floo_picobello_noc_pkg::axi_wide_out_rsp_t),
     .floo_req_t          (floo_picobello_noc_pkg::floo_req_t),
     .floo_rsp_t          (floo_picobello_noc_pkg::floo_rsp_t),
-    .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t),
-    .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t)
+    .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t)
   ) i_chimney (
     .clk_i,
     .rst_ni,
@@ -113,8 +119,8 @@ module traffic_gen_tile
     .sram_cfg_i          ('0),
     .axi_narrow_in_req_i (chimney_narrow_in_req),
     .axi_narrow_in_rsp_o (chimney_narrow_in_rsp),
-    .axi_narrow_out_req_o(),
-    .axi_narrow_out_rsp_i('0),
+    .axi_narrow_out_req_o(chimney_narrow_out_req),
+    .axi_narrow_out_rsp_i(chimney_narrow_out_rsp),
     .axi_wide_in_req_i   (chimney_wide_in_req),
     .axi_wide_in_rsp_o   (chimney_wide_in_rsp),
     .axi_wide_out_req_o  (),
@@ -131,11 +137,81 @@ module traffic_gen_tile
   // Traffic Generator //
   ///////////////////////
 
-  floo_picobello_noc_pkg::axi_narrow_out_req_t     traffic_gen_narrow_out_req;
-  floo_picobello_noc_pkg::axi_narrow_out_rsp_t     traffic_gen_narrow_out_rsp;
-  floo_picobello_noc_pkg::axi_wide_out_req_t       traffic_gen_wide_out_req;
-  floo_picobello_noc_pkg::axi_wide_out_rsp_t       traffic_gen_wide_out_rsp;
+  // Output data traffic
+  floo_picobello_noc_pkg::axi_narrow_out_req_t axi_tg_narrow_out_req;
+  floo_picobello_noc_pkg::axi_narrow_out_rsp_t axi_tg_narrow_out_rsp;
+  floo_picobello_noc_pkg::axi_wide_out_req_t axi_tg_wide_out_req;
+  floo_picobello_noc_pkg::axi_wide_out_rsp_t axi_tg_wide_out_rsp;
 
+  // Input programming
+  floo_picobello_noc_pkg::axi_narrow_in_req_t axi_tg_cfg_req_i;
+  floo_picobello_noc_pkg::axi_narrow_in_rsp_t axi_tg_cfg_rsp_o;
+
+  floo_picobello_noc_pkg::axi_narrow_in_req_t axi_tg_cfg_cut_req_i;
+  floo_picobello_noc_pkg::axi_narrow_in_rsp_t axi_tg_cfg_cut_rsp_o;
+
+  axi_lite_req_t axi_lite_tg_cfg_req_i;
+  axi_lite_rsp_t axi_lite_tg_cfg_rsp_o;
+
+  AXI_LITE #(
+    .AXI_ADDR_WIDTH (AxiLiteAddrWidth),
+    .AXI_DATA_WIDTH (AxiLiteDataWidth)
+  ) axi_lite_tg_cfg();
+
+  // Synthetic traffic
+  `AXI_ASSIGN_REQ_STRUCT(chimney_narrow_in_req, axi_tg_narrow_out_req);
+  `AXI_ASSIGN_RESP_STRUCT(axi_tg_narrow_out_rsp, chimney_narrow_in_rsp);
+  `AXI_ASSIGN_REQ_STRUCT(chimney_wide_in_req, axi_tg_wide_out_req);
+  `AXI_ASSIGN_RESP_STRUCT(axi_tg_wide_out_rsp, chimney_wide_in_rsp);
+
+  // Programming port
+  `AXI_ASSIGN_REQ_STRUCT(axi_tg_cfg_req_i, chimney_narrow_out_req);
+  `AXI_ASSIGN_RESP_STRUCT(chimney_narrow_out_rsp, axi_tg_cfg_rsp_o);
+
+  axi_cut #(
+    .Bypass     (1'b0),
+    .aw_chan_t  (floo_picobello_noc_pkg::axi_narrow_in_aw_chan_t),
+    .w_chan_t   (floo_picobello_noc_pkg::axi_narrow_in_w_chan_t),
+    .b_chan_t   (floo_picobello_noc_pkg::axi_narrow_in_b_chan_t),
+    .ar_chan_t  (floo_picobello_noc_pkg::axi_narrow_in_ar_chan_t),
+    .r_chan_t   (floo_picobello_noc_pkg::axi_narrow_in_r_chan_t),
+    .axi_req_t  (floo_picobello_noc_pkg::axi_narrow_in_req_t),
+    .axi_resp_t (floo_picobello_noc_pkg::axi_narrow_in_rsp_t)
+  ) i_axi_cut (
+    .clk_i,
+    .rst_ni,
+    .slv_req_i  (axi_tg_cfg_req_i),
+    .slv_resp_o (axi_tg_cfg_rsp_o),
+    .mst_req_o  (axi_tg_cfg_cut_req_i),
+    .mst_resp_i (axi_tg_cfg_cut_rsp_o)
+  );
+
+  axi_to_axi_lite #(
+    .AxiAddrWidth    (floo_picobello_noc_pkg::AxiCfgN.AddrWidth),
+    .AxiDataWidth    (floo_picobello_noc_pkg::AxiCfgN.DataWidth),
+    .AxiIdWidth      (floo_picobello_noc_pkg::AxiCfgN.InIdWidth),
+    .AxiUserWidth    (floo_picobello_noc_pkg::AxiCfgN.UserWidth),
+    .AxiMaxWriteTxns (floo_picobello_noc_pkg::AxiCfgN.DataWidth/AxiLiteDataWidth),
+    .AxiMaxReadTxns  (floo_picobello_noc_pkg::AxiCfgN.DataWidth/AxiLiteDataWidth),
+    .FallThrough     (1'b0),
+    .FullBW          (0),
+    .full_req_t      (floo_picobello_noc_pkg::axi_narrow_in_req_t),
+    .full_resp_t     (floo_picobello_noc_pkg::axi_narrow_in_rsp_t),
+    .lite_req_t      (axi_lite_req_t),
+    .lite_resp_t     (axi_lite_rsp_t)
+  ) i_axi_to_axi_lite (
+    .clk_i      (clk_i),
+    .rst_ni     (rst_ni),
+    .test_i     (test_enable_i),
+    .slv_req_i  (axi_tg_cfg_cut_req_i),
+    .slv_resp_o (axi_tg_cfg_cut_rsp_o),
+    .mst_req_o  (axi_lite_tg_cfg_req_i),
+    .mst_resp_i (axi_lite_tg_cfg_rsp_o)
+  );
+
+  `AXI_LITE_ASSIGN_FROM_REQ(axi_lite_tg_cfg, axi_lite_tg_cfg_req_i)
+  `AXI_LITE_ASSIGN_TO_RESP(axi_lite_tg_cfg_rsp_o, axi_lite_tg_cfg)
+  
   axi_hls_tg_wrapper #(
     .AXI_ADDR_WIDTH (floo_picobello_noc_pkg::AxiCfgN.AddrWidth),
     .AXI_DATA_WIDTH (floo_picobello_noc_pkg::AxiCfgN.DataWidth),
@@ -147,16 +223,11 @@ module traffic_gen_tile
   ) i_axi_hls_tg_wrapper (
     .clk_i,
     .rst_ni,
-    .traffic_gen_narrow_out_req,
-    .traffic_gen_narrow_out_rsp,
-    .traffic_gen_wide_out_req,
-    .traffic_gen_wide_out_rsp,
-    .traffic_gen_progr
+    .axi_tg_narrow_out_req,
+    .axi_tg_narrow_out_rsp,
+    .axi_tg_wide_out_req,
+    .axi_tg_wide_out_rsp,
+    .axi_lite_tg_cfg
   );
-
-  `AXI_ASSIGN_REQ_STRUCT(chimney_narrow_in_req, traffic_gen_narrow_out_req);
-  `AXI_ASSIGN_RESP_STRUCT(traffic_gen_narrow_out_rsp, chimney_narrow_in_rsp);
-  `AXI_ASSIGN_REQ_STRUCT(chimney_wide_in_req, traffic_gen_wide_out_req);
-  `AXI_ASSIGN_RESP_STRUCT(traffic_gen_wide_out_rsp, chimney_wide_in_rsp);
 
 endmodule

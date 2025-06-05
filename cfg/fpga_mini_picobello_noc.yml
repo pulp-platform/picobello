@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: picobello
-description: "picobello noc configuration for fpga verification"
+description: "mini picobello noc configuration for fpga verification"
 network_type: "narrow-wide"
 
 routing:
@@ -42,7 +42,7 @@ protocols:
 
 endpoints:
   - name: "cluster"
-    array: [4, 4]
+    array: [2, 4]
     addr_range:
       base: 0xC000_0000
       size: 0x0004_0000
@@ -76,36 +76,36 @@ endpoints:
       - "narrow_out"
       - "wide_out"
   - name: "l2_spm"
-    array: [8]
+    array: [4]
     addr_range:
       base: 0xD000_0000
       size: 0x0010_0000
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"
-  
+
 routers:
   - name: "router"
-    array: [7, 4]
+    array: [4, 4]
     degree: 5
 
 connections:
   - src: "cluster"
     dst: "router"
     src_range:
-    - [0, 3]
+    - [0, 1]
     - [0, 3]
     dst_range:
-    - [1, 4]
+    - [1, 2]
     - [0, 3]
     dst_dir: "Eject"
   - src: "cheshire"
     dst: "router"
-    dst_idx: [6, 3]
+    dst_idx: [3, 3]
     dst_dir: "Eject"
   - src: "fhg_spu"
     dst: "router"
-    dst_idx: [6, 0]
+    dst_idx: [3, 0]
     dst_dir: "Eject"
   - src: "l2_spm"
     dst: "router"
@@ -113,13 +113,5 @@ connections:
       - [0, 3]
     dst_range:
       - [0, 0]
-      - [0, 3]
-    dst_dir: "Eject"
-  - src: "l2_spm"
-    dst: "router"
-    src_range:
-      - [4, 7]
-    dst_range:
-      - [5, 5]
       - [0, 3]
     dst_dir: "Eject"
