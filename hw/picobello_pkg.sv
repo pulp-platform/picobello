@@ -395,8 +395,12 @@ package picobello_pkg;
   //  Cheshire  //
   ////////////////
 
-  localparam int unsigned CshRegExtDramSerialLink = 0;
-  localparam int unsigned CshNumRegExt = 1;
+  typedef enum bit [MaxExtRegSlvWidth-1:0] {
+    CshRegExtDramSerialLink = 0, // Serial link to DRAM
+    CshRegExtFLL            = 1, // Chip-level registers
+    CshRegExtChipCtrl       = 2, // Chip-level registers
+    CshRegExtNumSlv         = 3 // Number of external register slaves
+  } cheshire_reg_ext_e;
 
   // Define function to derive configuration from Cheshire defaults.
   function automatic cheshire_pkg::cheshire_cfg_t gen_cheshire_cfg();
@@ -405,14 +409,20 @@ package picobello_pkg;
     ret.AxiExtNumMst         = 1;
     ret.AxiExtNumSlv         = 1;
     ret.AxiExtNumRules       = 1;
-    ret.RegExtNumSlv         = CshNumRegExt;
-    ret.RegExtNumRules       = CshNumRegExt;
+    ret.RegExtNumSlv         = CshRegExtNumSlv;
+    ret.RegExtNumRules       = CshRegExtNumSlv;
     ret.AxiExtRegionIdx[0]   = 0;
     ret.AxiExtRegionStart[0] = 'h2000_0000;
     ret.AxiExtRegionEnd[0]   = 'h8000_0000;
     ret.RegExtRegionIdx[0]   = CshRegExtDramSerialLink;
     ret.RegExtRegionStart[0] = 'h1800_0000;
     ret.RegExtRegionEnd[0]   = 'h1800_1000;
+    ret.RegExtRegionIdx[1]   = CshRegExtFLL;
+    ret.RegExtRegionStart[1] = 'h1800_1000;
+    ret.RegExtRegionEnd[1]   = 'h1800_2000;
+    ret.RegExtRegionIdx[2]   = CshRegExtChipCtrl;
+    ret.RegExtRegionStart[2] = 'h1800_2000;
+    ret.RegExtRegionEnd[2]   = 'h1800_3000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just set the CIE region to size 0 for now
     ret.Cva6ExtCieOnTop      = 0;
@@ -435,6 +445,8 @@ package picobello_pkg;
   endfunction
 
   localparam cheshire_cfg_t CheshireCfg = gen_cheshire_cfg();
+
+  `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
 
   ////////////////
   //  Mem Tile  //
