@@ -15,9 +15,11 @@
 #include "picobello_addrmap.h"
 #include "snrt.h"
 
+/* Parameters */
 #define ROW_MASK 0x00300000
 #define COLUMN_MASK 0x000C0000
 #define TESTVAL 0xABCD
+
 
 /* Helper functions */
 /**
