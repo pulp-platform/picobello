@@ -350,7 +350,7 @@ module cheshire_tile
   );
 
   // Connect to the chip-level register interfaces
-  assign reg_req_o = reg_ext_req[CshRegExtChipCtrl:CshRegExtFLL];
+  assign reg_req_o                                   = reg_ext_req[CshRegExtChipCtrl:CshRegExtFLL];
   assign reg_ext_rsp[CshRegExtChipCtrl:CshRegExtFLL] = reg_rsp_i;
 
   // Serial Link to connect to DRAM on an FPGA
