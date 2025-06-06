@@ -23,3 +23,4 @@
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/mcast_barrier.elf }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/dma_multicast.elf }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/multi_mcast.elf }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/row_col_mcast.elf }
