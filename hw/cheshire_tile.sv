@@ -59,6 +59,9 @@ module cheshire_tile
   input logic [31:0] gpio_i,
   output logic [31:0] gpio_o,
   output logic [31:0] gpio_en_o,
+  // register interfaces
+  output csh_reg_req_t [CshRegExtChipCtrl:CshRegExtFLL] reg_req_o,
+  input csh_reg_rsp_t [CshRegExtChipCtrl:CshRegExtFLL] reg_rsp_i,
   // Serial link interface
   input logic [SlinkNumChan-1:0] slink_rcv_clk_i,
   output logic [SlinkNumChan-1:0] slink_rcv_clk_o,
@@ -247,8 +250,6 @@ module cheshire_tile
   // Cheshire //
   //////////////
 
-  `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
-
   csh_axi_llc_req_t                                axi_llc_req;
   csh_axi_llc_rsp_t                                axi_llc_rsp;
   csh_axi_mst_req_t [CheshireCfg.AxiExtNumMst-1:0] axi_ext_mst_req_in;
@@ -348,8 +349,11 @@ module cheshire_tile
     .usb_dp_oe_o      ()
   );
 
-  // Serial Link to connect to DRAM on an FPGA
+  // Connect to the chip-level register interfaces
+  assign reg_req_o = reg_ext_req[CshRegExtChipCtrl:CshRegExtFLL];
+  assign reg_ext_rsp[CshRegExtChipCtrl:CshRegExtFLL] = reg_rsp_i;
 
+  // Serial Link to connect to DRAM on an FPGA
   csh_axi_llc_req_t dram_slink_err_req;
   csh_axi_llc_rsp_t dram_slink_err_rsp;
 

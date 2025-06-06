@@ -52,6 +52,9 @@ module picobello_top
   input  logic [            31:0]                    gpio_i,
   output logic [            31:0]                    gpio_o,
   output logic [            31:0]                    gpio_en_o,
+  // Chip-level register interface
+  output csh_reg_req_t [CshRegExtChipCtrl:CshRegExtFLL] reg_req_o,
+  input  csh_reg_rsp_t [CshRegExtChipCtrl:CshRegExtFLL] reg_rsp_i,
   // Serial link interface
   input  logic [SlinkNumChan-1:0]                    slink_rcv_clk_i,
   output logic [SlinkNumChan-1:0]                    slink_rcv_clk_o,
@@ -161,6 +164,8 @@ module picobello_top
     .gpio_i,
     .gpio_o,
     .gpio_en_o,
+    .reg_req_o,
+    .reg_rsp_i,
     .slink_rcv_clk_i,
     .slink_rcv_clk_o,
     .slink_i,
