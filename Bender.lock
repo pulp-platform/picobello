@@ -15,10 +15,10 @@ packages:
     - apb
     - register_interface
   axi:
-    revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
-    version: null
+    revision: f07498d53ecd5518b277c7d213ec3b71ca4df93c
+    version: 0.39.7
     source:
-      Git: https://github.com/colluca/axi.git
+      Git: https://github.com/pulp-platform/axi.git
     dependencies:
     - common_cells
     - common_verification
@@ -128,6 +128,13 @@ packages:
     - common_cells
     - scm
     - tech_cells_generic
+  cluster_interconnect:
+    revision: 1284def6c0b7f7e9355eb093d00883ad9dead1b7
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/cluster_interconnect.git
+    dependencies:
+    - common_cells
   common_cells:
     revision: cd88d4d3288d299c819b4d3754269fce080d0b34
     version: null
@@ -142,6 +149,21 @@ packages:
     source:
       Git: https://github.com/pulp-platform/common_verification.git
     dependencies: []
+  cv32e40p:
+    revision: 800a09d97a1e9418e127e8bbf1763c1d1097c92f
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/cv32e40p.git
+    dependencies:
+    - common_cells
+    - fpnew
+    - tech_cells_generic
+  cv32e40x:
+    revision: baba1eeb3b845306c45be714f677ff786753f136
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/cv32e40x.git
+    dependencies: []
   cva6:
     revision: 9338c2ca7cf1a47aef54322f89ce867825c3c8d5
     version: null
@@ -152,6 +174,15 @@ packages:
     - common_cells
     - fpnew
     - tech_cells_generic
+  datamover:
+    revision: fb7d09c201ab52de23b11adf12b36d8e75c4c0e6
+    version: null
+    source:
+      Git: https://github.com/FrancescoConti/datamover
+    dependencies:
+    - hci
+    - hwpe-ctrl
+    - hwpe-stream
   dram_rtl_sim:
     revision: 2cac4a9e12a60537567276b539ab6c919c87b5dc
     version: 0.1.1
@@ -191,6 +222,36 @@ packages:
       Git: https://github.com/pulp-platform/fpu_div_sqrt_mvp.git
     dependencies:
     - common_cells
+  hci:
+    revision: 17f960efb11df1851fb80d51ba90b25e46c4b4ae
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/hci
+    dependencies:
+    - cluster_interconnect
+    - hwpe-stream
+    - l2_tcdm_hybrid_interco
+  hwpe-ctrl:
+    revision: 3690a3c648f120546d8de2bc583d5170c36d2f20
+    version: 2.0.0
+    source:
+      Git: https://github.com/pulp-platform/hwpe-ctrl.git
+    dependencies:
+    - tech_cells_generic
+  hwpe-stream:
+    revision: 6d715406d5518446d4d7449f68068b963a827c81
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/hwpe-stream.git
+    dependencies:
+    - tech_cells_generic
+  ibex:
+    revision: b18f7ef178ed07f5085051f96042c670a919fd5c
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/ibex.git
+    dependencies:
+    - tech_cells_generic
   idma:
     revision: c396bbf477457b184a74b7f2386302f5895bb522
     version: null
@@ -212,6 +273,12 @@ packages:
     - axi
     - common_cells
     - register_interface
+  l2_tcdm_hybrid_interco:
+    revision: fa55e72859dcfb117a2788a77352193bef94ff2b
+    version: 1.0.0
+    source:
+      Git: https://github.com/pulp-platform/L2_tcdm_hybrid_interco.git
+    dependencies: []
   obi:
     revision: 42c635526593cc9353c7adba62275d1919015d87
     version: null
@@ -235,6 +302,21 @@ packages:
     source:
       Path: pd
     dependencies: []
+  redmule:
+    revision: 9af8b8d7cfdcc49aa8fda7e0d62ecf2c43cba3c4
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/redmule
+    dependencies:
+    - common_cells
+    - cv32e40p
+    - cv32e40x
+    - fpnew
+    - hci
+    - hwpe-ctrl
+    - hwpe-stream
+    - ibex
+    - tech_cells_generic
   register_interface:
     revision: 5daa85d164cf6b54ad061ea1e4c6f3624556e467
     version: 0.4.5
@@ -270,7 +352,7 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: 8ae7d0304a9664dc6c51c37b572439368da56015
+    revision: d602aad72e71a61aba10be4498d97387ff34361c
     version: null
     source:
       Git: https://github.com/pulp-platform/snitch_cluster.git
