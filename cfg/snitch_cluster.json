@@ -30,6 +30,9 @@
         cluster_base_expose: true,
         alias_region_enable: true,
         alias_region_base: 0x30000000,
+        wide_tcdm_port_expose: true,
+        narrow_axi_port_expose: true,
+        enable_external_interrupts: true,
         // TODO(fischeti): Check if we need Snitch VM support
         vm_support: false,
         // Timing parameters
@@ -50,7 +53,8 @@
             register_core_req: true,
             register_core_rsp: true,
             register_offload_req: true,
-            register_offload_rsp: true
+            register_offload_rsp: true,
+            register_exp_narrow: true
         },
         hives: [
             // Hive 0
