@@ -6,6 +6,7 @@
 
 `include "axi/assign.svh"
 `include "axi/typedef.svh"
+`include "tcdm_interface/typedef.svh"
 
 module cluster_tile
   import floo_pkg::*;
@@ -132,8 +133,8 @@ module cluster_tile
   );
 
   snitch_hwpe_subsystem #(
-    .tcdm_req_t    ( tcdm_hwpe_req_t                      ),
-    .tcdm_rsp_t    ( tcdm_hwpe_rsp_t                      ),
+    .tcdm_req_t    ( snitch_cluster_pkg::tcdm_dma_req_t   ),
+    .tcdm_rsp_t    ( snitch_cluster_pkg::tcdm_dma_rsp_t   ),
     .periph_req_t  ( hwpectrl_req_t                       ),
     .periph_rsp_t  ( hwpectrl_rsp_t                       ),
     .HwpeDataWidth ( snitch_cluster_pkg::WideDataWidth    ),
