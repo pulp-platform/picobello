@@ -60,7 +60,13 @@ module cluster_tile
 
   `AXI_TYPEDEF_ALL(axi_hwpe_mst, addr_hwpe_ctrl_t, snitch_cluster_pkg::narrow_out_id_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t, snitch_cluster_pkg::user_t)
 
+  axi_hwpe_mst_req_t  axi_hwpe_mst_req;
+  axi_hwpe_mst_resp_t axi_hwpe_mst_rsp;
+
   `TCDM_TYPEDEF_ALL(hwpectrl, addr_hwpe_ctrl_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t, logic)
+
+  hwpectrl_req_t hwpectrl_req;
+  hwpectrl_rsp_t hwpectrl_rsp;
 
   snitch_cluster_wrapper i_cluster (
     .clk_i,
@@ -128,8 +134,8 @@ module cluster_tile
     .rst_ni     ( rst_ni           ),
     .axi_req_i  ( axi_hwpe_mst_req ),
     .axi_rsp_o  ( axi_hwpe_mst_rsp ),
-    .tcdm_req_o ( hwpe_ctrl_req    ),
-    .tcdm_rsp_i ( hwpe_ctrl_rsp    )
+    .tcdm_req_o ( hwpectrl_req    ),
+    .tcdm_rsp_i ( hwpectrl_rsp    )
   );
 
   snitch_hwpe_subsystem #(
@@ -147,8 +153,8 @@ module cluster_tile
     .test_mode_i     ( 1'b0                 ),
     .tcdm_req_o      ( cluster_tcdm_ext_req ),
     .tcdm_rsp_i      ( cluster_tcdm_ext_rsp ),
-    .hwpe_ctrl_req_i ( hwpe_ctrl_req        ),
-    .hwpe_ctrl_rsp_o ( hwpe_ctrl_rsp        ),
+    .hwpe_ctrl_req_i ( hwpectrl_req         ),
+    .hwpe_ctrl_rsp_o ( hwpectrl_rsp         ),
     .hwpe_evt_o      ( mxip_i               )
   );
 
