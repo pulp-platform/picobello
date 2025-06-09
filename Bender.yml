@@ -16,6 +16,7 @@ dependencies:
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "fischeti/new-mcast"}
   obi: { git: "https://github.com/pulp-platform/obi.git", rev: "95f023208ecaa516860e66a1701a93912ffc62a2"}
   obi: { git: "https://github.com/pulp-platform/obi.git", rev: "ad1d48f025be540344960ea83b4bff39876f9b36"}
+  apb: { git: "https://github.com/pulp-platform/apb.git", version: "0.2.4" }
   apb_fll_if: { git: "https://github.com/pulp-platform/apb_fll_if.git", rev: "structs" }
   axi_obi: { path: "hw/axi_obi" }
   picobello-pd:  { path: "./pd" }
