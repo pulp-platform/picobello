@@ -15,9 +15,9 @@ module mem_tile
   import obi_pkg::*;
 #(
   // The maximum data width of the instantiated SRAMs
-  parameter int unsigned SramDataWidth  = 256,   // in bits
+  parameter int unsigned SramDataWidth  = 128,   // in bits
   // The number of words in the instantiated SRAMs
-  parameter int unsigned SramNumWords   = 512,   // in #words
+  parameter int unsigned SramNumWords   = 1024,  // in #words
   parameter bit          AxiUserAtop    = 1'b1,
   parameter int unsigned AxiUserAtopMsb = 3,
   parameter int unsigned AxiUserAtopLsb = 0
@@ -358,10 +358,10 @@ module mem_tile
     .sbr_port_obi_rsp_t       (mgr_obi_rsp_t),
     .mgr_port_obi_req_t       (sbr_obi_req_t),
     .mgr_port_obi_rsp_t       (sbr_obi_rsp_t),
-    .mgr_port_obi_a_optional_t(mgr_obi_a_optional_t),
-    .mgr_port_obi_r_optional_t(mgr_obi_r_optional_t),
+    .mgr_port_obi_a_optional_t(sbr_obi_a_optional_t),
+    .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
-    .RegisterAmo              (1'b0),
+    .RegisterAmo              (1'b1),
     .RiscvWordWidth           (32)
   ) i_obi_atop_resolver (
     .clk_i,

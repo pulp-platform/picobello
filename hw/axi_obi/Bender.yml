@@ -9,7 +9,7 @@ package:
 
 dependencies:
   axi:          { git: "https://github.com/pulp-platform/axi.git",          version: 0.39.1 }
-  obi:          { git: "https://github.com/pulp-platform/obi.git",rev: "ad1d48f025be540344960ea83b4bff39876f9b36"}
+  obi:          { git: "https://github.com/pulp-platform/obi.git", rev: "95f023208ecaa516860e66a1701a93912ffc62a2"}
   common_cells: { git: "https://github.com/pulp-platform/common_cells.git", version: 1.31.1 }
 
 sources:

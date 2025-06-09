@@ -14,7 +14,7 @@ dependencies:
   cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "picobello" }
   snitch_cluster:  { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "develop" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "fischeti/new-mcast"}
-  obi: { git: "https://github.com/pulp-platform/obi.git", rev: "ad1d48f025be540344960ea83b4bff39876f9b36"}
+  obi: { git: "https://github.com/pulp-platform/obi.git", rev: "95f023208ecaa516860e66a1701a93912ffc62a2"}
   axi_obi: { path: "hw/axi_obi" }
   picobello-pd:  { path: "./pd" }
   fhg_spu_cluster:  { path: "./.deps/fhg_spu_cluster" }
