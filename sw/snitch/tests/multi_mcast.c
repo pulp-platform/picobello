@@ -70,7 +70,7 @@ int main(){
   if (snrt_cluster_core_idx() == 0){
     // Row multicast
     if (snrt_cluster_idx() == 0){
-      // Send mulitcast data over first row
+      // Send multicast data over first row
       mcast_dst = (uint32_t *)snrt_remote_l1_ptr((void*) snrt_l1_start_addr(),
                                            snrt_cluster_idx(), 4);
       send_mcast(mcast_dst, row_mask);

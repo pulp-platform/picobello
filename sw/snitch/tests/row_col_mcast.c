@@ -70,17 +70,16 @@ int main() {
     uint32_t* buf_dst_row     = snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
     uint32_t* buf_dst_column  = snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
 
-    // Initialize src buffer in all dst clusters involved in the transfer
-    for (int i = 0; i < LENGTH; i++) {
-      buf_src[i]        = TESTVAL;
-      buf_dst_row[i]    = ROW_INIT;
-      buf_dst_column[i] = COLUMN_INIT;
-    }
-    // snrt_inter_cluster_barrier();
-
-    // Warm cache for synchronization issues
+    // Run twice to heat the cache
     for (volatile int i = 0; i < 2; i++){
+      // Initialize src buffer in all dst clusters involved in the transfer
+      for (int i = 0; i < LENGTH; i++) {
+        buf_src[i]        = TESTVAL;
+        buf_dst_row[i]    = ROW_INIT;
+        buf_dst_column[i] = COLUMN_INIT;
+      }
       snrt_inter_cluster_barrier();
+
       // Send multicast transactions
       if (snrt_cluster_idx() < 4) issue_mcast_row(buf_src, buf_dst_row);
       else if (snrt_cluster_idx() % 4 == 0) issue_mcast_column(buf_src, buf_dst_column);
