@@ -46,6 +46,8 @@ module tb_picobello_top;
       snitch_preload = 0;
     end
 
+    fix.clk_rst_bypass = 1'b0; // TODO(cdurrer): implement differently? -> add as parameter, like BOOTMODE?
+
     // Set boot mode and preload boot image if there is one
     fix.vip.set_boot_mode(boot_mode);
     fix.vip.i2c_eeprom_preload(boot_hex);

@@ -14,6 +14,7 @@ module cheshire_tile
   import floo_pkg::*;
   import floo_picobello_noc_pkg::*;
   import picobello_pkg::*;
+  import pb_soc_regs_pkg::*;
 
 (
   input logic clk_i,
@@ -447,10 +448,11 @@ module cheshire_tile
   pb_soc_regs i_pb_soc_regs (
     .clk (clk_i),
     .arst_n(rst_ni),
-    .s_apb_paddr(csh_apb_req.paddr),
+    .s_apb_paddr(csh_apb_req.paddr[PB_SOC_REGS_MIN_ADDR_WIDTH-1:0]),    // TODO(cdurrer): size mismatch (48b->5b), truncate signal? [4:0]
     .s_apb_penable(csh_apb_req.penable),
     .s_apb_psel(csh_apb_req.psel),
     .s_apb_pwrite(csh_apb_req.pwrite),
+    .s_apb_pprot(csh_apb_req.pprot),
     .s_apb_pwdata(csh_apb_req.pwdata),
     .s_apb_pstrb(csh_apb_req.pstrb),
     .s_apb_prdata(csh_apb_rsp.prdata),

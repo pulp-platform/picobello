@@ -23,6 +23,7 @@ module mem_tile
   input  logic                    test_enable_i,
   input  logic                    tile_clk_en_i,
   input  logic                    tile_rst_ni,
+  input  logic                    clk_rst_bypass_i,
   // Chimney ports
   input  id_t                     id_i,
   // Router ports

@@ -16,6 +16,7 @@ module picobello_top
   input  logic                                                             test_mode_i,
   input  logic         [                           1:0]                    boot_mode_i,
   input  logic                                                             rtc_i,
+  input  logic                                                             clk_rst_bypass_i,
   // JTAG
   input  logic                                                             jtag_tck_i,
   input  logic                                                             jtag_trst_ni,
@@ -103,6 +104,7 @@ module picobello_top
       .test_enable_i      (test_mode_i),
       .tile_clk_en_i      (cluster_clk_en[c]),
       .tile_rst_ni        (cluster_rst_n[c]),
+      .clk_rst_bypass_i   (clk_rst_bypass_i),
       .debug_req_i        (debug_req[c]),
       .meip_i             (meip[c]),
       .mtip_i             (mtip[c]),
@@ -276,6 +278,7 @@ module picobello_top
       .test_enable_i(test_mode_i),
       .tile_clk_en_i(mem_tile_clk_en[m]),
       .tile_rst_ni  (mem_tile_rst_n[m]),
+      .clk_rst_bypass_i(clk_rst_bypass_i),
       .id_i         (MemTileId),
       .floo_req_o   (floo_req_out[MemTileX][MemTileY]),
       .floo_rsp_i   (floo_rsp_in[MemTileX][MemTileY]),

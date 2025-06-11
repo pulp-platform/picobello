@@ -28,6 +28,8 @@ PEAKRDL          ?= peakrdl
 
 # Tiles configuration
 SN_CLUSTERS = 16
+L2_TILES = 8
+FHG_SPUS = 1
 
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
@@ -56,10 +58,17 @@ $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 $(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
-	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P NumClusters=$(SN_CLUSTERS)
+	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) -P Num_SPUs=$(FHG_SPUS)
+
+$(PB_GEN_DIR)/pb_soc_regs_addrmap.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
+	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) -P Num_SPUs=$(FHG_SPUS) --format c
+
+$(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
+	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) -P Num_SPUs=$(FHG_SPUS)
 
 .PHONY: pb-soc-regs
 pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
+pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs_addrmap.h $(PB_GEN_DIR)/pb_soc_regs.h
 
 ##################
 # Snitch Cluster #

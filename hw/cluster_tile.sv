@@ -19,6 +19,7 @@ module cluster_tile
   input  logic                                    test_enable_i,
   input  logic                                    tile_clk_en_i,
   input  logic                                    tile_rst_ni,
+  input  logic                                    clk_rst_bypass_i,
   // Cluster ports
   input  logic                      [NrCores-1:0] debug_req_i,
   input  logic                      [NrCores-1:0] meip_i,
@@ -37,9 +38,7 @@ module cluster_tile
   input  floo_wide_t                [ West:North] floo_wide_i
 );
 
-  logic clk_rst_bypass_i;         // TODO cdurrer: replace with actual signal
-  assign clk_rst_bypass_i = 0;
-
+  // Tile-specific reset and clock signals
   logic tile_clk;
   logic tile_rst_n;
 
