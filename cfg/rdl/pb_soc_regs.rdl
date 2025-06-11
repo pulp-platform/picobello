@@ -6,23 +6,10 @@
 `define __PB_SOC_REGS_RDL__
 
 addrmap pb_soc_regs #(
-    longint unsigned NumClusters = 16,
-    longint unsigned NumMemTiles = 8,
-    longint unsigned NumSPUs = 1
+    longint unsigned Num_Clusters = 16,
+    longint unsigned Num_Mem_Tiles = 8,
+    longint unsigned Num_SPUs = 1
 ) {
-    reg rst_control #(
-        longint unsigned NumResets = 32
-    ) {
-        desc = "Reset Control Register for SoC tiles";
-        field {
-            name = "rst";
-            desc = "Reset control for SoC tiles";
-            hw = r;
-            sw = rw;
-            reset = 0;
-        } rst [NumResets-1:0];
-    };
-
     reg clk_control #(
         longint unsigned NumClkEnables = 32
     ) {
@@ -36,12 +23,25 @@ addrmap pb_soc_regs #(
         } clk_en [NumClkEnables-1:0];
     };
 
-    rst_control #(.NumResets(NumClusters) )     cluster_rsts;
-    rst_control #(.NumResets(NumMemTiles) )     mem_tile_rsts;
-    rst_control #(.NumResets(NumSPUs) )         fhg_spu_rsts;
-    clk_control #(.NumClkEnables(NumClusters) ) cluster_clk_enables;
-    clk_control #(.NumClkEnables(NumMemTiles) ) mem_tile_clk_enables;
-    clk_control #(.NumClkEnables(NumSPUs) )     fhg_spu_clk_enables;
+    reg rst_control #(
+        longint unsigned NumResets = 32
+    ) {
+        desc = "Reset Control Register for SoC tiles";
+        field {
+            name = "rst";
+            desc = "Reset control for SoC tiles";
+            hw = r;
+            sw = rw;
+            reset = 0;
+        } rst [NumResets-1:0];
+    };
+
+    clk_control #(.NumClkEnables(Num_Clusters) )    cluster_clk_enables;
+    clk_control #(.NumClkEnables(Num_Mem_Tiles) )   mem_tile_clk_enables;
+    clk_control #(.NumClkEnables(Num_SPUs) )        fhg_spu_clk_enables;
+    rst_control #(.NumResets(Num_Clusters) )        cluster_rsts;
+    rst_control #(.NumResets(Num_Mem_Tiles) )       mem_tile_rsts;
+    rst_control #(.NumResets(Num_SPUs) )            fhg_spu_rsts;
 };
 
 `endif // __PB_SOC_REGS_RDL__

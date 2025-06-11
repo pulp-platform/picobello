@@ -27,6 +27,7 @@ module mem_tile
   input  logic                    test_enable_i,
   input  logic                    tile_clk_en_i,
   input  logic                    tile_rst_ni,
+  input  logic                    clk_rst_bypass_i,
   // Chimney ports
   input  id_t                     id_i,
   // Router ports
@@ -57,10 +58,7 @@ module mem_tile
   localparam int unsigned SramAddrWidthOffset = SramBankSelOffset + SramBankSelWidth;
   localparam int unsigned SramMacroSelOffset = SramAddrWidthOffset + SramAddrWidth;
 
-
-  logic clk_rst_bypass_i;         // TODO cdurrer: replace with actual signal
-  assign clk_rst_bypass_i = 0;
-
+  // Tile-specific reset and clock signals
   logic tile_clk;
   logic tile_rst_n;
 
