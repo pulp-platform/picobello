@@ -64,8 +64,8 @@ module cluster_tile
 
   `TCDM_TYPEDEF_ALL(hwpectrl, addr_hwpe_ctrl_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t, logic)
 
-  hwpectrl_req_t hwpectrl_req;
-  hwpectrl_rsp_t hwpectrl_rsp;
+  hwpectrl_req_t               hwpectrl_req;
+  hwpectrl_rsp_t               hwpectrl_rsp;
 
   logic [NrCores-1:0] mxip;
 
