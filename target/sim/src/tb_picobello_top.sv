@@ -8,7 +8,8 @@ module tb_picobello_top;
 
   `include "tb_picobello_tasks.svh"
 
-fixture_picobello_top fix ();
+  // Instantiate the fixture
+  fixture_picobello_top fix ();
 
   string        preload_elf;
   string        boot_hex;
@@ -76,6 +77,7 @@ fixture_picobello_top fix ();
           // TODO(fischeti): Implement fast mode for Cheshire binary
           fix.vip.jtag_elf_run(preload_elf);
           fix.vip.jtag_wait_for_eoc(exit_code);
+          if (snitch_preload) fastmode_read();
         end
         default: begin
           $fatal(1, "Unsupported preload mode %d (reserved)!", boot_mode);
