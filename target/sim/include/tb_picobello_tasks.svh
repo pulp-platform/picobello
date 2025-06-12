@@ -21,7 +21,7 @@ localparam int AddrWideL2Row       = $clog2(L2NumBankRows); //4
 localparam int AddrStartL2SramAddr = AddrWideL2Col + 4; //6
 localparam int AddrStartL2Row      = AddrStartL2SramAddr + AddrWideL2SramAddr; //16
 
-// FAST_PRELOAD mode trick with virtual class to write directly to L2 sram module inside varius for generate
+// FAST_PRELOAD mode trick with virtual class to write directly to L2 sram module inside various for generate
 virtual class virtual_class_fastmode_write_l2;
   pure virtual task write_word(input int sram_addr, input int byte_offset, input logic [31:0] data);
 endclass
