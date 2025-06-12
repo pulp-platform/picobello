@@ -10,6 +10,7 @@ module tb_picobello_top;
 
   `include "tb_picobello_tasks.svh"
 
+  // Instantiate the fixture
   fixture_picobello_top fix ();
 
   string        preload_elf;
