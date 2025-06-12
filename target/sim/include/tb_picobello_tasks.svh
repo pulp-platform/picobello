@@ -9,28 +9,16 @@ import "DPI-C" function byte get_entry(output longint entry);
 import "DPI-C" function byte get_section(output longint address, output longint len);
 import "DPI-C" context function byte read_section(input longint address, inout byte buffer[], input longint len);
 
-
-// FAST_PRELOAD mode L2 parameters
-localparam int L2NumBanksPerWord   = fix.dut.gen_memtile[0].i_mem_tile.NumBanksPerWord; //4
-localparam int L2NumBankRows       = fix.dut.gen_memtile[0].i_mem_tile.NumBankRows; //16
-localparam int L2NumMemTiles       = picobello_pkg::NumMemTiles; //8
-localparam int L2MemTileSize       = picobello_pkg::MemTileSize; //0x10 0000
-localparam int AddrWideL2Col       = $clog2(L2NumBanksPerWord); //2
-localparam int AddrWideL2SramAddr  = $clog2(fix.dut.gen_memtile[0].i_mem_tile.SramNumWords); //10
-localparam int AddrWideL2Row       = $clog2(L2NumBankRows); //4
-localparam int AddrStartL2SramAddr = AddrWideL2Col + 4; //6
-localparam int AddrStartL2Row      = AddrStartL2SramAddr + AddrWideL2SramAddr; //16
-
 // FAST_PRELOAD mode trick with virtual class to write directly to L2 sram module inside various for generate
 virtual class virtual_class_fastmode_write_l2;
   pure virtual task write_word(input int sram_addr, input int byte_offset, input logic [31:0] data);
 endclass
 
-virtual_class_fastmode_write_l2 l2_sram_class_writer_list[L2NumMemTiles][L2NumBanksPerWord][L2NumBankRows];
+virtual_class_fastmode_write_l2 l2_sram_class_writer_list[NumMemTiles][NumBanksPerWord][NumBankRows];
 
-for(genvar i = 0; i < L2NumMemTiles; i++) begin : gen_fastmode_writer_class_per_l2_tile
-  for(genvar j = 0; j < L2NumBanksPerWord; j++) begin : gen_fastmode_writer_class_per_l2_col
-    for(genvar k = 0; k < L2NumBankRows; k++) begin : gen_fastmode_writer_class_per_l2_row
+for(genvar i = 0; i < NumMemTiles; i++) begin : gen_fastmode_writer_class_per_l2_tile
+  for(genvar j = 0; j < NumBanksPerWord; j++) begin : gen_fastmode_writer_class_per_l2_col
+    for(genvar k = 0; k < NumBankRows; k++) begin : gen_fastmode_writer_class_per_l2_row
       class class_fastmode_write_l2 extends virtual_class_fastmode_write_l2;
         function new;
           l2_sram_class_writer_list[i][j][k] = this;
@@ -47,13 +35,13 @@ end : gen_fastmode_writer_class_per_l2_tile
 // Write a 32-bit word into an `tc_sram` at a given address
 task automatic fastmode_write_word(input longint addr, input logic [31:0] data);
   import floo_picobello_noc_pkg::*;
-  if (addr >= Sam[L2Spm0SamIdx].start_addr && addr < Sam[L2Spm0SamIdx+L2NumMemTiles-1].end_addr) begin
+  if (addr >= Sam[L2Spm0SamIdx].start_addr && addr < Sam[L2Spm0SamIdx+NumMemTiles-1].end_addr) begin
     // Selecting the correct mem_tile, sram bank, sram address and byte offset inside sram word
-    int byte_offset  = addr[0+:4];
-    int sel_bank_col = addr[4+:AddrWideL2Col];
-    int sram_addr    = addr[AddrStartL2SramAddr+:AddrWideL2SramAddr];
-    int sel_bank_row = addr[AddrStartL2Row+:AddrWideL2Row];
-    int sel_mem_tile = (addr - Sam[L2Spm0SamIdx].start_addr) / L2MemTileSize;
+    int byte_offset  = addr[0                   +: SramByteOffsetWidth ];
+    int sel_bank_col = addr[SramBankSelOffset   +: SramBankSelWidth    ];
+    int sram_addr    = addr[SramAddrWidthOffset +: SramAddrWidth       ];
+    int sel_bank_row = addr[SramMacroSelOffset  +: SramMacroSelWidth   ];
+    int sel_mem_tile = (addr - Sam[L2Spm0SamIdx].start_addr) / MemTileSize;
     l2_sram_class_writer_list[sel_mem_tile][sel_bank_col][sel_bank_row].write_word(sram_addr, byte_offset, data);
   end else if (addr >= Sam[Cheshire+1].start_addr && addr < Sam[Cheshire+1].end_addr) begin
     // TODO(fischeti): Implement Cheshire SPM fast preload

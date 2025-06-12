@@ -442,5 +442,28 @@ package picobello_pkg;
 
   // The L2 SPM memory size of every mem tile
   localparam int unsigned MemTileSize = ep_addr_size(L2Spm0SamIdx);
+  // The maximum data width of the instantiated SRAMs
+  localparam int unsigned SramDataWidth  = 128;   // in bits
+  // The number of words in the instantiated SRAMs
+  localparam int unsigned SramNumWords   = 1024;  // in #words
 
+  // The number of banks required to store a wide word
+  localparam int unsigned NumBanksPerWord = AxiCfgW.DataWidth / SramDataWidth;
+  // The number of macros required to store the entire memory
+  localparam int unsigned NumBankRows = (MemTileSize / (AxiCfgW.DataWidth / 8)) / SramNumWords;
+
+  // The number of LSBs to address the bytes in an SRAM word
+  localparam int unsigned SramByteOffsetWidth = $clog2(SramDataWidth / 8);
+  // The number of bits required to select the subbank for a wide word
+  localparam int unsigned SramBankSelWidth = $clog2(NumBanksPerWord);
+  // The number of bits for the SRAM address
+  localparam int unsigned SramAddrWidth = $clog2(SramNumWords);
+  // The number of bits to index the SRAM macro
+  localparam int unsigned SramMacroSelWidth = $clog2(NumBankRows);
+
+  // Various offsets for the SRAM address
+  localparam int unsigned SramBankSelOffset = SramByteOffsetWidth;
+  localparam int unsigned SramAddrWidthOffset = SramBankSelOffset + SramBankSelWidth;
+  localparam int unsigned SramMacroSelOffset = SramAddrWidthOffset + SramAddrWidth;
+  
 endpackage

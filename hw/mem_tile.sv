@@ -14,10 +14,6 @@ module mem_tile
   import picobello_pkg::*;
   import obi_pkg::*;
 #(
-  // The maximum data width of the instantiated SRAMs
-  parameter int unsigned SramDataWidth  = 128,   // in bits
-  // The number of words in the instantiated SRAMs
-  parameter int unsigned SramNumWords   = 1024,  // in #words
   parameter bit          AxiUserAtop    = 1'b1,
   parameter int unsigned AxiUserAtopMsb = 3,
   parameter int unsigned AxiUserAtopLsb = 0
@@ -35,25 +31,6 @@ module mem_tile
   output floo_rsp_t  [West:North] floo_rsp_o,
   input  floo_wide_t [West:North] floo_wide_i
 );
-
-  // The number of banks required to store a wide word
-  localparam int unsigned NumBanksPerWord = AxiCfgW.DataWidth / SramDataWidth;
-  // The number of macros required to store the entire memory
-  localparam int unsigned NumBankRows = (MemTileSize / (AxiCfgW.DataWidth / 8)) / SramNumWords;
-
-  // The number of LSBs to address the bytes in an SRAM word
-  localparam int unsigned SramByteOffsetWidth = $clog2(SramDataWidth / 8);
-  // The number of bits required to select the subbank for a wide word
-  localparam int unsigned SramBankSelWidth = $clog2(NumBanksPerWord);
-  // The number of bits for the SRAM address
-  localparam int unsigned SramAddrWidth = $clog2(SramNumWords);
-  // The number of bits to index the SRAM macro
-  localparam int unsigned SramMacroSelWidth = $clog2(NumBankRows);
-
-  // Various offsets for the SRAM address
-  localparam int unsigned SramBankSelOffset = SramByteOffsetWidth;
-  localparam int unsigned SramAddrWidthOffset = SramBankSelOffset + SramBankSelWidth;
-  localparam int unsigned SramMacroSelOffset = SramAddrWidthOffset + SramAddrWidth;
 
   ////////////
   // Router //
