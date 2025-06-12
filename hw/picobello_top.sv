@@ -90,6 +90,7 @@ module picobello_top
     localparam int unsigned HartBaseId = c * NrCores + 1;  // Cheshire is hart 0
     localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
 
+    `ifndef CLUSTER_TILE_NET
     cluster_tile i_cluster_tile (
       .clk_i,
       .rst_ni,
@@ -108,6 +109,48 @@ module picobello_top
       .floo_rsp_o         (floo_rsp_out[X][Y]),
       .floo_wide_i        (floo_wide_in[X][Y])
     );
+    `else
+    // Only instantiate the netlist of the first tile to maintain an acceptable simulation speed
+    if (c == 0) begin
+        cluster_tile_net i_cluster_tile (
+        .clk_i,
+        .rst_ni,
+        .test_enable_i      (test_mode_i),
+        .debug_req_i        (debug_req[c]),
+        .meip_i             (meip[c]),
+        .mtip_i             (mtip[c]),
+        .msip_i             (msip[c]),
+        .hart_base_id_i     (HartBaseId[9:0]),
+        .cluster_base_addr_i(ClusterBaseAddr),
+        .id_i               (ClusterId),
+        .floo_req_o         (floo_req_out[X][Y]),
+        .floo_rsp_i         (floo_rsp_in[X][Y]),
+        .floo_wide_o        (floo_wide_out[X][Y]),
+        .floo_req_i         (floo_req_in[X][Y]),
+        .floo_rsp_o         (floo_rsp_out[X][Y]),
+        .floo_wide_i        (floo_wide_in[X][Y])
+      );
+    end else begin
+      cluster_tile i_cluster_tile (
+        .clk_i,
+        .rst_ni,
+        .test_enable_i      (test_mode_i),
+        .debug_req_i        (debug_req[c]),
+        .meip_i             (meip[c]),
+        .mtip_i             (mtip[c]),
+        .msip_i             (msip[c]),
+        .hart_base_id_i     (HartBaseId[9:0]),
+        .cluster_base_addr_i(ClusterBaseAddr),
+        .id_i               (ClusterId),
+        .floo_req_o         (floo_req_out[X][Y]),
+        .floo_rsp_i         (floo_rsp_in[X][Y]),
+        .floo_wide_o        (floo_wide_out[X][Y]),
+        .floo_req_i         (floo_req_in[X][Y]),
+        .floo_rsp_o         (floo_rsp_out[X][Y]),
+        .floo_wide_i        (floo_wide_in[X][Y])
+      );
+    end
+    `endif
   end
 
   ///////////////////
@@ -122,7 +165,11 @@ module picobello_top
   localparam id_t CheshireId = SamMcast[CheshireInternalSamIdx].idx.id;
   localparam id_t CheshirePhysicalId = SamPhysical[CheshireInternalSamIdx].idx;
 
+  `ifndef CHESHIRE_TILE_NET
   cheshire_tile i_cheshire_tile (
+  `else
+  cheshire_tile_net i_cheshire_tile (
+  `endif
     .clk_i,
     .rst_ni,
     .test_mode_i,
@@ -196,7 +243,11 @@ module picobello_top
   localparam int unsigned FhgSpuHartBaseId = NumClusters * NrCores + 1;
   localparam id_t FhgSpuPhysicalId = SamPhysical[FhgSpuSamIdx].idx;
 
+  `ifndef FHG_SPU_TILE_NET
   fhg_spu_tile i_fhg_spu_tile (
+  `else
+  fhg_spu_tile_net i_fhg_spu_tile (
+  `endif
     .clk_i,
     .rst_ni,
     .test_enable_i      (test_mode_i),
@@ -227,6 +278,7 @@ module picobello_top
     localparam int MemTileX = int'(MemTilePhysicalId.x);
     localparam int MemTileY = int'(MemTilePhysicalId.y);
 
+    `ifndef MEM_TILE_NET
     mem_tile i_mem_tile (
       .clk_i,
       .rst_ni,
@@ -239,6 +291,36 @@ module picobello_top
       .floo_rsp_o   (floo_rsp_out[MemTileX][MemTileY]),
       .floo_wide_i  (floo_wide_in[MemTileX][MemTileY])
     );
+    `else
+    // As with the cluster tile, we only instantiate the netlist of the first memory tile to maintain an acceptable simulation speed
+    if (m == 0) begin
+      mem_tile_net i_mem_tile (
+        .clk_i,
+        .rst_ni,
+        .test_enable_i(test_mode_i),
+        .id_i         (MemTileId),
+        .floo_req_o   (floo_req_out[MemTileX][MemTileY]),
+        .floo_rsp_i   (floo_rsp_in[MemTileX][MemTileY]),
+        .floo_wide_o  (floo_wide_out[MemTileX][MemTileY]),
+        .floo_req_i   (floo_req_in[MemTileX][MemTileY]),
+        .floo_rsp_o   (floo_rsp_out[MemTileX][MemTileY]),
+        .floo_wide_i  (floo_wide_in[MemTileX][MemTileY])
+      );
+    end else begin
+      mem_tile i_mem_tile (
+        .clk_i,
+        .rst_ni,
+        .test_enable_i(test_mode_i),
+        .id_i         (MemTileId),
+        .floo_req_o   (floo_req_out[MemTileX][MemTileY]),
+        .floo_rsp_i   (floo_rsp_in[MemTileX][MemTileY]),
+        .floo_wide_o  (floo_wide_out[MemTileX][MemTileY]),
+        .floo_req_i   (floo_req_in[MemTileX][MemTileY]),
+        .floo_rsp_o   (floo_rsp_out[MemTileX][MemTileY]),
+        .floo_wide_i  (floo_wide_in[MemTileX][MemTileY])
+      );
+    end
+    `endif
 
   end
 
