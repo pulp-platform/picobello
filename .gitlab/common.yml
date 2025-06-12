@@ -4,6 +4,7 @@
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  BENDER: /home/fischeti/.cargo/bin/bender -d $CI_PROJECT_DIR
 
 # Sources the environment variables for the IIS environment
 .init-env:
