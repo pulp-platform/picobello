@@ -27,10 +27,10 @@ for(genvar i = 0; i < NumMemTiles; i++) begin : gen_fastmode_class_per_l2_tile
           l2_sram_class_list[i][j][k] = this;
         endfunction
         task write_word(input int sram_addr, input int byte_offset, input logic [31:0] data);
-          fix.dut.gen_memtile[i].i_mem_tile.gen_sram_banks[j].gen_sram_macros[k].i_mem.sram[sram_addr][byte_offset*8 +: 32] = data;
+          `L2_SRAM_PATH[sram_addr][byte_offset*8 +: 32] = data;
         endtask
         task read_word(input int sram_addr, input int byte_offset, output logic [31:0] data);
-          data = fix.dut.gen_memtile[i].i_mem_tile.gen_sram_banks[j].gen_sram_macros[k].i_mem.sram[sram_addr][byte_offset*8 +: 32];
+          data = `L2_SRAM_PATH[sram_addr][byte_offset*8 +: 32];
         endtask
       endclass
       class_fastmode_l2 w = new;
