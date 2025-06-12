@@ -6,7 +6,8 @@
 
 module tb_picobello_top;
 
-  `define L2_SRAM_PATH fix.dut.gen_memtile[i].i_mem_tile.gen_sram_banks[j].gen_sram_macros[k].i_mem.sram
+  `define L2_SRAM_PATH fix.dut.gen_memtile[i].i_mem_tile.\
+                       gen_sram_banks[j].gen_sram_macros[k].i_mem.sram
 
   `include "tb_picobello_tasks.svh"
 
