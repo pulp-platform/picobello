@@ -67,7 +67,7 @@ module cluster_tile
   hwpectrl_req_t               hwpectrl_req;
   hwpectrl_rsp_t               hwpectrl_rsp;
 
-  logic [NrCores-1:0] mxip;
+  logic          [NrCores-1:0] mxip;
 
   snitch_cluster_wrapper i_cluster (
     .clk_i,
