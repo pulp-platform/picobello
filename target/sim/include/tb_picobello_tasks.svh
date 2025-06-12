@@ -9,15 +9,46 @@ import "DPI-C" function byte get_entry(output longint entry);
 import "DPI-C" function byte get_section(output longint address, output longint len);
 import "DPI-C" context function byte read_section(input longint address, inout byte buffer[], input longint len);
 
+import picobello_pkg::*;
+
+// FAST_PRELOAD mode trick with virtual class to write directly to L2 sram module inside various for generate
+virtual class virtual_class_fastmode_l2;
+  pure virtual task write_word(input int sram_addr, input int byte_offset, input logic [31:0] data);
+  pure virtual task read_word(input int sram_addr, input int byte_offset, output logic [31:0] data);
+endclass
+
+virtual_class_fastmode_l2 l2_sram_class_list[NumMemTiles][NumBanksPerWord][NumBankRows];
+
+for(genvar i = 0; i < NumMemTiles; i++) begin : gen_fastmode_class_per_l2_tile
+  for(genvar j = 0; j < NumBanksPerWord; j++) begin : gen_fastmode_class_per_l2_col
+    for(genvar k = 0; k < NumBankRows; k++) begin : gen_fastmode_class_per_l2_row
+      class class_fastmode_l2 extends virtual_class_fastmode_l2;
+        function new;
+          l2_sram_class_list[i][j][k] = this;
+        endfunction
+        task write_word(input int sram_addr, input int byte_offset, input logic [31:0] data);
+          `L2_SRAM_PATH[sram_addr][byte_offset*8 +: 32] = data;
+        endtask
+        task read_word(input int sram_addr, input int byte_offset, output logic [31:0] data);
+          data = `L2_SRAM_PATH[sram_addr][byte_offset*8 +: 32];
+        endtask
+      endclass
+      class_fastmode_l2 w = new;
+    end : gen_fastmode_class_per_l2_row
+  end : gen_fastmode_class_per_l2_col
+end : gen_fastmode_class_per_l2_tile
+
 // Write a 32-bit word into an `tc_sram` at a given address
 task automatic fastmode_write_word(input longint addr, input logic [31:0] data);
   import floo_picobello_noc_pkg::*;
-  // TODO(fischeti): Implement this again
-  if (addr >= Sam[L2Spm0+1].start_addr && addr < Sam[L2Spm0+1].end_addr) begin
-    // automatic int word_offset = (addr - Sam[L2Spm+1].start_addr) / (AxiCfgW.DataWidth / 8);
-    // automatic int byte_offset = (addr - Sam[L2Spm+1].start_addr) % (AxiCfgW.DataWidth / 8);
-    // fix.dut.i_mem_tile.i_mem.sram[word_offset][byte_offset*8 +: 32] = data;
-    $fatal(1, "[FAST_PRELOAD] L2 SPM memory region not supported yet/anymore");
+  if (addr >= Sam[L2Spm0SamIdx].start_addr && addr < Sam[L2Spm0SamIdx+NumMemTiles-1].end_addr) begin
+    // Selecting the correct mem_tile, sram bank, sram address and byte offset inside sram word
+    int byte_offset  = addr[0                   +: SramByteOffsetWidth ];
+    int sel_bank_col = addr[SramBankSelOffset   +: SramBankSelWidth    ];
+    int sram_addr    = addr[SramAddrWidthOffset +: SramAddrWidth       ];
+    int sel_bank_row = addr[SramMacroSelOffset  +: SramMacroSelWidth   ];
+    int sel_mem_tile = (addr - Sam[L2Spm0SamIdx].start_addr) / MemTileSize;
+    l2_sram_class_list[sel_mem_tile][sel_bank_col][sel_bank_row].write_word(sram_addr, byte_offset, data);
   end else if (addr >= Sam[Cheshire+1].start_addr && addr < Sam[Cheshire+1].end_addr) begin
     // TODO(fischeti): Implement Cheshire SPM fast preload
     $fatal(1, "[FAST_PRELOAD] Cheshire memory region not supported yet");
@@ -25,6 +56,43 @@ task automatic fastmode_write_word(input longint addr, input logic [31:0] data);
     $fatal(1, "[FAST_PRELOAD] Address 0x%h not in any supported memory region", addr);
   end
 
+endtask
+
+// Read a 32-bit word into an `tc_sram` at a given address
+task automatic fastmode_read_word(input longint addr, output logic [31:0] data);
+  import floo_picobello_noc_pkg::*;
+  if (addr >= Sam[L2Spm0SamIdx].start_addr && addr < Sam[L2Spm0SamIdx+NumMemTiles-1].end_addr) begin
+    // Selecting the correct mem_tile, sram bank, sram address and byte offset inside sram word
+    int byte_offset  = addr[0                   +: SramByteOffsetWidth ];
+    int sel_bank_col = addr[SramBankSelOffset   +: SramBankSelWidth    ];
+    int sram_addr    = addr[SramAddrWidthOffset +: SramAddrWidth       ];
+    int sel_bank_row = addr[SramMacroSelOffset  +: SramMacroSelWidth   ];
+    int sel_mem_tile = (addr - Sam[L2Spm0SamIdx].start_addr) / MemTileSize;
+    l2_sram_class_list[sel_mem_tile][sel_bank_col][sel_bank_row].read_word(sram_addr, byte_offset, data);
+  end else if (addr >= Sam[Cheshire+1].start_addr && addr < Sam[Cheshire+1].end_addr) begin
+    $fatal(1, "[FAST_READ] Cheshire memory region not supported yet");
+  end else begin
+    $fatal(1, "[FAST_READ] Address 0x%h not in any supported memory region", addr);
+  end
+
+endtask
+
+// Read full L2 memory
+task automatic fastmode_read();
+  import floo_picobello_noc_pkg::*;
+  logic [31:0] data;
+  int fp = $fopen("l2mem.bin", "wb");
+
+  if (!fp) begin
+    $error("[FAST_READ] File could not be open: l2mem.bin");
+    return;
+  end
+  for (longint w = Sam[L2Spm0SamIdx].start_addr; w < Sam[L2Spm0SamIdx+NumMemTiles-1].end_addr; w+=4) begin
+    fastmode_read_word(w, data);
+    $fwrite(fp, "%u", data);
+  end
+  $display("[FAST_READ] Read complete and output to l2mem.bin");
+  $fclose(fp);
 endtask
 
 // Instantly preload an ELF binary
@@ -36,7 +104,7 @@ task automatic fastmode_elf_preload(input string binary, output cheshire_pkg::do
   while (get_section(sec_addr, sec_len)) begin
     byte bf[] = new [sec_len];
     $display("[FAST_PRELOAD] Preloading section at 0x%h (%0d bytes)", sec_addr, sec_len);
-    if (read_section(sec_addr, bf, sec_len)) $fatal(1, "[SLINK] Failed to read ELF section!");
+    if (read_section(sec_addr, bf, sec_len)) $fatal(1, "[FAST_PRELOAD] Failed to read ELF section!");
     if (sec_addr % 4 != 0 || sec_len % 4 != 0) $fatal(1, "[FAST_PRELOAD] Section address or length not word-aligned");
     for (int i = 0; i < sec_len; i += 4) begin
       write_addr = sec_addr + i;
