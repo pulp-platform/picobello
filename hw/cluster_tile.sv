@@ -22,7 +22,6 @@ module cluster_tile
   input  logic                      [NrCores-1:0] meip_i,
   input  logic                      [NrCores-1:0] mtip_i,
   input  logic                      [NrCores-1:0] msip_i,
-  input  logic                      [NrCores-1:0] mxip_i,
   input  logic                      [        9:0] hart_base_id_i,
   input  snitch_cluster_pkg::addr_t               cluster_base_addr_i,
   // Chimney ports
@@ -68,6 +67,8 @@ module cluster_tile
   hwpectrl_req_t hwpectrl_req;
   hwpectrl_rsp_t hwpectrl_rsp;
 
+  logic [NrCores-1:0] mxip;
+
   snitch_cluster_wrapper i_cluster (
     .clk_i,
     .rst_ni,
@@ -75,9 +76,9 @@ module cluster_tile
     .meip_i,
     .mtip_i,
     .msip_i,
-    .mxip_i,
     .hart_base_id_i,
     .cluster_base_addr_i,
+    .mxip_i            (mxip),
     .clk_d2_bypass_i   ('0),
     .sram_cfgs_i       ('0),
     .narrow_in_req_i   (cluster_narrow_in_req),
@@ -155,7 +156,7 @@ module cluster_tile
     .tcdm_rsp_i      ( cluster_tcdm_ext_rsp ),
     .hwpe_ctrl_req_i ( hwpectrl_req         ),
     .hwpe_ctrl_rsp_o ( hwpectrl_rsp         ),
-    .hwpe_evt_o      ( mxip_i               )
+    .hwpe_evt_o      ( mxip                 )
   );
 
   ////////////
