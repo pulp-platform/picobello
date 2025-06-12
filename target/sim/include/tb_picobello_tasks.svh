@@ -9,6 +9,8 @@ import "DPI-C" function byte get_entry(output longint entry);
 import "DPI-C" function byte get_section(output longint address, output longint len);
 import "DPI-C" context function byte read_section(input longint address, inout byte buffer[], input longint len);
 
+import picobello_pkg::*;
+
 // FAST_PRELOAD mode trick with virtual class to write directly to L2 sram module inside various for generate
 virtual class virtual_class_fastmode_l2;
   pure virtual task write_word(input int sram_addr, input int byte_offset, input logic [31:0] data);
@@ -75,7 +77,7 @@ task automatic fastmode_read_word(input longint addr, output logic [31:0] data);
 
 endtask
 
-// Read full L@ memory
+// Read full L2 memory
 task automatic fastmode_read();
   import floo_picobello_noc_pkg::*;
   logic [31:0] data;

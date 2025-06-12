@@ -6,8 +6,6 @@
 
 module tb_picobello_top;
 
-  import picobello_pkg::*;
-
   `include "tb_picobello_tasks.svh"
 
   // Instantiate the fixture
