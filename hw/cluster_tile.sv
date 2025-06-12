@@ -149,14 +149,14 @@ module cluster_tile
     .NrCores       ( NrCores                              ),
     .TCDMDataWidth ( snitch_cluster_pkg::NarrowDataWidth  )
   ) i_snitch_hwpe_subsystem (
-    .clk_i           ( clk_i                ),
-    .rst_ni          ( rst_ni               ),
-    .test_mode_i     ( 1'b0                 ),
-    .tcdm_req_o      ( cluster_tcdm_ext_req ),
-    .tcdm_rsp_i      ( cluster_tcdm_ext_rsp ),
-    .hwpe_ctrl_req_i ( hwpectrl_req         ),
-    .hwpe_ctrl_rsp_o ( hwpectrl_rsp         ),
-    .hwpe_evt_o      ( mxip                 )
+    .clk_i          (clk_i),
+    .rst_ni         (rst_ni),
+    .test_mode_i    (1'b0),
+    .tcdm_req_o     (cluster_tcdm_ext_req),
+    .tcdm_rsp_i     (cluster_tcdm_ext_rsp),
+    .hwpe_ctrl_req_i(hwpectrl_req),
+    .hwpe_ctrl_rsp_o(hwpectrl_rsp),
+    .hwpe_evt_o     (mxip)
   );
 
   ////////////
