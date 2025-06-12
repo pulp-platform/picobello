@@ -8,7 +8,7 @@ module tb_picobello_top;
 
   `include "tb_picobello_tasks.svh"
 
-fixture_picobello_top fix ();
+  fixture_picobello_top fix ();
 
   string        preload_elf;
   string        boot_hex;
