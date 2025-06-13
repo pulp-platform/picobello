@@ -18,7 +18,7 @@ dependencies:
   axi_obi:            { path: "hw/axi_obi"                                                                                              }
   picobello-pd:       { path: "./pd"                                                                                                    }
   fhg_spu_cluster:    { path: "./.deps/fhg_spu_cluster"                                                                                 }
-  redmule:            { git: "https://github.com/pulp-platform/redmule",                rev: "9af8b8d7cfdcc49aa8fda7e0d62ecf2c43cba3c4" } # branch: picobello
+  redmule:            { git: "https://github.com/pulp-platform/redmule",                rev: "1e1706de7bd2e9375001debdd2944f72ea2fdf6e" } # branch: picobello
   hci:                { git: "https://github.com/pulp-platform/hci",                    rev: "06fcba671e060f2e1b03b7ebe2d3e719f1557099" }
   datamover:          { git: "https://github.com/FrancescoConti/datamover",             rev: "fb7d09c201ab52de23b11adf12b36d8e75c4c0e6" } # branch: transpose
 
