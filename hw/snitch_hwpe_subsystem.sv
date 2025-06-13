@@ -36,7 +36,7 @@ module snitch_hwpe_subsystem
   localparam int unsigned NrTCDMPorts = (HwpeDataWidth / TCDMDataWidth);
 
   // verilog_format: off
-  localparam hci_size_parameter_t HCI_SIZE_tcdm = '{
+  localparam hci_size_parameter_t HCISizeTcdm = '{
     DW:  HwpeDataWidth,
     AW:  DEFAULT_AW,
     BW:  DEFAULT_BW,
@@ -127,7 +127,8 @@ module snitch_hwpe_subsystem
     periph[1].data          = hwpe_ctrl_req_i.q.data;
     periph[1].id            = hwpe_ctrl_req_i.q.user;
 
-    if ((hwpe_ctrl_req_i.q.addr[7:0] == 'h9C || hwpe_ctrl_req_i.q.addr[7:0] == 'h98 || hwpe_ctrl_req_i.q.addr[7:0] == 'h94) && hwpe_ctrl_req_i.q_valid) begin
+    if ((hwpe_ctrl_req_i.q.addr[7:0] == 'h9C || hwpe_ctrl_req_i.q.addr[7:0] == 'h98 ||
+         hwpe_ctrl_req_i.q.addr[7:0] == 'h94) && hwpe_ctrl_req_i.q_valid) begin
       hwpe_ctrl_rsp_o.q_ready = '1;
       hwpe_ctrl_rsp_o.p_valid = '1;
     end else begin
@@ -155,7 +156,8 @@ module snitch_hwpe_subsystem
     if (~rst_ni) begin
       clk_en <= '0;
     end else begin
-      if (hwpe_ctrl_req_i.q.addr[7:0] == 'h9C && hwpe_ctrl_req_i.q_valid && hwpe_ctrl_req_i.q.write) begin
+      if (hwpe_ctrl_req_i.q.addr[7:0] == 'h9C && hwpe_ctrl_req_i.q_valid &&
+          hwpe_ctrl_req_i.q.write) begin
         clk_en <= hwpe_ctrl_req_i.q.data[1:0];
       end
     end
@@ -165,7 +167,8 @@ module snitch_hwpe_subsystem
     if (~rst_ni) begin
       mux_sel <= '0;
     end else begin
-      if (hwpe_ctrl_req_i.q.addr[7:0] == 'h98 && hwpe_ctrl_req_i.q_valid && hwpe_ctrl_req_i.q.write) begin
+      if (hwpe_ctrl_req_i.q.addr[7:0] == 'h98 && hwpe_ctrl_req_i.q_valid &&
+          hwpe_ctrl_req_i.q.write) begin
         mux_sel <= hwpe_ctrl_req_i.q.data[0];
       end
     end
@@ -180,7 +183,8 @@ module snitch_hwpe_subsystem
         if (evt[mux_sel][ii]) begin
           hwpe_evt_q[ii] <= 1'b1;
         end
-        else if (hwpe_ctrl_req_i.q.addr[7:0] == 'h94 && hwpe_ctrl_req_i.q_valid && hwpe_ctrl_req_i.q.write && hwpe_ctrl_req_i.q.data == (1 << ii)) begin
+        else if (hwpe_ctrl_req_i.q.addr[7:0] == 'h94 && hwpe_ctrl_req_i.q_valid &&
+                 hwpe_ctrl_req_i.q.write && hwpe_ctrl_req_i.q.data == (1 << ii)) begin
           hwpe_evt_q[ii] <= 1'b0;
         end
       end
@@ -206,7 +210,7 @@ module snitch_hwpe_subsystem
     .ID_WIDTH     (IdWidth),
     .N_CORES      (NrCores),
     .DW           (HwpeDataWidth),
-    .HCI_SIZE_tcdm(HCI_SIZE_tcdm)
+    .HCI_SIZE_tcdm(HCISizeTcdm)
   ) i_redmule_top (
     .clk_i      (hwpe_clk[0]),
     .rst_ni     (rst_ni),
@@ -221,7 +225,7 @@ module snitch_hwpe_subsystem
     .ID           (IdWidth),
     .N_CORES      (NrCores),
     .BW           (HwpeDataWidth),
-    .HCI_SIZE_tcdm(HCI_SIZE_tcdm)
+    .HCI_SIZE_tcdm(HCISizeTcdm)
   ) i_datamover_top (
     .clk_i      (hwpe_clk[1]),
     .rst_ni     (rst_ni),
@@ -233,7 +237,7 @@ module snitch_hwpe_subsystem
 
   hci_core_mux_static #(
     .NB_CHAN    (2),
-    .HCI_SIZE_in(HCI_SIZE_tcdm)
+    .HCI_SIZE_in(HCISizeTcdm)
   ) i_static_mux (
     .clk_i  (clk_i),
     .rst_ni (rst_ni),
