@@ -57,7 +57,8 @@ module cluster_tile
   typedef logic [31:0] data_hwpe_ctrl_t;
   typedef logic [3:0]  strb_hwpe_ctrl_t;
 
-  `AXI_TYPEDEF_ALL(axi_hwpe_mst, addr_hwpe_ctrl_t, snitch_cluster_pkg::narrow_out_id_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t, snitch_cluster_pkg::user_t)
+  `AXI_TYPEDEF_ALL(axi_hwpe_mst, addr_hwpe_ctrl_t, snitch_cluster_pkg::narrow_out_id_t, \
+  		   data_hwpe_ctrl_t, strb_hwpe_ctrl_t, snitch_cluster_pkg::user_t)
 
   axi_hwpe_mst_req_t  axi_hwpe_mst_req;
   axi_hwpe_mst_resp_t axi_hwpe_mst_rsp;
