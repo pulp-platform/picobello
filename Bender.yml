@@ -15,6 +15,8 @@ dependencies:
   snitch_cluster:  { git: "https://github.com/pulp-platform/snitch_cluster.git", rev: "develop" }
   floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "fischeti/new-mcast"}
   obi: { git: "https://github.com/pulp-platform/obi.git", rev: "95f023208ecaa516860e66a1701a93912ffc62a2"}
+  apb: { git: "https://github.com/pulp-platform/apb.git", version: "0.2.4" }
+  apb_fll_if: { git: "https://github.com/pulp-platform/apb_fll_if.git", rev: "structs" }
   axi_obi: { path: "hw/axi_obi" }
   picobello-pd:  { path: "./pd" }
   fhg_spu_cluster:  { path: "./.deps/fhg_spu_cluster" }
@@ -66,6 +68,8 @@ sources:
 
   - target: asic
     files:
+    - pd/hw/picobello_chip_ctrl_pkg.sv
+    - pd/hw/picobello_chip_ctrl.sv
     - pd/hw/picobello_chip.sv
 
   - target: all(any(simulation, test), asic)

@@ -14,6 +14,8 @@ PB_SNITCH_SW_DIR = $(PB_SW_DIR)/snitch
 
 PB_INCDIR = $(PB_SW_DIR)/include
 
+-include $(PB_ROOT)/pd/sw/sw.mk
+
 ####################
 ## Snitch Cluster ##
 ####################
@@ -74,11 +76,13 @@ CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
 CHS_SW_GEN_HDRS += $(PB_ADDRMAP)
 
 # Collect tests, which should be build for all modes, and their .dump targets
-PB_CHS_SW_TEST_SRC = $(wildcard $(PB_CHS_SW_DIR)/tests/*.c)
+PB_CHS_SW_TEST_SRC += $(wildcard $(PB_CHS_SW_DIR)/tests/*.c)
 PB_CHS_SW_TEST_DUMP += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).dump)
 PB_CHS_SW_TEST_ELF += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).elf)
 
 PB_CHS_SW_TEST = $(PB_CHS_SW_TEST_DUMP)
+
+$(PB_CHS_SW_TEST_DUMP): $(PB_CHS_SW_TEST_ELF)
 
 .PHONY: chs-sw-tests chs-sw-tests-clean
 
