@@ -55,7 +55,7 @@ module cluster_tile
 
   typedef logic [31:0] addr_hwpe_ctrl_t;
   typedef logic [31:0] data_hwpe_ctrl_t;
-  typedef logic [3:0]  strb_hwpe_ctrl_t;
+  typedef logic [3:0] strb_hwpe_ctrl_t;
 
   `AXI_TYPEDEF_ALL(axi_hwpe_mst, addr_hwpe_ctrl_t, snitch_cluster_pkg::narrow_out_id_t,\
                    data_hwpe_ctrl_t, strb_hwpe_ctrl_t, snitch_cluster_pkg::user_t)
@@ -98,57 +98,57 @@ module cluster_tile
 
   // Convert narrow AXI's 64 bit DW down to 32
   axi_dw_converter #(
-    .AxiMaxReads         ( 1                                        ),
-    .AxiSlvPortDataWidth ( snitch_cluster_pkg::NarrowDataWidth      ),
-    .AxiMstPortDataWidth ( 32                                       ),
-    .AxiAddrWidth        ( snitch_cluster_pkg::AddrWidth            ),
-    .AxiIdWidth          ( snitch_cluster_pkg::NarrowIdWidthOut     ),
-    .aw_chan_t           ( snitch_cluster_pkg::narrow_out_aw_chan_t ),
-    .mst_w_chan_t        ( axi_hwpe_mst_w_chan_t                    ),
-    .slv_w_chan_t        ( snitch_cluster_pkg::narrow_out_w_chan_t  ),
-    .b_chan_t            ( snitch_cluster_pkg::narrow_out_b_chan_t  ),
-    .ar_chan_t           ( snitch_cluster_pkg::narrow_out_ar_chan_t ),
-    .mst_r_chan_t        ( axi_hwpe_mst_r_chan_t                    ),
-    .slv_r_chan_t        ( snitch_cluster_pkg::narrow_out_r_chan_t  ),
-    .axi_mst_req_t       ( axi_hwpe_mst_req_t                       ),
-    .axi_mst_resp_t      ( axi_hwpe_mst_resp_t                      ),
-    .axi_slv_req_t       ( snitch_cluster_pkg::narrow_out_req_t     ),
-    .axi_slv_resp_t      ( snitch_cluster_pkg::narrow_out_resp_t    )
+    .AxiMaxReads        (1),
+    .AxiSlvPortDataWidth(snitch_cluster_pkg::NarrowDataWidth),
+    .AxiMstPortDataWidth(32),
+    .AxiAddrWidth       (snitch_cluster_pkg::AddrWidth),
+    .AxiIdWidth         (snitch_cluster_pkg::NarrowIdWidthOut),
+    .aw_chan_t          (snitch_cluster_pkg::narrow_out_aw_chan_t),
+    .mst_w_chan_t       (axi_hwpe_mst_w_chan_t),
+    .slv_w_chan_t       (snitch_cluster_pkg::narrow_out_w_chan_t),
+    .b_chan_t           (snitch_cluster_pkg::narrow_out_b_chan_t),
+    .ar_chan_t          (snitch_cluster_pkg::narrow_out_ar_chan_t),
+    .mst_r_chan_t       (axi_hwpe_mst_r_chan_t),
+    .slv_r_chan_t       (snitch_cluster_pkg::narrow_out_r_chan_t),
+    .axi_mst_req_t      (axi_hwpe_mst_req_t),
+    .axi_mst_resp_t     (axi_hwpe_mst_resp_t),
+    .axi_slv_req_t      (snitch_cluster_pkg::narrow_out_req_t),
+    .axi_slv_resp_t     (snitch_cluster_pkg::narrow_out_resp_t)
   ) i_axi_dw_hwpe (
-    .clk_i      ( clk_i                  ),
-    .rst_ni     ( rst_ni                 ),
-    .slv_req_i  ( cluster_narrow_ext_req ),
-    .slv_resp_o ( cluster_narrow_ext_rsp ),
-    .mst_req_o  ( axi_hwpe_mst_req       ),
-    .mst_resp_i ( axi_hwpe_mst_rsp       )
+    .clk_i     (clk_i),
+    .rst_ni    (rst_ni),
+    .slv_req_i (cluster_narrow_ext_req),
+    .slv_resp_o(cluster_narrow_ext_rsp),
+    .mst_req_o (axi_hwpe_mst_req),
+    .mst_resp_i(axi_hwpe_mst_rsp)
   );
 
   axi_to_tcdm #(
-    .axi_req_t  ( axi_hwpe_mst_req_t                   ),
-    .axi_rsp_t  ( axi_hwpe_mst_resp_t                  ),
-    .tcdm_req_t ( hwpectrl_req_t                       ),
-    .tcdm_rsp_t ( hwpectrl_rsp_t                       ),
-    .IdWidth    ( snitch_cluster_pkg::NarrowIdWidthOut ),
-    .AddrWidth  ( 32                                   ),
-    .DataWidth  ( 32                                   )
+    .axi_req_t (axi_hwpe_mst_req_t),
+    .axi_rsp_t (axi_hwpe_mst_resp_t),
+    .tcdm_req_t(hwpectrl_req_t),
+    .tcdm_rsp_t(hwpectrl_rsp_t),
+    .IdWidth   (snitch_cluster_pkg::NarrowIdWidthOut),
+    .AddrWidth (32),
+    .DataWidth (32)
   ) i_axi_to_hwpe_ctrl (
-    .clk_i      ( clk_i            ),
-    .rst_ni     ( rst_ni           ),
-    .axi_req_i  ( axi_hwpe_mst_req ),
-    .axi_rsp_o  ( axi_hwpe_mst_rsp ),
-    .tcdm_req_o ( hwpectrl_req    ),
-    .tcdm_rsp_i ( hwpectrl_rsp    )
+    .clk_i     (clk_i),
+    .rst_ni    (rst_ni),
+    .axi_req_i (axi_hwpe_mst_req),
+    .axi_rsp_o (axi_hwpe_mst_rsp),
+    .tcdm_req_o(hwpectrl_req),
+    .tcdm_rsp_i(hwpectrl_rsp)
   );
 
   snitch_hwpe_subsystem #(
-    .tcdm_req_t    ( snitch_cluster_pkg::tcdm_dma_req_t   ),
-    .tcdm_rsp_t    ( snitch_cluster_pkg::tcdm_dma_rsp_t   ),
-    .periph_req_t  ( hwpectrl_req_t                       ),
-    .periph_rsp_t  ( hwpectrl_rsp_t                       ),
-    .HwpeDataWidth ( snitch_cluster_pkg::WideDataWidth    ),
-    .IdWidth       ( snitch_cluster_pkg::NarrowIdWidthOut ),
-    .NrCores       ( NrCores                              ),
-    .TCDMDataWidth ( snitch_cluster_pkg::NarrowDataWidth  )
+    .tcdm_req_t   (snitch_cluster_pkg::tcdm_dma_req_t),
+    .tcdm_rsp_t   (snitch_cluster_pkg::tcdm_dma_rsp_t),
+    .periph_req_t (hwpectrl_req_t),
+    .periph_rsp_t (hwpectrl_rsp_t),
+    .HwpeDataWidth(snitch_cluster_pkg::WideDataWidth),
+    .IdWidth      (snitch_cluster_pkg::NarrowIdWidthOut),
+    .NrCores      (NrCores),
+    .TCDMDataWidth(snitch_cluster_pkg::NarrowDataWidth)
   ) i_snitch_hwpe_subsystem (
     .clk_i          (clk_i),
     .rst_ni         (rst_ni),
