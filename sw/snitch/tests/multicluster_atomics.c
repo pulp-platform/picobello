@@ -99,7 +99,7 @@ volatile uint32_t* multicluster_error;
 int main() {
     uint32_t core_id = snrt_cluster_core_idx();
     uint32_t core_num = snrt_cluster_core_num();
-    uint32_t register volatile nerrors = 0;
+    uint32_t volatile nerrors = 0;
 
     if (core_id == 0) {
     	// Verify atomics
