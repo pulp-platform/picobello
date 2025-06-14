@@ -7,13 +7,15 @@ packages:
     dependencies:
     - common_cells
   apb_uart:
-    revision: 6c7dde3d749ac8274377745c105da8c8b8cd27c6
-    version: 0.2.1
-    source:
-      Git: https://github.com/pulp-platform/apb_uart.git
-    dependencies:
-    - apb
-    - register_interface
+     revision: 8182a85d234417db46fe833533f8536644d3bee3
+     version: 0.2.3
+     source:
+       Git: https://github.com/pulp-platform/apb_uart.git
+     dependencies:
+     - apb
+     - obi
+     - obi_peripherals
+     - register_interface
   axi:
     revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
     version: null
@@ -220,6 +222,14 @@ packages:
     dependencies:
     - common_cells
     - common_verification
+  obi_peripherals:
+     revision: 079894a6cbd4e544c477643d184a4c340bd4e391
+     version: 0.1.1
+     source:
+       Git: https://github.com/pulp-platform/obi_peripherals.git
+     dependencies:
+     - common_cells
+     - obi
   opentitan_peripherals:
     revision: cd3153de2783abd3d03d0595e6c4b32413c62f14
     version: 0.4.0
