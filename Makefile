@@ -24,7 +24,7 @@ BENDER           ?= bender -d $(PB_ROOT)
 FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
-PEAKRDL 	     ?= peakrdl
+PEAKRDL          ?= peakrdl
 
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
