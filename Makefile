@@ -87,9 +87,9 @@ floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
 
-floo-rdl: $(PB_ROOT)/cfg/rdl/picobello.rdl
-$(PB_ROOT)/cfg/rdl/picobello.rdl: $(FLOO_CFG)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_ROOT)/cfg/rdl --rdl --rdl-as-mem
+floo-rdl: $(PB_GEN_DIR)/picobello.rdl
+$(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem
 
 floo-clean:
 	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
@@ -189,7 +189,7 @@ test-peakrdl: $(PB_ROOT)/picobello_addrmap.svh
 $(PB_ROOT)/picobello_addrmap.svh: $(PB_ROOT)/cfg/rdl/picobello.rdl $(SN_CLUSTER_RDL)
 	$(PEAKRDL) raw-header $(PB_ROOT)/cfg/rdl/picobello.rdl $(PEAKRDL_INCLUDES) -o picobello_addrmap.svh --format svh
 
-sw/include/picobello_addrmap.h: $(PB_ROOT)/cfg/rdl/picobello.rdl
+sw/include/picobello_addrmap.h: $(PB_GEN_DIR)/picobello.rdl
 	$(PEAKRDL) raw-header --format c $< $(PEAKRDL_INCLUDES) -o $@
 
 #################
