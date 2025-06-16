@@ -1,13 +1,49 @@
+from pathlib import Path
 import pandas as pd
-import ast
+import json
+import re
 
 pd.options.display.float_format = '{:.1f}'.format
 
-INT_FIELDS = {'atop', 'burst', 'cache', 'id', 'len', 'size', 'user'}
+INT_FIELDS = {'addr', 'atop', 'burst', 'cache', 'id', 'len', 'size'}
+
+######################
+#    NICE PRINT      #
+######################
+def styled_print(message: str):
+    # Define your markers and styles
+    styles = {
+        r"\\gb\{(.*?)\}": "\033[1;32m\\1\033[0m",  # bold green
+        r"\\rb\{(.*?)\}": "\033[1;31m\\1\033[0m",  # bold red
+        r"\\yb\{(.*?)\}": "\033[1;33m\\1\033[0m",  # bold yellow
+        r"\\cb\{(.*?)\}": "\033[1;36m\\1\033[0m",  # bold cyan
+    }
+
+    styled = message
+    for pattern, replacement in styles.items():
+        styled = re.sub(pattern, replacement, styled)
+
+    print(styled)
+
+def gprint(msg): styled_print(f"\\gb{{{msg}}}")
+def rprint(msg): styled_print(f"\\rb{{{msg}}}")
+def yprint(msg): styled_print(f"\\yb{{{msg}}}")
+def cprint(msg): styled_print(f"\\cb{{{msg}}}")
+
+def raise_exception(extype: type[Exception], msg: str):
+    rprint(msg)
+    raise extype(msg)
 
 ######################
 #    PARSING LOG     #
 ######################
+
+# Function to convert the log line into a valid JSON struct for correct parsing
+def clean_and_parse(line):
+    line = re.sub(r',\s*}', '}', line.strip())
+    line = re.sub(r"(0x[\da-fA-FxX]+)", r'"\1"', line)  # quote hex & X values
+    line = line.replace("'", '"')  # JSON compatible
+    return json.loads(line)
 
 # Function to parse the log file from AXI DUMPER
 def parse_axi_dump(file_path):
@@ -23,43 +59,80 @@ def parse_axi_dump(file_path):
     """
     parsed_entries = []
 
+    cprint(f"Parsing {file_path.name}")  # Optional
     with open(file_path, 'r') as file:
         for line_num, line in enumerate(file, start=1):
             line = line.strip().rstrip(',')
-            if not line:
-                continue
 
+            # Convert all values to integers if possible
             try:
-                # Safely parse the line as a Python dictionary
-                entry = ast.literal_eval(line)
-
-                # Convert all values to integers if possible
-                intified_entry = {}
-                for k, v in entry.items():
-                    if isinstance(v, int):
-                        intified_entry[k] = v
-                    elif isinstance(v, str):
-                        intified_entry[k] = v  # keep strings like 'type'
+                parsed = clean_and_parse(line)
+                format_entry = {}
+                # Copnvert entries with the correct type
+                for k, v in parsed.items():
+                    if k in INT_FIELDS:
+                        try:
+                            format_entry[k] = int(v, 16) if isinstance(v, str) and v.startswith('0x') else int(v)
+                        except Exception:
+                            format_entry[k] = v  # fallback to string
                     else:
-                        intified_entry[k] = int(v)  # cast floats or hex-compatible
-
-                parsed_entries.append(intified_entry)
-
+                        format_entry[k] = str(v)
+                parsed_entries.append(format_entry)
             except Exception as e:
-                print(f"[Line {line_num}] Failed to parse line: {line}")
-                print(f"  Error: {e}")
+                rprint(f"Parsing line: {line.strip()}\n -> {e}")
+
+        gprint(f"Parsed file {file_path}")
 
     df = pd.DataFrame(parsed_entries)
     # Set the time as first column in the dataframe
-    if 'time' in df.columns:
-        cols = ['time'] + [col for col in df.columns if col != 'time']
-        df = df[cols]
+    # if 'time' in df.columns:
+    #     cols = ['time'] + [col for col in df.columns if col != 'time']
+    #     df = df[cols]
 
     return df
 
+# Function to gather all the AXI transactions from different logs
+def collect_df(directory, pattern="axi_trace_mem_tile_*.log"):
+    """
+    Collects and aggregates AXI transactions from multiple log files.
+
+    Parameters:
+        directory (str or Path): Directory containing the AXI log files.
+        pattern (str): Glob pattern to match log files.
+
+    Returns:
+        pd.DataFrame: Combined and time-ordered DataFrame of all transactions.
+    """
+    directory = Path(directory)
+    all_dfs = []
+
+    for file_path in sorted(directory.glob(pattern)):
+        df = parse_axi_dump(file_path)
+        df['source_file'] = file_path.name  # Optional: track source
+        all_dfs.append(df)
+
+    if not all_dfs:
+        raise_exception(FileNotFoundError, f"No AXI log files found in '{directory}' matching '{pattern}'")
+
+    df_combined = pd.concat(all_dfs, ignore_index=True)
+
+    # Set surce file and time to be the first twop columsn
+    if 'source_file' in df_combined.columns and 'time' in df_combined.columns:
+        cols = ['source_file', 'time'] + [col for col in df_combined.columns if col not in ('source_file', 'time')]
+        df_combined = df_combined[cols]
+
+    # Ensure sort order: first by 'time', then by 'source_file'
+    df_combined.sort_values(by=['source_file', 'time'], inplace=True)
+
+    return df_combined
+
+
+######################
+#   ELABORATE INFO   #
+######################
 
 # Function to annotate write addresses in the DataFrame
-def resolve_write_addresses(df):
+def resolve_write_addresses_per_interface(df):
     """
     Resolves and fills in the missing 'addr' field in each W (write data) entry
     based on the most recent AW (write address) entry before it.
@@ -85,7 +158,6 @@ def resolve_write_addresses(df):
                 'size': row.get('size'),
             }
             w_counter = 0  # reset on new AW
-            print(current_aw)
 
         elif row.get('type') == 'W':
             if current_aw is not None:
@@ -98,9 +170,71 @@ def resolve_write_addresses(df):
                   current_aw = None
                   w_counter = 0
             else:
-                raise RuntimeError(f"[Line {idx}] Found W entry without preceding AW.")
+                raise_exception(RuntimeError, (f"[{row.get('source_file')}] Found W entry without preceding AW at {row.get('time')} ps"))
 
     return df
+
+
+# Function to annotate address of W/R transactions looking at the
+# previous AW/AR requests. The check is done by transcations at
+# the same interface, i.e. reported in the same file to avoid mixing
+# W/R form a file with AW/AR of another dump.
+def resolve_write_addresses(df):
+    resolved_dfs = []
+
+    for source, group in df.groupby('source_file', sort=False):
+        resolved = resolve_write_addresses_per_interface(group)
+        resolved_dfs.append(resolved)
+
+    return pd.concat(resolved_dfs, ignore_index=True)
+
+
+def _apply_field_filters(df_subset, **kwargs):
+    for key, val in kwargs.items():
+        if key not in df_subset.columns:
+            raise_exception(ValueError, f"Column '{key}' not found in DataFrame.")
+
+        if isinstance(val, str) and val.startswith('0x'):
+            try:
+                val = int(val, 16)
+            except ValueError:
+                raise_exception(ValueError, f"Invalid hex value for {key}: '{val}'")
+
+        df_subset = df_subset[df_subset[key] == val]
+
+    return df_subset.reset_index(drop=True)
+
+
+
+def select_aw(df, **kwargs):
+    df_aw = df[df['type'] == 'AW']
+    return _apply_field_filters(df_aw, **kwargs)
+
+def select_w(df, **kwargs):
+    df_w = df[df['type'] == 'W']
+    return _apply_field_filters(df_w, **kwargs)
+
+
+def filter_transactions(df, tx_type, **kwargs):
+    """
+    Dispatches to type-specific filter logic for AW, W, etc.
+
+    Parameters:
+        df (pd.DataFrame): Full AXI DataFrame.
+        tx_type (str): Type of transaction to filter ('AW', 'W', etc).
+        kwargs (dict): Filters like addr='0x70000000', id=7, etc.
+
+    Returns:
+        pd.DataFrame: Filtered DataFrame based on type logic.
+    """
+    tx_type = tx_type.upper()
+    if tx_type == "AW":
+        return select_aw(df[df['type'] == 'AW'], **kwargs)
+    elif tx_type == "W":
+        return select_w(df, **kwargs)
+    else:
+        raise_exception(ValueError, f"Unsupported transaction type '{tx_type}'")
+
 
 
 def format_axi_df_for_display(df):
@@ -121,62 +255,25 @@ def format_axi_df_for_display(df):
     def format_bool(x):
         return str(bool(x)) if pd.notnull(x) else "None"
 
-    # Define format rules to apply to each df column
-    format_rules = {
-        'addr':  format_hex,
-        'atop':  format_hex,
-        'burst': format_hex,
-        'id':    format_int,
-        'len':   format_hex,
-        'size':  format_hex,
-        'data':  format_hex,
-        'last':  format_bool,
-        'strb':  format_hex,
-    }
-
-    for col, formatter in format_rules.items():
-        # Apply format rules for the specified columns
+    for col in INT_FIELDS:
         if col in df_formatted.columns:
-            df_formatted[col] = df_formatted[col].apply(formatter)
+            df_formatted[col] = df_formatted[col].apply(format_hex)
 
     return df_formatted
 
-# Function to select transactions matching a specific criteria
-def filter_transactions(df, tx_type, **kwargs):
-    """
-    Filters the DataFrame for entries of a given transaction type (AW, W, etc.)
-    and optional field-based filters like addr, id, burst, etc.
 
-    Parameters:
-        df (pd.DataFrame): The AXI transaction log DataFrame.
-        tx_type (str): Required. Transaction type to filter on (e.g., 'AW', 'W').
-        kwargs (dict): Additional field filters, e.g. addr='0x70000000', id=7.
-
-    Returns:
-        pd.DataFrame: Filtered DataFrame matching the criteria.
-    """
-    df_filtered = df[df['type'] == tx_type]
-
-    for key, val in kwargs.items():
-        if key not in df.columns:
-            raise ValueError(f"Column '{key}' not found in DataFrame.")
-
-        # Convert hex strings to int
-        if isinstance(val, str) and val.startswith('0x'):
-            try:
-                val = int(val, 16)
-            except ValueError:
-                raise ValueError(f"Invalid hex value for {key}: '{val}'")
-
-        df_filtered = df_filtered[df_filtered[key] == val]
-
-    return df_filtered.reset_index(drop=True)
+def save_df_to_csv(df, file_name):
+    df.to_csv(file_name, index=False)
 
 
 if __name__ == "__main__":
     file_path = "axi_trace_mem_tile_0.log"
-    df = parse_axi_dump(file_path)
+    df = collect_df("axi_log/")
+
     df = resolve_write_addresses(df)
-    df_formatted = filter_transactions(df, "W", addr="0x700044e8")
+    save_df_to_csv(df, "df_orig.csv")
+
+    df_formatted = filter_transactions(df, "W", addr="0x7000b080")
     df_formatted = format_axi_df_for_display(df_formatted)
-    print(df_formatted)
+    save_df_to_csv(df_formatted, "write_trans.csv")
+    save_df_to_csv(df_formatted, "axi_log.csv")
