@@ -64,7 +64,11 @@ module cluster_tile
     .wide_out_req_o   (cluster_wide_out_req),
     .wide_out_resp_i  (cluster_wide_out_rsp),
     .wide_in_req_i    (cluster_wide_in_req),
-    .wide_in_resp_o   (cluster_wide_in_rsp)
+    .wide_in_resp_o   (cluster_wide_in_rsp),
+    .narrow_ext_req_o (),
+    .narrow_ext_resp_i('0),
+    .tcdm_ext_req_i   ('0),
+    .tcdm_ext_resp_o  ()
   );
 
   ////////////
