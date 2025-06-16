@@ -189,8 +189,6 @@ test-peakrdl: $(PB_ROOT)/picobello_addrmap.svh
 $(PB_ROOT)/picobello_addrmap.svh: $(PB_ROOT)/cfg/rdl/picobello.rdl $(SN_CLUSTER_RDL)
 	$(PEAKRDL) raw-header $(PB_ROOT)/cfg/rdl/picobello.rdl $(PEAKRDL_INCLUDES) -o picobello_addrmap.svh --format svh
 
-sw/include/picobello_addrmap.h: $(PB_GEN_DIR)/picobello.rdl
-	$(PEAKRDL) raw-header --format c $< $(PEAKRDL_INCLUDES) -o $@
 
 #################
 # Documentation #
