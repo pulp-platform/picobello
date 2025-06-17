@@ -10,6 +10,7 @@ module tb_picobello_top;
                        gen_sram_banks[j].gen_sram_macros[k].i_mem.sram
 
   `include "tb_picobello_tasks.svh"
+  `include "pb_soc_regs_addrmap.svh"
 
   // Instantiate the fixture
   fixture_picobello_top fix ();
@@ -24,6 +25,14 @@ module tb_picobello_top;
   logic  [63:0] snitch_entry;
   int           snitch_fn;
   int           chs_fn;
+
+  bit [63:0] CTRL_REGS_BASE_ADDR = 64'h18001000;    // TODO(cdurrer): take from global addrmap after rdl-branch merge
+  bit [63:0] cluster_clk_en_addr;
+  bit [63:0] mem_tile_clk_en_addr;
+  bit [63:0] fhg_spu_clk_en_addr;
+  bit [63:0] cluster_rst_n_addr;
+  bit [63:0] mem_tile_rst_n_addr;
+  bit [63:0] fhg_spu_rst_n_addr;
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
@@ -46,8 +55,6 @@ module tb_picobello_top;
       snitch_preload = 0;
     end
 
-    fix.clk_rst_bypass = 1'b0; // TODO(cdurrer): implement differently? -> add as parameter, like BOOTMODE?
-
     // Set boot mode and preload boot image if there is one
     fix.vip.set_boot_mode(boot_mode);
     fix.vip.i2c_eeprom_preload(boot_hex);
@@ -56,12 +63,28 @@ module tb_picobello_top;
     // Wait for reset
     fix.vip.wait_for_reset();
 
+    // Write control registers
+    cluster_clk_en_addr    = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_CLUSTER_CLK_ENABLES_REG_OFFSET;
+    mem_tile_clk_en_addr   = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_MEM_TILE_CLK_ENABLES_REG_OFFSET;
+    fhg_spu_clk_en_addr    = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_FHG_SPU_CLK_ENABLES_REG_OFFSET;
+    cluster_rst_n_addr     = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_CLUSTER_RSTS_REG_OFFSET;
+    mem_tile_rst_n_addr    = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_MEM_TILE_RSTS_REG_OFFSET;
+    fhg_spu_rst_n_addr     = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_FHG_SPU_RSTS_REG_OFFSET;
+
+    $display("Turning on clock (tile_clk_en = 1, default: 1 (ON)) and deactivate reset (tile_rst_n = 1, default: 0 (in reset)) for all tiles...");
+    fix.vip.jtag_init();
+    fix.vip.jtag_write_reg32(cluster_clk_en_addr, 32'h0000FFFF, 1'b1);
+    fix.vip.jtag_write_reg32(mem_tile_clk_en_addr, 32'h000000FF, 1'b1);
+    fix.vip.jtag_write_reg32(fhg_spu_clk_en_addr, 32'h00000001, 1'b1);
+    fix.vip.jtag_write_reg32(cluster_rst_n_addr, 32'h0000FFFF, 1'b1);
+    fix.vip.jtag_write_reg32(mem_tile_rst_n_addr, 32'h000000FF, 1'b1);
+    fix.vip.jtag_write_reg32(fhg_spu_rst_n_addr, 32'h00000001, 1'b1);
+
     // Preload in idle mode or wait for completion in autonomous boot
     if (boot_mode == 0) begin
       // Idle boot: preload with the specified mode
       case (preload_mode)
         0: begin  // JTAG
-          fix.vip.jtag_init();
           if (snitch_preload) fix.vip.jtag_elf_preload(snitch_elf, snitch_entry);
           fix.vip.jtag_elf_run(preload_elf);
           fix.vip.jtag_wait_for_eoc(exit_code);
@@ -77,7 +100,6 @@ module tb_picobello_top;
           fix.vip.uart_debug_elf_run_and_wait(preload_elf, exit_code);
         end
         3: begin  // Fast Mode
-          fix.vip.jtag_init();
           if (snitch_preload) fastmode_elf_preload(snitch_elf, snitch_entry);
           // TODO(fischeti): Implement fast mode for Cheshire binary
           fix.vip.jtag_elf_run(preload_elf);
@@ -92,7 +114,6 @@ module tb_picobello_top;
       $fatal(1, "Unsupported boot mode %d (SD Card)!", boot_mode);
     end else begin
       // Autonomous boot: Only poll return code
-      fix.vip.jtag_init();
       fix.vip.jtag_wait_for_eoc(exit_code);
     end
 

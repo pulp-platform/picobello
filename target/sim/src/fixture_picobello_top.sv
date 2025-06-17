@@ -23,7 +23,6 @@ module fixture_picobello_top;
   logic       test_mode;
   logic [1:0] boot_mode;
   logic       rtc;
-  logic       clk_rst_bypass;
 
   logic jtag_tck;
   logic jtag_trst_n;
@@ -66,7 +65,7 @@ module fixture_picobello_top;
     .test_mode_i         (test_mode),
     .boot_mode_i         (boot_mode),
     .rtc_i               (rtc),
-    .clk_rst_bypass_i    (clk_rst_bypass),
+    .clk_rst_bypass_i    (1'b0),          // Set to 1 to bypass tile-specific clock gating and reset (use global signals instead)
     .jtag_tck_i          (jtag_tck),
     .jtag_trst_ni        (jtag_trst_n),
     .jtag_tms_i          (jtag_tms),
