@@ -10,17 +10,12 @@
 #include "snitch_cluster_addrmap.h"
 #include "snitch_cluster_cfg.h"
 #include "snitch_cluster_peripheral.h"
+#include "pb_soc_regs_addrmap.h"
 
 #define PB_CHS_BASE_ADDR 0x00000000
 #define PB_CHS_END_ADDR 0x20000000
 #define PB_CHS_CLK_GATING_RST_BASE_ADDR 0x18001000      // TODO cdurrer: relative to CHS_BASE? -> take from generated files!
 #define PB_CHS_CLK_GATING_RST_END_ADDR 0x18002000
-#define PB_CHS_CLUSTER_CLK_EN_ADDR  (PB_CHS_CLK_GATING_RST_BASE_ADDR + 0 * sizeof(uint32_t))    // TODO cdurrer: different convention?
-#define PB_CHS_MEM_TILE_CLK_EN_ADDR (PB_CHS_CLK_GATING_RST_BASE_ADDR + 1 * sizeof(uint32_t))
-#define PB_CHS_FHG_SPU_CLK_EN_ADDR  (PB_CHS_CLK_GATING_RST_BASE_ADDR + 2 * sizeof(uint32_t))
-#define PB_CHS_CLUSTER_RST_N_ADDR   (PB_CHS_CLK_GATING_RST_BASE_ADDR + 3 * sizeof(uint32_t))
-#define PB_CHS_MEM_TILE_RST_N_ADDR  (PB_CHS_CLK_GATING_RST_BASE_ADDR + 4 * sizeof(uint32_t))
-#define PB_CHS_FHG_SPU_RST_N_ADDR   (PB_CHS_CLK_GATING_RST_BASE_ADDR + 5 * sizeof(uint32_t))
 
 #define PB_CHS_DRAM_SLINK_BASE_ADDR 0x18000000
 #define PB_CHS_DRAM_SLINK_END_ADDR 0x18001000
