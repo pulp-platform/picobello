@@ -233,6 +233,7 @@ module picobello_top
     .test_enable_i      (test_mode_i),
     .tile_clk_en_i      (fhg_spu_clk_en),
     .tile_rst_ni        (fhg_spu_rst_n),
+    .clk_rst_bypass_i   (clk_rst_bypass_i),
     .debug_req_i        (fhg_spu_debug_req),
     .meip_i             (fhg_spu_meip),
     .mtip_i             (fhg_spu_mtip),

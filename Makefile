@@ -63,12 +63,15 @@ $(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rd
 $(PB_GEN_DIR)/pb_soc_regs_addrmap.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) -P Num_SPUs=$(FHG_SPUS) --format c
 
+$(PB_GEN_DIR)/pb_soc_regs_addrmap.svh: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
+	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) -P Num_SPUs=$(FHG_SPUS) --format svh
+
 $(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) -P Num_SPUs=$(FHG_SPUS)
 
 .PHONY: pb-soc-regs
 pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
-pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs_addrmap.h $(PB_GEN_DIR)/pb_soc_regs.h
+pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs_addrmap.h $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh $(PB_GEN_DIR)/pb_soc_regs.h
 
 ##################
 # Snitch Cluster #
