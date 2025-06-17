@@ -207,13 +207,25 @@ module picobello_top
     .hart_base_id_i     (FhgSpuHartBaseId[9:0]),
     .cluster_base_addr_i(Sam[FhgSpuSamIdx].start_addr),
     .id_i               (FhgSpuId),
-    .floo_req_o         (floo_req_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
-    .floo_rsp_i         (floo_rsp_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
-    .floo_wide_o        (floo_wide_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
-    .floo_req_i         (floo_req_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
-    .floo_rsp_o         (floo_rsp_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y]),
-    .floo_wide_i        (floo_wide_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y])
+    .floo_req_west_o    (floo_req_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][West]),
+    .floo_rsp_west_i    (floo_rsp_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][West]),
+    .floo_wide_west_o   (floo_wide_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][West]),
+    .floo_req_west_i    (floo_req_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][West]),
+    .floo_rsp_west_o    (floo_rsp_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][West]),
+    .floo_wide_west_i   (floo_wide_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][West]),
+    .floo_req_north_o   (floo_req_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][North]),
+    .floo_rsp_north_i   (floo_rsp_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][North]),
+    .floo_wide_north_o  (floo_wide_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][North]),
+    .floo_req_north_i   (floo_req_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][North]),
+    .floo_rsp_north_o   (floo_rsp_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][North]),
+    .floo_wide_north_i  (floo_wide_in[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][North])
   );
+  assign floo_req_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][East]   = '0;
+  assign floo_rsp_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][East]   = '0;
+  assign floo_wide_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][East]  = '0;
+  assign floo_req_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][South]  = '0;
+  assign floo_rsp_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][South]  = '0;
+  assign floo_wide_out[FhgSpuPhysicalId.x][FhgSpuPhysicalId.y][South] = '0;
 
   //////////////
   // Mem tile //
