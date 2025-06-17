@@ -131,7 +131,7 @@ packages:
     - scm
     - tech_cells_generic
   common_cells:
-    revision: cd88d4d3288d299c819b4d3754269fce080d0b34
+    revision: 265b4cf5fe561cb837899c580f392ea93bf7e147
     version: null
     source:
       Git: https://github.com/pulp-platform/common_cells.git
@@ -168,7 +168,7 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: acee34554708383b7aff1fa1af140aeffb8f3c19
+    revision: ea35a9909d60d552bbdafc7e898590f326b1898a
     version: null
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
