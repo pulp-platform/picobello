@@ -128,9 +128,9 @@ module picobello_top
     .test_mode_i,
     .boot_mode_i,
     .rtc_i,
-    .xeip_ext_o (xeip_ext),
-    .mtip_ext_o (mtip_ext),
-    .msip_ext_o (msip_ext),
+    .xeip_ext_o       (xeip_ext),
+    .mtip_ext_o       (mtip_ext),
+    .msip_ext_o       (msip_ext),
     .jtag_tck_i,
     .jtag_trst_ni,
     .jtag_tms_i,
@@ -169,14 +169,26 @@ module picobello_top
     .dram_slink_rcv_clk_o,
     .dram_slink_i,
     .dram_slink_o,
-    .id_i       (CheshireId),
-    .floo_req_o (floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y]),
-    .floo_rsp_i (floo_rsp_in[CheshirePhysicalId.x][CheshirePhysicalId.y]),
-    .floo_wide_o(floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y]),
-    .floo_req_i (floo_req_in[CheshirePhysicalId.x][CheshirePhysicalId.y]),
-    .floo_rsp_o (floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y]),
-    .floo_wide_i(floo_wide_in[CheshirePhysicalId.x][CheshirePhysicalId.y])
+    .id_i             (CheshireId),
+    .floo_req_west_o  (floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
+    .floo_rsp_west_i  (floo_rsp_in[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
+    .floo_wide_west_o (floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
+    .floo_req_west_i  (floo_req_in[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
+    .floo_rsp_west_o  (floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
+    .floo_wide_west_i (floo_wide_in[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
+    .floo_req_south_o (floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
+    .floo_rsp_south_i (floo_rsp_in[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
+    .floo_wide_south_o(floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
+    .floo_req_south_i (floo_req_in[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
+    .floo_rsp_south_o (floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
+    .floo_wide_south_i(floo_wide_in[CheshirePhysicalId.x][CheshirePhysicalId.y][South])
   );
+  assign floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y][North]  = '0;
+  assign floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y][North]  = '0;
+  assign floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y][North] = '0;
+  assign floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y][East]   = '0;
+  assign floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y][East]   = '0;
+  assign floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y][East]  = '0;
 
   //////////////////
   // FhG SPU tile //

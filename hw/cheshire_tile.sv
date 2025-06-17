@@ -72,12 +72,18 @@ module cheshire_tile
   // Chimney ports
   input id_t id_i,
   // Router ports
-  output floo_req_t [West:North] floo_req_o,
-  input floo_rsp_t [West:North] floo_rsp_i,
-  output floo_wide_t [West:North] floo_wide_o,
-  input floo_req_t [West:North] floo_req_i,
-  output floo_rsp_t [West:North] floo_rsp_o,
-  input floo_wide_t [West:North] floo_wide_i
+  output floo_req_t floo_req_west_o,
+  input floo_rsp_t floo_rsp_west_i,
+  output floo_wide_t floo_wide_west_o,
+  input floo_req_t floo_req_west_i,
+  output floo_rsp_t floo_rsp_west_o,
+  input floo_wide_t floo_wide_west_i,
+  output floo_req_t floo_req_south_o,
+  input floo_rsp_t floo_rsp_south_i,
+  output floo_wide_t floo_wide_south_o,
+  input floo_req_t floo_req_south_i,
+  output floo_rsp_t floo_rsp_south_o,
+  input floo_wide_t floo_wide_south_i
 );
 
   ////////////
@@ -114,12 +120,24 @@ module cheshire_tile
     .floo_wide_o   (router_floo_wide_out)
   );
 
-  assign floo_req_o                      = router_floo_req_out[West:North];
-  assign router_floo_req_in[West:North]  = floo_req_i;
-  assign floo_rsp_o                      = router_floo_rsp_out[West:North];
-  assign router_floo_rsp_in[West:North]  = floo_rsp_i;
-  assign floo_wide_o                     = router_floo_wide_out[West:North];
-  assign router_floo_wide_in[West:North] = floo_wide_i;
+  assign floo_req_west_o            = router_floo_req_out[West];
+  assign floo_req_south_o           = router_floo_req_out[South];
+  assign router_floo_req_in[West]   = floo_req_west_i;
+  assign router_floo_req_in[North]  = '0;  // No North port in this tile
+  assign router_floo_req_in[East]   = '0;  // No East port in this tile
+  assign router_floo_req_in[South]  = floo_req_south_i;
+  assign floo_rsp_west_o            = router_floo_rsp_out[West];
+  assign floo_rsp_south_o           = router_floo_rsp_out[South];
+  assign router_floo_rsp_in[West]   = floo_rsp_west_i;
+  assign router_floo_rsp_in[North]  = '0;  // No North port in this tile
+  assign router_floo_rsp_in[East]   = '0;  // No East port in this tile
+  assign router_floo_rsp_in[South]  = floo_rsp_south_i;
+  assign floo_wide_west_o           = router_floo_wide_out[West];
+  assign floo_wide_south_o          = router_floo_wide_out[South];
+  assign router_floo_wide_in[West]  = floo_wide_west_i;
+  assign router_floo_wide_in[North] = '0;  // No North port in this tile
+  assign router_floo_wide_in[East]  = '0;  // No East port in this tile
+  assign router_floo_wide_in[South] = floo_wide_south_i;
 
   /////////////
   // Chimney //
