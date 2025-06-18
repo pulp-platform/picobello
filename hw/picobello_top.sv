@@ -288,7 +288,6 @@ module picobello_top
       .floo_rsp_o      (floo_rsp_out[MemTileX][MemTileY]),
       .floo_wide_i     (floo_wide_in[MemTileX][MemTileY])
     );
-
   end
 
   ///////////////
