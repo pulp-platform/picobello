@@ -66,7 +66,7 @@ int main() {
     // snrt_int_clr_mcip();
 
     // Allocate destination buffer
-    uint32_t *buffer_dst = snrt_l1_next_v2();
+    uint32_t *buffer_dst = (uint32_t *) snrt_l1_next_v2();
     uint32_t *buffer_src = buffer_dst + LENGTH;
 
     // First cluster initializes the source buffer and multicast-
