@@ -66,9 +66,9 @@ int main() {
   if (snrt_is_dm_core()){
 
     // Each cluster allocates 3 buffers in L1 memory: SOURCE, DESTINATION ROW, DESTINATION COLUMN
-    uint32_t* buf_src         = snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
-    uint32_t* buf_dst_row     = snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
-    uint32_t* buf_dst_column  = snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
+    uint32_t* buf_src         = (uint32_t*) snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
+    uint32_t* buf_dst_row     = (uint32_t*) snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
+    uint32_t* buf_dst_column  = (uint32_t*) snrt_l1_alloc_cluster_local(LENGTH * sizeof(uint32_t), sizeof(uint32_t));
 
     // Run twice to heat the cache
     for (volatile int i = 0; i < 2; i++){
