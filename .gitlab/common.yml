@@ -5,7 +5,6 @@
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PD_COMMIT: "158e0205f47e27dd0d7035189101cd2006dea15f"
-  BENDER: "/home/fischeti/.cargo/bin/bender -d $CI_PROJECT_DIR --git-throttle 8"
 
 # Sources the environment variables for the IIS environment
 .init-env:
@@ -30,7 +29,7 @@ variables:
     # Collect bender sourcess
     - bender checkout
     # Install the python venv
-    - make python-venv
+    - make python-venv BENDER="/home/fischeti/.cargo/bin/bender -d ${CI_PROJECT_DIR} --git-throttle 8"
     # Pull the PD repository
     - make init-pd
   cache:
