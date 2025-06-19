@@ -102,7 +102,7 @@ PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
 PD_COMMIT ?= main
 PD_DIR = $(PB_ROOT)/pd
 SPU_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/fhg_spu_cluster.git
-SPU_COMMIT ?= tie_floo_internal
+SPU_COMMIT ?= main
 SPU_DIR = $(PB_ROOT)/.deps/fhg_spu_cluster
 
 .PHONY: init-pd clean-pd
