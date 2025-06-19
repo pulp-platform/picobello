@@ -53,7 +53,7 @@ module cluster_tile
     .meip_i,
     .mtip_i,
     .msip_i,
-    .mxip_i            ('0),
+    .mxip_i           ('0),
     .hart_base_id_i,
     .cluster_base_addr_i,
     .clk_d2_bypass_i  ('0),
