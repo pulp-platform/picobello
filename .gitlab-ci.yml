@@ -27,7 +27,6 @@ init-deps:
   artifacts:
     paths:
       - pd/ci.yml
-    expire_in: 1 second
 
 ########################################
 # Generate RTL Sources and Addressmaps #
