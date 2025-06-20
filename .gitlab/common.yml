@@ -7,6 +7,11 @@ variables:
   PD_COMMIT: "6a9e77a19f92c61c6edff7f36f051da753e17a28"
   SPU_COMMIT: "c2e8815487bd713624d74ef3e3e0465196b6d67f"
 
+# Sources the environment variables for the IIS environment
+.init-env:
+  before_script:
+    source iis-env.sh
+
 # Check the cache for bender and python dependencies
 .cache-deps:
   cache: &global_cache
