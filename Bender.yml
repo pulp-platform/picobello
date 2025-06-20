@@ -8,16 +8,19 @@ package:
     - "Tim Fischer <fischeti@iis.ee.ethz.ch>"
 
 dependencies:
-  register_interface: { git: "https://github.com/pulp-platform/register_interface.git", version: "0.4.5" }
-  axi: { git: "https://github.com/pulp-platform/axi.git", version: "0.39.6" }
-  common_cells: { git: "https://github.com/pulp-platform/common_cells.git", rev: "picobello" }
-  cheshire: { git: "https://github.com/pulp-platform/cheshire.git", rev: "picobello" }
-  floo_noc: { git: "https://github.com/pulp-platform/FlooNoC.git", rev: "develop"}
-  obi: { git: "https://github.com/pulp-platform/obi.git", rev: "42c635526593cc9353c7adba62275d1919015d87"}
-  snitch_cluster:  { git: "https://github.com/Lore0599/snitch_cluster.git", rev: "fix/questa-opt" }
-  axi_obi: { path: "hw/axi_obi" }
-  picobello-pd:  { path: "./pd" }
-  fhg_spu_cluster:  { path: "./.deps/fhg_spu_cluster" }
+  register_interface: { git: "https://github.com/pulp-platform/register_interface.git", version: "0.4.5"                                }
+  axi:                { git: "https://github.com/pulp-platform/axi.git",                version: "0.39.6"                               }
+  common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "picobello"                                }
+  cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "picobello"                                }
+  snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "fix/questa-opt"                           }
+  floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            rev: "develop"                                  }
+  obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "42c635526593cc9353c7adba62275d1919015d87" }
+  redmule:            { git: "https://github.com/pulp-platform/redmule",                rev: "9af8b8d7cfdcc49aa8fda7e0d62ecf2c43cba3c4" } # branch: picobello
+  hci:                { git: "https://github.com/pulp-platform/hci",                    rev: "06fcba671e060f2e1b03b7ebe2d3e719f1557099" }
+  datamover:          { git: "https://github.com/FrancescoConti/datamover",             rev: "fb7d09c201ab52de23b11adf12b36d8e75c4c0e6" } # branch: transpose
+  axi_obi:            { path: "hw/axi_obi"                                                                                              }
+  picobello-pd:       { path: "./pd"                                                                                                    }
+  fhg_spu_cluster:    { path: "./.deps/fhg_spu_cluster"                                                                                 }
 
 workspace:
   package_links:
@@ -39,6 +42,7 @@ sources:
     files:
     - .generated/snitch_cluster_wrapper.sv
   - hw/picobello_pkg.sv
+  - hw/snitch_hwpe_subsystem.sv
   # Level 2
   - hw/cluster_tile.sv
   - hw/cheshire_tile.sv
