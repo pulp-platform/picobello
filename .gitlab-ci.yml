@@ -24,6 +24,7 @@ init-deps:
   artifacts:
     paths:
       - pd/ci.yml
+    expire_in: 0 seconds
 
 ########################
 # Build Software Tests #
