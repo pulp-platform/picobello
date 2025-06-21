@@ -26,6 +26,11 @@ VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 PEAKRDL          ?= peakrdl
 
+$(info BENDER = $(BENDER))
+ifdef CI_PROJECT_DIR
+$(info CI_PROJECT_DIR = $(CI_PROJECT_DIR))
+endif
+
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
 BENDER_LOCK = $(PB_ROOT)/Bender.lock
@@ -168,6 +173,7 @@ dvt-flist:
 
 python-venv: .venv
 .venv:
+	echo "BENDER $(BENDER)"
 	$(BASE_PYTHON) -m venv $@
 	. $@/bin/activate && \
 	python -m pip install --upgrade pip setuptools && \

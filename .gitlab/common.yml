@@ -29,7 +29,7 @@ variables:
     # Collect bender sourcess
     - bender checkout
     # Install the python venv
-    - make python-venv
+    - make python-venv BENDER="/home/fischeti/.cargo/bin/bender -d ${CI_PROJECT_DIR} --git-throttle 8"
     # Pull the PD repository
     - make init-pd
   cache:
