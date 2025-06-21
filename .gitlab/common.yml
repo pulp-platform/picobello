@@ -4,7 +4,7 @@
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PD_COMMIT: "9257a1bea4a65281e1d619310efe6844f5dd11b0"
+  PD_COMMIT: "070a2875b3b63adb169c59ea8a7d3add9506d082"
 
 # Sources the environment variables for the IIS environment
 .init-env:
