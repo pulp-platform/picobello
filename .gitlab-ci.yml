@@ -21,6 +21,9 @@ init-deps:
     - .init-deps-tpl
   script:
     - ':'
+  # bender checkout sometimes fails,
+  # due to rate limiting of github
+  retry: 1
   artifacts:
     paths:
       - pd/ci.yml

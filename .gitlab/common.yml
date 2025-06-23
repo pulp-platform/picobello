@@ -36,9 +36,6 @@ variables:
     # inherit all global cache settings
     <<: *global_cache
     policy: pull-push
-  # bender checkout sometimes fails,
-  # due to rate limiting of github
-  retry: 1
 
 # Generate the RTL sources
 .generate-rtl-tpl:
