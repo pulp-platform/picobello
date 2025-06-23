@@ -71,8 +71,6 @@ sources:
 
   - target: asic
     files:
-    - pd/hw/picobello_chip_ctrl_pkg.sv
-    - pd/hw/picobello_chip_ctrl.sv
     - pd/hw/picobello_chip.sv
 
   - target: all(any(simulation, test), asic)
