@@ -6,6 +6,12 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PD_COMMIT: "fll-integration"
 
+# Sources the environment variables for the IIS environment
+.init-env:
+  before_script:
+    - source iis-env.sh
+    - make init-pd
+
 # Check the cache for bender and python dependencies
 .cache-deps:
   cache: &global_cache
@@ -20,17 +26,18 @@ variables:
 
 # Update the cache with bender and python dependencies
 .init-deps-tpl:
-  before_script:
+  script:
     # Collect bender sourcess
     - bender checkout
     # Install the python venv
     - make python-venv
-    # Pull the PD repository
-    - make init-pd
   cache:
     # inherit all global cache settings
     <<: *global_cache
     policy: pull-push
+  # bender checkout sometimes fails,
+  # due to rate limiting of github
+  retry: 1
 
 # Generate the RTL sources
 .generate-rtl-tpl:

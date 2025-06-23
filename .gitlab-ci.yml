@@ -2,11 +2,6 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-# Sources the environment variables for the IIS environment
-.init-env:
-  before_script:
-    - source iis-env.sh
-
 include:
   - local: .gitlab/common.yml
   - local: .gitlab/sw-tests.yml
@@ -24,11 +19,6 @@ init-deps:
   stage: init
   extends:
     - .init-deps-tpl
-  script:
-    - ':'
-  # bender checkout sometimes fails,
-  # due to rate limiting of github
-  retry: 1
   artifacts:
     paths:
       - pd/ci.yml
