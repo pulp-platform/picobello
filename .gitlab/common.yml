@@ -31,6 +31,8 @@ variables:
     - bender checkout
     # Install the python venv
     - make python-venv
+    # Initialize the PD repository
+    - make init-pd
   cache:
     # inherit all global cache settings
     <<: *global_cache
