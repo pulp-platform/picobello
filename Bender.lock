@@ -28,7 +28,7 @@ packages:
     revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
     version: null
     source:
-      Git: https://github.com/colluca/axi
+      Git: https://github.com/colluca/axi.git
     dependencies:
     - common_cells
     - common_verification
