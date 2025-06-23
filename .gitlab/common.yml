@@ -6,11 +6,6 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PD_COMMIT: "fll-integration"
 
-# Sources the environment variables for the IIS environment
-.init-env:
-  before_script:
-    source iis-env.sh
-
 # Check the cache for bender and python dependencies
 .cache-deps:
   cache: &global_cache
