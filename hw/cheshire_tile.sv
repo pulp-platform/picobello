@@ -448,7 +448,7 @@ module cheshire_tile
   pb_soc_regs i_pb_soc_regs (
     .clk (clk_i),
     .arst_n(rst_ni),
-    .s_apb_paddr(csh_apb_req.paddr[PB_SOC_REGS_MIN_ADDR_WIDTH-1:0]),    // TODO(cdurrer): size mismatch (48b->5b), truncate signal? [4:0]
+    .s_apb_paddr(csh_apb_req.paddr[PB_SOC_REGS_MIN_ADDR_WIDTH-1:0]),
     .s_apb_penable(csh_apb_req.penable),
     .s_apb_psel(csh_apb_req.psel),
     .s_apb_pwrite(csh_apb_req.pwrite),
