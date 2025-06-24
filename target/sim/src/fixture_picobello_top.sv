@@ -95,6 +95,8 @@ module fixture_picobello_top;
     .gpio_i              ('0),
     .gpio_o              (),
     .gpio_en_o           (),
+    .reg_req_o           (),
+    .reg_rsp_i           ('0),
     .slink_rcv_clk_i     (slink_rcv_clk_i),
     .slink_rcv_clk_o     (slink_rcv_clk_o),
     .slink_i             (slink_i),
