@@ -343,7 +343,6 @@ module mem_tile
     .mgr_port_obi_a_optional_t(sbr_obi_a_optional_t),
     .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
-    .RegisterAmo              (1'b1),
     .RiscvWordWidth           (32)
   ) i_obi_atop_resolver (
     .clk_i         (tile_clk),
