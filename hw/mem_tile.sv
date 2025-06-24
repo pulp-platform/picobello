@@ -232,10 +232,9 @@ module mem_tile
 
 
   logic [AxiCfgJoin.OutIdWidth-1:0] axi_in_aw_id, axi_in_ar_id;
-  logic [AxiCfgJoin.UserWidth-1:0] axi_in_aw_user, axi_in_w_user, axi_in_ar_user;
+  logic [AxiCfgJoin.UserWidth-1:0] axi_in_aw_user, axi_in_ar_user;
   logic [MgrObiCfg.IdWidth-1:0] obi_in_write_aid, obi_in_read_aid;
 
-  logic [AxiCfgJoin.UserWidth-1:0] axi_in_rsp_aw_user, axi_in_rsp_w_user, axi_in_rsp_ar_user;
   logic [AxiCfgJoin.UserWidth-1:0] axi_in_r_user, axi_in_b_user;
   logic axi_in_rsp_write_bank_strobe, axi_in_rsp_read_size_enable;
 
@@ -291,7 +290,7 @@ module mem_tile
 
     .req_aw_id_o      (axi_in_aw_id),
     .req_aw_user_o    (axi_in_aw_user),
-    .req_w_user_o     (axi_in_w_user),
+    .req_w_user_o     (),
     .req_write_aid_i  (obi_in_write_aid),
     .req_write_auser_i('0),
     .req_write_wuser_i('0),
@@ -301,19 +300,19 @@ module mem_tile
     .req_read_aid_i  (obi_in_read_aid),
     .req_read_auser_i('0),
 
-    .rsp_write_aw_user_o  (axi_in_rsp_aw_user),
-    .rsp_write_w_user_o   (axi_in_rsp_w_user),
+    .rsp_write_aw_user_o  (),
+    .rsp_write_w_user_o   (),
     .rsp_write_bank_strb_o(axi_in_rsp_write_bank_strobe),
     .rsp_write_rid_o      (obi_in_rsp_write_rid),
-    .rsp_write_ruser_o    (  /* Unused */),
-    .rsp_write_last_o     (  /* Unused */),
-    .rsp_write_hs_o       (  /* Unused */),
+    .rsp_write_ruser_o    (),
+    .rsp_write_last_o     (),
+    .rsp_write_hs_o       (),
     .rsp_b_user_i         (axi_in_b_user),
 
-    .rsp_read_ar_user_o    (  /* Unused */),
+    .rsp_read_ar_user_o    (),
     .rsp_read_size_enable_o(axi_in_rsp_read_size_enable),
     .rsp_read_rid_o        (obi_in_rsp_read_rid),
-    .rsp_read_ruser_o      (  /* Unused */),
+    .rsp_read_ruser_o      (),
     .rsp_r_user_i          (axi_in_r_user)
   );
 
