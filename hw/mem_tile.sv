@@ -35,9 +35,6 @@ module mem_tile
   input  floo_wide_t [West:North] floo_wide_i
 );
 
-  logic clk_rst_bypass_i;         // TODO cdurrer: replace with actual signal
-  assign clk_rst_bypass_i = 0;
-
   logic tile_clk;
   logic tile_rst_n;
 

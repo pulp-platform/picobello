@@ -89,7 +89,13 @@ make sn-tests
 ```
 
 ### Platform simulation
-The Picobello simulation flow currently only supports Questasim. The `make vsim-compile` command will build the RTL code.
+The Picobello simulation flow currently only supports Questasim.
+To build the RTL code, do:
+
+```bash
+make vsim-compile-chip
+```
+
 Tests can be executed by setting all the required command-line variable for Cheshire, see the [Cheshire Docs](https://pulp-platform.github.io/cheshire/gs/) for more details.
 To run a simple Chehire helloworld in Picobello, do the following:
 

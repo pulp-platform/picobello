@@ -7,21 +7,16 @@
 
 // `include "cheshire.rdl"
 // `include "serial_link_single_channel.rdl"
-// `include "pb_soc_regs.rdl"
+`include "pb_soc_regs.rdl"
 
 addrmap cheshire_tile {
-
-    external mem {
-        mementries = 1;
-        memwidth = 64;
-    } dummy;
 
     // cheshire #(
     //     .SlinkNumBits (16)
     // )                               cheshire          @0x0000_0000;
 
     // serial_link_single_channel_reg  dram_serial_link  @0x1800_0000;
-    // pb_soc_regs                     pb_soc_regs       @0x1800_2000;
+    pb_soc_regs                     pb_soc_regs       @0x1800_1000;
 
 };
 

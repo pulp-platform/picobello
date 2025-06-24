@@ -14,7 +14,7 @@
 
 #define PB_CHS_BASE_ADDR 0x00000000
 #define PB_CHS_END_ADDR 0x20000000
-#define PB_CHS_CLK_GATING_RST_BASE_ADDR 0x18001000      // TODO cdurrer: relative to CHS_BASE? -> take from generated files!
+#define PB_CHS_CLK_GATING_RST_BASE_ADDR 0x18001000      // TODO(cdurrer): relative to CHS_BASE? -> take from generated files!
 #define PB_CHS_CLK_GATING_RST_END_ADDR 0x18002000
 
 #define PB_CHS_DRAM_SLINK_BASE_ADDR 0x18000000
