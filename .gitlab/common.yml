@@ -22,7 +22,6 @@ variables:
     paths:
       - .bender
       - .cache/pip
-      - .generated
     policy: pull
 
 # Update the cache with bender and python dependencies
@@ -52,7 +51,7 @@ variables:
   artifacts:
     paths:
       - .bender
-      - .generated  # TODO(cdurrer): remove this?
+      - .generated
     expire_in: 1 day
 
 # Compile the snitch software tests
