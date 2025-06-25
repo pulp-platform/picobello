@@ -397,7 +397,7 @@ package picobello_pkg;
 
   typedef enum bit [MaxExtRegSlvWidth-1:0] {
     CshRegExtDramSerialLink = 0,  // Serial link to DRAM
-    CshRegExtFLL            = 1,  // Chip-level registers
+    CshRegExtFLL            = 1,  // FLL registers
     CshRegExtChipCtrl       = 2,  // Chip-level registers
     CshRegExtNumSlv         = 3   // Number of external register slaves
   } cheshire_reg_ext_e;
