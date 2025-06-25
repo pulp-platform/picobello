@@ -13,7 +13,7 @@ PB_CHS_SW_DIR = $(PB_SW_DIR)/cheshire
 PB_SNITCH_SW_DIR = $(PB_SW_DIR)/snitch
 
 PB_INCDIR = $(PB_SW_DIR)/include
-PB_GENERATED_DIR = $(PB_ROOT)/.generated
+PB_GEN_DIR = $(PB_ROOT)/.generated
 
 -include $(PD_DIR)/sw/sw.mk
 -include $(SPU_DIR)/sw/sw.mk
@@ -25,7 +25,7 @@ PB_GENERATED_DIR = $(PB_ROOT)/.generated
 SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
 SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
 SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
-SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GENERATED_DIR)
+SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 
@@ -73,7 +73,7 @@ PB_LINK_MODE ?= spm
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
 CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
-CHS_SW_INCLUDES += -I$(PB_GENERATED_DIR)
+CHS_SW_INCLUDES += -I$(PB_GEN_DIR)
 
 # TODO(fischeti): This does not work yet for some reason
 CHS_SW_GEN_HDRS += $(PB_ADDRMAP)
