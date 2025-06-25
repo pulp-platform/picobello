@@ -118,10 +118,10 @@ floo-clean:
 ###################
 
 PD_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/picobello-pd.git
-PD_COMMIT ?= cdurrer/clk_gating_rst_pd							# TODO(cdurrer): back to main
+PD_COMMIT ?= cdurrer/clk_gating_rst_pd								# TODO(cdurrer): back to main
 PD_DIR = $(PB_ROOT)/pd
 SPU_REMOTE ?= git@iis-git.ee.ethz.ch:picobello/fhg_spu_cluster.git
-SPU_COMMIT ?= cdurrer/clk_gating_rst							# TODO(cdurrer): back to main
+SPU_COMMIT ?= cdurrer/clk_gating_rst								# TODO(cdurrer): back to main
 SPU_DIR = $(PB_ROOT)/.deps/fhg_spu_cluster
 
 .PHONY: init-pd clean-pd
