@@ -298,7 +298,7 @@ module cluster_tile
 
 `ifdef TARGET_XILINX
   // Using clk cells makes Vivado flag the reset as a clock tree
-  assign assign tile_rst_n = (clk_rst_bypass_i) ? rst_ni : tile_rst_ni;
+  assign tile_rst_n = (clk_rst_bypass_i) ? rst_ni : tile_rst_ni;
 `else
   tc_clk_mux2 i_tc_reset_mux (
     .clk0_i (tile_rst_ni),
