@@ -22,6 +22,7 @@ init-deps:
   artifacts:
     paths:
       - pd/ci.yml
+      - pd/.gitlab/sw-tests-chip.yml
 
 ########################
 # Build Software Tests #
@@ -105,6 +106,8 @@ subpipe:
     - init-deps
   trigger:
     include:
-      - artifact: pd/ci.yml
+      - artifact:
+        - pd/ci.yml
+        - pd/.gitlab/sw-tests-chip.yml
         job: init-deps
     strategy: depend
