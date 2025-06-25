@@ -23,6 +23,15 @@ init-deps:
     paths:
       - pd/ci.yml
 
+########################################
+# Generate RTL Sources and Addressmaps #
+########################################
+
+generate-rtl:
+  stage: build
+  extends:
+    - .generate-rtl-tpl
+
 ########################
 # Build Software Tests #
 ########################
@@ -40,15 +49,6 @@ chs-sw:
     - generate-rtl
   extends:
     - .chs-sw-tpl
-
-########################
-# Generate RTL Sources #
-########################
-
-generate-rtl:
-  stage: build
-  extends:
-    - .generate-rtl-tpl
 
 #####################
 # Build Simulations #
@@ -106,7 +106,7 @@ sim-vsim:
 subpipe:
   stage: build
   needs:
-    - init-deps
+    - init-deps             # TODO(cdurrer): is this necessary?
   trigger:
     include:
       - artifact: pd/ci.yml
