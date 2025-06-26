@@ -79,4 +79,5 @@ variables:
   artifacts:
     paths:
       - sw/cheshire/tests/*.elf
+      - .deps/fhg_spu_cluster/sw/cheshire/tests/*.elf
     expire_in: 1 day
