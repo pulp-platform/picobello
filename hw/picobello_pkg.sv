@@ -424,9 +424,9 @@ package picobello_pkg;
     ret.RegExtRegionIdx[2]   = CshRegExtChipCtrl;
     ret.RegExtRegionStart[2] = 'h1800_2000;
     ret.RegExtRegionEnd[2]   = 'h1800_3000;
-    ret.RegExtRegionIdx[1]   = CshRegExtClkGatingRst;
-    ret.RegExtRegionStart[1] = 'h1800_3000;
-    ret.RegExtRegionEnd[1]   = 'h1800_4000;
+    ret.RegExtRegionIdx[3]   = CshRegExtClkGatingRst;
+    ret.RegExtRegionStart[3] = 'h1800_3000;
+    ret.RegExtRegionEnd[3]   = 'h1800_4000;
     // TODO(fischeti): Currently, I don't see a reason to have a CIE region
     // Which is why we just set the CIE region to size 0 for now
     ret.Cva6ExtCieOnTop      = 0;

@@ -16,7 +16,7 @@ addrmap cheshire_tile {
     // )                               cheshire          @0x0000_0000;
 
     // serial_link_single_channel_reg  dram_serial_link  @0x1800_0000;
-    pb_soc_regs                     pb_soc_regs       @0x1800_1000;
+    pb_soc_regs                     pb_soc_regs       @0x1800_3000;
 
 };
 

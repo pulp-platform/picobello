@@ -14,7 +14,7 @@ import picobello_pkg::*;
 
 // Task to enable clocks and deassert resets for all tiles
 `include "pb_soc_regs_addrmap.svh"
-localparam bit [63:0] CTRL_REGS_BASE_ADDR = 64'h18001000;    // TODO(cdurrer): take from global addrmap
+localparam bit [63:0] CTRL_REGS_BASE_ADDR = 64'h18003000;    // TODO(cdurrer): take from global addrmap
 localparam bit [63:0] cluster_clk_en_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_CLUSTER_CLK_ENABLES_REG_OFFSET;
 localparam bit [63:0] mem_tile_clk_en_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_MEM_TILE_CLK_ENABLES_REG_OFFSET;
 localparam bit [63:0] fhg_spu_clk_en_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_FHG_SPU_CLK_ENABLES_REG_OFFSET;

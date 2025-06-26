@@ -419,9 +419,9 @@ module mem_tile
 
   tc_clk_gating i_tc_clk_gating_mem_tile (
     .clk_i,
-    .en_i       (tile_clk_en_i),
-    .test_en_i  (clk_rst_bypass_i),
-    .clk_o      (tile_clk)
+    .en_i     (tile_clk_en_i),
+    .test_en_i(clk_rst_bypass_i),
+    .clk_o    (tile_clk)
   );
 
 `ifdef TARGET_XILINX
@@ -429,10 +429,10 @@ module mem_tile
   assign tile_rst_n = (clk_rst_bypass_i) ? rst_ni : tile_rst_ni;
 `else
   tc_clk_mux2 i_tc_reset_mux (
-    .clk0_i (tile_rst_ni),
-    .clk1_i (rst_ni),
-    .clk_sel_i (clk_rst_bypass_i),
-    .clk_o (tile_rst_n)
+    .clk0_i   (tile_rst_ni),
+    .clk1_i   (rst_ni),
+    .clk_sel_i(clk_rst_bypass_i),
+    .clk_o    (tile_rst_n)
   );
 `endif
 
