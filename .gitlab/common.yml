@@ -4,7 +4,7 @@
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PD_COMMIT: "3a0db559844bc69697071094722271494f714040"
+  PD_COMMIT: "ad2e9f57b952d298c751463a57c653eae4f8c699"
 
 # Sources the environment variables for the IIS environment
 .init-env:
@@ -75,6 +75,7 @@ variables:
     - .init-env
   script:
     - make chs-sw-tests
+    - cp .deps/fhg_spu_cluster/sw/cheshire/tests/*.elf sw/cheshire/tests/
   artifacts:
     paths:
       - sw/cheshire/tests/*.elf
