@@ -63,7 +63,7 @@ module cluster_tile
                    snitch_cluster_pkg::narrow_out_id_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t,
                    snitch_cluster_pkg::user_t)
 
-  cluster_narrow_out_dw_conv_req_t  cluster_narrow_out_dw_conv_req, cluster_narrow_out_cut_req;
+  cluster_narrow_out_dw_conv_req_t cluster_narrow_out_dw_conv_req, cluster_narrow_out_cut_req;
   cluster_narrow_out_dw_conv_resp_t cluster_narrow_out_dw_conv_rsp, cluster_narrow_out_cut_rsp;
 
   `TCDM_TYPEDEF_ALL(hwpectrl, addr_hwpe_ctrl_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t, logic)
