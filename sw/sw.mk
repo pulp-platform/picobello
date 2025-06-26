@@ -14,7 +14,8 @@ PB_SNITCH_SW_DIR = $(PB_SW_DIR)/snitch
 
 PB_INCDIR = $(PB_SW_DIR)/include
 
--include $(PB_ROOT)/pd/sw/sw.mk
+-include $(PD_DIR)/sw/sw.mk
+-include $(SPU_DIR)/sw/sw.mk
 
 ####################
 ## Snitch Cluster ##
@@ -91,7 +92,6 @@ chs-sw-tests: $(PB_CHS_SW_TEST)
 chs-sw-tests-clean:
 	rm -f $(PB_CHS_SW_TEST_DUMP)
 	rm -f $(PB_CHS_SW_TEST_ELF)
-	rm -f $(PB_SN_SW_TEST_ELF)
 
 #########################
 # General Phony targets #
