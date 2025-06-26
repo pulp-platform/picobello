@@ -433,17 +433,17 @@ module cheshire_tile
   pb_soc_regs_pkg::pb_soc_regs__out_t control_reg;
 
   reg_to_apb #(
-    .reg_req_t    (csh_reg_req_t),
-    .reg_rsp_t    (csh_reg_rsp_t),
-    .apb_req_t    (apb_req_t),
-    .apb_rsp_t    (apb_resp_t)
+    .reg_req_t(csh_reg_req_t),
+    .reg_rsp_t(csh_reg_rsp_t),
+    .apb_req_t(apb_req_t),
+    .apb_rsp_t(apb_resp_t)
   ) i_reg_to_apb (
     .clk_i,
     .rst_ni,
-    .reg_req_i    (reg_ext_req[CshRegExtClkGatingRst]),
-    .reg_rsp_o    (reg_ext_rsp[CshRegExtClkGatingRst]),
-    .apb_req_o    (csh_apb_req),
-    .apb_rsp_i    (csh_apb_rsp)
+    .reg_req_i(reg_ext_req[CshRegExtClkGatingRst]),
+    .reg_rsp_o(reg_ext_rsp[CshRegExtClkGatingRst]),
+    .apb_req_o(csh_apb_req),
+    .apb_rsp_i(csh_apb_rsp)
   );
 
   pb_soc_regs i_pb_soc_regs (
