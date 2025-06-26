@@ -4,12 +4,13 @@
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PD_COMMIT: "158e0205f47e27dd0d7035189101cd2006dea15f"
+  PD_COMMIT: "3a0db559844bc69697071094722271494f714040"
 
 # Sources the environment variables for the IIS environment
 .init-env:
   before_script:
-    source iis-env.sh
+    - source iis-env.sh
+    - make init-pd
 
 # Check the cache for bender and python dependencies
 .cache-deps:
@@ -25,12 +26,12 @@ variables:
 
 # Update the cache with bender and python dependencies
 .init-deps-tpl:
-  before_script:
+  script:
     # Collect bender sourcess
     - bender checkout
     # Install the python venv
     - make python-venv
-    # Pull the PD repository
+    # Initialize the PD repository
     - make init-pd
   cache:
     # inherit all global cache settings

@@ -19,8 +19,6 @@ init-deps:
   stage: init
   extends:
     - .init-deps-tpl
-  script:
-    - ':'
   artifacts:
     paths:
       - pd/ci.yml
