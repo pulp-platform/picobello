@@ -183,6 +183,12 @@ module picobello_top
     .dram_slink_i,
     .dram_slink_o,
     .id_i             (CheshireId),
+    .cluster_clk_en_o (cluster_clk_en),
+    .cluster_rst_no   (cluster_rst_n),
+    .mem_tile_clk_en_o(mem_tile_clk_en),
+    .mem_tile_rst_no  (mem_tile_rst_n),
+    .fhg_spu_clk_en_o (fhg_spu_clk_en),
+    .fhg_spu_rst_no   (fhg_spu_rst_n),
     .floo_req_west_o  (floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
     .floo_rsp_west_i  (floo_rsp_in[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
     .floo_wide_west_o (floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y][West]),
@@ -194,13 +200,7 @@ module picobello_top
     .floo_wide_south_o(floo_wide_out[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
     .floo_req_south_i (floo_req_in[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
     .floo_rsp_south_o (floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
-    .floo_wide_south_i(floo_wide_in[CheshirePhysicalId.x][CheshirePhysicalId.y][South]),
-    .cluster_clk_en_o (cluster_clk_en),
-    .cluster_rst_no   (cluster_rst_n),
-    .mem_tile_clk_en_o(mem_tile_clk_en),
-    .mem_tile_rst_no  (mem_tile_rst_n),
-    .fhg_spu_clk_en_o (fhg_spu_clk_en),
-    .fhg_spu_rst_no   (fhg_spu_rst_n)
+    .floo_wide_south_i(floo_wide_in[CheshirePhysicalId.x][CheshirePhysicalId.y][South])
   );
   assign floo_req_out[CheshirePhysicalId.x][CheshirePhysicalId.y][North]  = '0;
   assign floo_rsp_out[CheshirePhysicalId.x][CheshirePhysicalId.y][North]  = '0;
