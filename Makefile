@@ -69,9 +69,14 @@ $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 $(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
+REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
+REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
+REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh
+REG_SW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.h
+REG_SW_ALL += $(PB_GEN_DIR)/pb_soc_regs.h
+
 .PHONY: pb-soc-regs
-pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs.sv $(PB_GEN_DIR)/pb_soc_regs_pkg.sv $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh
-pb-soc-regs: $(PB_GEN_DIR)/pb_soc_regs_addrmap.h $(PB_GEN_DIR)/pb_soc_regs.h
+pb-soc-regs: $(REG_HW_ALL) $(REG_SW_ALL)
 
 ##################
 # Snitch Cluster #
@@ -148,8 +153,8 @@ clean-pd:
 PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
+PB_HW_ALL += $(REG_HW_ALL)
 PB_HW_ALL += update-sn-cfg
-PB_HW_ALL += pb-soc-regs
 
 .PHONY: picobello-hw-all picobello-clean clean
 
