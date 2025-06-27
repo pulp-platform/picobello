@@ -27,3 +27,6 @@ jobs:
             domain: iis-git.ee.ethz.ch
             repo: github-mirror/picobello
             token: ${{ secrets.GITLAB_TOKEN }}
+            # Poll every minute for 3 hours
+            poll-period: 60
+            poll-count: 180
