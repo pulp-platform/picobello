@@ -38,15 +38,11 @@ generate-rtl:
 
 sn-sw:
   stage: build
-  needs:
-    - generate-rtl
   extends:
     - .sn-sw-tpl
 
 chs-sw:
   stage: build
-  needs:
-    - generate-rtl
   extends:
     - .chs-sw-tpl
 
