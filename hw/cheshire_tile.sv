@@ -15,7 +15,6 @@ module cheshire_tile
   import floo_picobello_noc_pkg::*;
   import picobello_pkg::*;
   import pb_soc_regs_pkg::*;
-
 (
   input logic clk_i,
   input logic rst_ni,
