@@ -399,8 +399,8 @@ package picobello_pkg;
     CshRegExtDramSerialLink = 0,  // Serial link to DRAM
     CshRegExtFLL            = 1,  // FLL registers
     CshRegExtChipCtrl       = 2,  // Chip-level registers
-    CshRegExtNumSlv         = 3,  // Number of external register slaves
-    CshRegExtClkGatingRst   = 4   // Tile-specific clock gating and reset control
+    CshRegExtClkGatingRst   = 3,   // Tile-specific clock gating and reset control
+    CshRegExtNumSlv         = 4  // Number of external register slaves
   } cheshire_reg_ext_e;
 
   // Define function to derive configuration from Cheshire defaults.
