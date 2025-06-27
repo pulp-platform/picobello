@@ -27,9 +27,8 @@ VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 PEAKRDL          ?= peakrdl
 
 # Tiles configuration
-SN_CLUSTERS = 16
-L2_TILES = 8
-FHG_SPUS = 1
+SN_CLUSTERS = $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.cluster.num 2>/dev/null)
+L2_TILES = $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.l2_spm.num 2>/dev/null)
 
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
