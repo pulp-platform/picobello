@@ -75,8 +75,11 @@ REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh
 REG_SW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.h
 REG_SW_ALL += $(PB_GEN_DIR)/pb_soc_regs.h
 
-.PHONY: pb-soc-regs
+.PHONY: pb-soc-regs pb-soc-regs-clean
 pb-soc-regs: $(REG_HW_ALL) $(REG_SW_ALL)
+
+pb-soc-regs-clean:
+	rm -rf $(REG_HW_ALL) $(REG_SW_ALL)
 
 ##################
 # Snitch Cluster #
