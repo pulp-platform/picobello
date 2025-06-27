@@ -87,7 +87,7 @@ PB_CHS_SW_TEST_ELF += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).elf)
 
 PB_CHS_SW_TEST = $(PB_CHS_SW_TEST_DUMP)
 
-$(PB_CHS_SW_TEST_DUMP): $(REG_SW_ALL)
+$(PB_CHS_SW_TEST_SRC): $(REG_SW_ALL)
 $(PB_CHS_SW_TEST_DUMP): $(PB_CHS_SW_TEST_ELF)
 
 .PHONY: chs-sw-tests chs-sw-tests-clean
