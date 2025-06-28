@@ -72,11 +72,11 @@ pb-soc-regs-clean:
 $(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem --rdl-memwidth=32
 
-$(PB_GEN_DIR)/picobello_addrmap.h: $(PB_GEN_DIR)/picobello.rdl
+$(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello.rdl
 	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) -o $@ -i
 
 .PHONY: picobello-addrmap
-picobello-addrmap: $(PB_GEN_DIR)/picobello_addrmap.h
+picobello-addrmap: $(PB_GEN_DIR)/pb_addrmap.h
 
 ############
 # Cheshire #

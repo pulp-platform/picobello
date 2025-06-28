@@ -47,7 +47,7 @@ pb-sn-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
 clean-pb-sn-tests:
 	rm -rf $(PB_SNRT_TEST_ELFS)
 
-$(PB_SNRT_TEST_ELFS): $(PB_GEN_DIR)/picobello_addrmap.h
+$(PB_SNRT_TEST_ELFS): $(PB_GEN_DIR)/pb_addrmap.h
 
 $(PB_SNRT_TESTS_BUILDDIR)/%.d: $(PB_SNRT_TESTS_DIR)/%.c | $(PB_SNRT_TESTS_BUILDDIR)
 	$(RISCV_CXX) $(SNRT_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' -x c++ $< > $@
@@ -63,7 +63,7 @@ $(PB_SNRT_TESTS_BUILDDIR)/%.dump: $(PB_SNRT_TESTS_BUILDDIR)/%.elf | $(PB_SNRT_TE
 ######################
 
 # TODO(fischeti): Remove this once RDL is integrated into snitch_cluster
-$(PB_GEN_DIR)/picobello_addrmap.h: $(SNRT_TARGET_C_HDRS)
+$(PB_GEN_DIR)/pb_addrmap.h: $(SNRT_TARGET_C_HDRS)
 
 ##############
 ## Cheshire ##
@@ -83,7 +83,7 @@ PB_CHS_SW_TEST_ELF += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).elf)
 
 PB_CHS_SW_TEST = $(PB_CHS_SW_TEST_DUMP)
 
-$(PB_CHS_SW_TEST_SRC): $(PB_GEN_DIR)/picobello_addrmap.h
+$(PB_CHS_SW_TEST_SRC): $(PB_GEN_DIR)/pb_addrmap.h
 $(PB_CHS_SW_TEST_DUMP): $(PB_CHS_SW_TEST_ELF)
 
 .PHONY: chs-sw-tests chs-sw-tests-clean
