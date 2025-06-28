@@ -19,7 +19,7 @@ int main() {
   // and return code address to scratch register 0
   // Initalize return address loaction before offloading.
   for (int i = 0; i < SNRT_CLUSTER_NUM; i++) {
-    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 1)) = picobello_addrmap.l2_spm;
+    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 1)) = (uintptr_t)&picobello_addrmap.l2_spm;
     *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 0)) =
         (uintptr_t)&return_code_array[i];
     for (int j = 0; j < CFG_CLUSTER_NR_CORES; j++) {
