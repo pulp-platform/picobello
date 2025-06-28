@@ -41,30 +41,19 @@ BENDER_LOCK = $(PB_ROOT)/Bender.lock
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdcsclic_sv39 -t snitch_cluster -t pb_gen_rtl
 SIM_TARGS += -t simulation -t test -t idma_test
 
-############
-# Cheshire #
-############
-
-CLINTCORES ?= 17
-include $(CHS_ROOT)/cheshire.mk
-
-$(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
-$(OTPROOT)/.generated2: $(PLIC_CFG)
-	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
-
-$(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
-$(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
-	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
+###########
+# General #
+###########
 
 $(PB_GEN_DIR)/pb_soc_regs.sv: $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
 $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
-$(PB_GEN_DIR)/pb_soc_regs_addrmap.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
-	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) --format c
-
 $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) --format svh
+
+$(PB_GEN_DIR)/pb_soc_regs_addrmap.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
+	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) --format c
 
 $(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
@@ -80,6 +69,21 @@ pb-soc-regs: $(REG_HW_ALL) $(REG_SW_ALL)
 
 pb-soc-regs-clean:
 	rm -rf $(REG_HW_ALL) $(REG_SW_ALL)
+
+############
+# Cheshire #
+############
+
+CLINTCORES ?= 17
+include $(CHS_ROOT)/cheshire.mk
+
+$(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
+$(OTPROOT)/.generated2: $(PLIC_CFG)
+	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
+
+$(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
+$(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
+	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 ##################
 # Snitch Cluster #
