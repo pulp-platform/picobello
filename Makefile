@@ -53,27 +53,28 @@ $(PB_GEN_DIR)/pb_soc_regs.sv: $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
 $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
-$(PB_GEN_DIR)/pb_addrmap.svh: $(PB_GEN_DIR)/picobello.rdl
-	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) --format svh
-
-$(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
-	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
-
-RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
-RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
-RDL_HW_ALL += $(PB_GEN_DIR)/pb_addrmap.svh
-
-.PHONY: pb-soc-regs pb-soc-regs-clean
-pb-soc-regs: $(RDL_HW_ALL)
-
-pb-soc-regs-clean:
-	rm -rf $(RDL_HW_ALL)
+$(PB_GEN_DIR)/pb_addrmap.svh: $(PB_RDL_ALL)
+	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --format svh
 
 $(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem --rdl-memwidth=32
 
-$(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello.rdl
-	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) -o $@ -i
+$(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello.rdl $(PB_RDL_ALL)
+	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) -o $@ -i
+
+PB_RDL_ALL += $(PB_GEN_DIR)/picobello.rdl
+PB_RDL_ALL += $(wildcard $(PB_ROOT)/cfg/rdl/*.rdl)
+
+PB_RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
+PB_RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
+PB_RDL_HW_ALL += $(PB_GEN_DIR)/pb_addrmap.svh
+
+.PHONY: pb-soc-regs pb-soc-regs-clean
+pb-soc-regs: $(PB_RDL_HW_ALL)
+
+pb-soc-regs-clean:
+	rm -rf $(PB_RDL_HW_ALL)
+
 
 .PHONY: picobello-addrmap
 picobello-addrmap: $(PB_GEN_DIR)/pb_addrmap.h
@@ -166,7 +167,7 @@ clean-pd:
 PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
-PB_HW_ALL += $(RDL_HW_ALL)
+PB_HW_ALL += $(PB_RDL_HW_ALL)
 PB_HW_ALL += update-sn-cfg
 
 .PHONY: picobello-hw-all picobello-clean clean
