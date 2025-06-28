@@ -17,38 +17,34 @@
 #include <stdint.h>
 #include "picobello_addrmap.h"
 
-#define TESTVAL 0xABCD9876
-#define BANKS_SIZE 0x00004000
-#define NUM_L2_BANKS_PER_WORDS 2
-#define NUM_L2_BANK_PER_ROW 32
+#define NUM_L2_MEM_TILES 8
+#define L2_BANK_SIZE 0x4000 // 16 KiB
 
 int main() {
-  volatile uint32_t *l2ptr;
-  volatile uint32_t result_aligned;
-  volatile uint32_t result_missaligned;
+
+  const uint32_t L2_MEM_TILE_SIZE = sizeof(picobello_addrmap__l2_spm_t);
+  const uint32_t NUM_BANKS_PER_L2_MEM_TILE = L2_MEM_TILE_SIZE / L2_BANK_SIZE; // 64 banks
+
+  uint32_t n_errors = 2 * NUM_L2_MEM_TILES * NUM_BANKS_PER_L2_MEM_TILE;
 
   // Write TESTVAL to each physical bank:
-  for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
-    for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
-      l2ptr = &picobello_addrmap.l2_spm[0].mem + (phyBank << 15) + (logBank << 5);
+  for (uint32_t i = 0; i < NUM_L2_MEM_TILES; i++) {
+    for (uint32_t j = 0; j < NUM_BANKS_PER_L2_MEM_TILE; j++) {
+      volatile uint32_t *ptr = &picobello_addrmap.l2_spm[i].mem[j * (L2_BANK_SIZE / sizeof(uint32_t))];
       // Write to aligned and miss-aligned location
-      *(l2ptr ) = (uintptr_t)l2ptr;           // aligned
-      *(l2ptr + 1) =(uintptr_t)(l2ptr + 1);   // miss-aligned
+      *(ptr) = i + j;
+      *(ptr + 1) = i + j + 1;
     }
   }
 
-  // Read back and verify TESTVAL in each bank:
-  for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
-    for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
-      l2ptr = &picobello_addrmap.l2_spm[0].mem + (phyBank << 15) + (logBank << 5);
-
-      result_aligned = *(l2ptr);           // aligned
-      result_missaligned = *(l2ptr + 1);   // miss-aligned
-      if ((result_aligned != (uintptr_t)l2ptr) || (result_missaligned != (uintptr_t)(l2ptr + 1))) {
-        return 1;
-      }
+  for (uint32_t i = 0; i < NUM_L2_MEM_TILES; i++) {
+    for (uint32_t j = 0; j < NUM_BANKS_PER_L2_MEM_TILE; j++) {
+      volatile uint32_t *ptr = &picobello_addrmap.l2_spm[i].mem[j * (L2_BANK_SIZE / sizeof(uint32_t))];
+      // Reade from aligned and miss-aligned location
+      n_errors -= (*(ptr) == i + j);
+      n_errors -= (*(ptr + 1) == i + j + 1);
     }
   }
 
-  return 0;
+  return n_errors;
 }
