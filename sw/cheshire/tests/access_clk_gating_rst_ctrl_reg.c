@@ -19,7 +19,7 @@ int main(void) {
     uint64_t reset_freq = clint_get_core_freq(rtc_freq, 2500);
     uart_init(&__base_uart, reset_freq, __BOOT_BAUDRATE);
 
-    uint32_t n_errors = 0;
+    uint32_t n_errors = 3 * 6; // 3 tests, 6 registers each
 
     // Write all 0s and check
     picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables = 0x00000000;
@@ -29,12 +29,12 @@ int main(void) {
     picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts = 0x00000000;
     picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts = 0x00000000;
 
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables != 0x00000000);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables != 0x00000000);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables != 0x00000000);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts != 0x00000000);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts != 0x00000000);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts != 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables == 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables == 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables == 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts == 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts == 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts == 0x00000000);
 
     // Write all 1s and check again
     picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables = 0x0000FFFF;
@@ -44,12 +44,12 @@ int main(void) {
     picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts = 0x000000FF;
     picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts = 0x00000001;
 
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables != 0x0000FFFF);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables != 0x000000FF);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables != 0x00000001);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts != 0x0000FFFF);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts != 0x000000FF);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts != 0x00000001);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables == 0x0000FFFF);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables == 0x000000FF);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables == 0x00000001);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts == 0x0000FFFF);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts == 0x000000FF);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts == 0x00000001);
 
     // Write all 1s and check again
     picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables = 0x0000AAAA;
@@ -59,12 +59,12 @@ int main(void) {
     picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts = 0x00000055;
     picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts = 0x00000000;
 
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables != 0x0000AAAA);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables != 0x000000AA);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables != 0x00000000);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts != 0x00005555);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts != 0x00000055);
-    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts != 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables == 0x0000AAAA);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables == 0x000000AA);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables == 0x00000000);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts == 0x00005555);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts == 0x00000055);
+    n_errors -= (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts == 0x00000000);
 
     return n_errors;
 }
