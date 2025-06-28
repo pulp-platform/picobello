@@ -17,32 +17,41 @@
 #include <stdint.h>
 #include "picobello_addrmap.h"
 
+#define WIDE_WORD_WIDTH 512
+#define NARROW_WORD_WIDTH sizeof(uint32_t) * 8
 #define NUM_L2_MEM_TILES 8
-#define L2_BANK_SIZE 0x4000 // 16 KiB
+#define L2_MEM_TILE_SIZE sizeof(picobello_addrmap__l2_spm_t) // 1 MiB
+#define L2_SRAM_DATA_WIDTH 128
+#define L2_SRAM_NUM_WORDS 1024
+#define L2_BANKS_PER_WORD (WIDE_WORD_WIDTH / L2_SRAM_DATA_WIDTH) // 4 banks per 512-bit word
+#define L2_BANK_ROWS ((L2_MEM_TILE_SIZE / (WIDE_WORD_WIDTH / 8)) / L2_SRAM_NUM_WORDS) // 16 rows per bank
+
+typedef uint32_t l2_mem_t[NUM_L2_MEM_TILES][L2_BANK_ROWS][L2_BANKS_PER_WORD][L2_SRAM_DATA_WIDTH / NARROW_WORD_WIDTH];
 
 int main() {
 
-  const uint32_t L2_MEM_TILE_SIZE = sizeof(picobello_addrmap__l2_spm_t);
-  const uint32_t NUM_BANKS_PER_L2_MEM_TILE = L2_MEM_TILE_SIZE / L2_BANK_SIZE; // 64 banks
+  volatile l2_mem_t *l2_mem = (volatile l2_mem_t *)&picobello_addrmap.l2_spm;
 
-  uint32_t n_errors = 2 * NUM_L2_MEM_TILES * NUM_BANKS_PER_L2_MEM_TILE;
+  uint32_t n_errors = NUM_L2_MEM_TILES * L2_BANK_ROWS * L2_BANKS_PER_WORD * 2; // Total number of writes
 
-  // Write TESTVAL to each physical bank:
+  // Write to each physical bank
+  // One aligned access, one unaligned access
   for (uint32_t i = 0; i < NUM_L2_MEM_TILES; i++) {
-    for (uint32_t j = 0; j < NUM_BANKS_PER_L2_MEM_TILE; j++) {
-      volatile uint32_t *ptr = &picobello_addrmap.l2_spm[i].mem[j * (L2_BANK_SIZE / sizeof(uint32_t))];
-      // Write to aligned and miss-aligned location
-      *(ptr) = i + j;
-      *(ptr + 1) = i + j + 1;
+    for (uint32_t j = 0; j < L2_BANK_ROWS; j++) {
+      for (uint32_t k = 0; k < L2_BANKS_PER_WORD; k++) {
+          (*l2_mem)[i][j][k][0] = i * j * k;
+          (*l2_mem)[i][j][k][1] = i * j * k + 1;
+      }
     }
   }
 
+  // Read from each physical bank and check if the value is correct:
   for (uint32_t i = 0; i < NUM_L2_MEM_TILES; i++) {
-    for (uint32_t j = 0; j < NUM_BANKS_PER_L2_MEM_TILE; j++) {
-      volatile uint32_t *ptr = &picobello_addrmap.l2_spm[i].mem[j * (L2_BANK_SIZE / sizeof(uint32_t))];
-      // Reade from aligned and miss-aligned location
-      n_errors -= (*(ptr) == i + j);
-      n_errors -= (*(ptr + 1) == i + j + 1);
+    for (uint32_t j = 0; j < L2_BANK_ROWS; j++) {
+      for (uint32_t k = 0; k < L2_BANKS_PER_WORD; k++) {
+          n_errors -= ((*l2_mem)[i][j][k][0] == i * j * k);
+          n_errors -= ((*l2_mem)[i][j][k][1] == i * j * k + 1);
+      }
     }
   }
 
