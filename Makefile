@@ -52,23 +52,18 @@ $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) --format svh
 
-$(PB_GEN_DIR)/pb_soc_regs_addrmap.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
-	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) --format c
-
 $(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
 REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
 REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
 REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh
-REG_SW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.h
-REG_SW_ALL += $(PB_GEN_DIR)/pb_soc_regs.h
 
 .PHONY: pb-soc-regs pb-soc-regs-clean
-pb-soc-regs: $(REG_HW_ALL) $(REG_SW_ALL)
+pb-soc-regs: $(REG_HW_ALL)
 
 pb-soc-regs-clean:
-	rm -rf $(REG_HW_ALL) $(REG_SW_ALL)
+	rm -rf $(REG_HW_ALL)
 
 PEAKRDL_INCLUDES := -I $(PB_ROOT)/cfg/rdl
 PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
