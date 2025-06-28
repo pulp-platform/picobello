@@ -8,7 +8,7 @@
 // It will read the first uint32 data from each memory bank.
 
 #include <stdint.h>
-#include "picobello_addrmap.h"
+#include "pb_addrmap.h"
 
 #define WIDE_WORD_WIDTH 512
 #define NARROW_WORD_WIDTH (sizeof(uint32_t) * 8)

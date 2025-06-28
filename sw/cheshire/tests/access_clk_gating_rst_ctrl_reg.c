@@ -6,12 +6,7 @@
 // Christopher Reinwardt <creinwar@student.ethz.ch>
 // Paul Scheffler <paulsc@iis.ee.ethz.ch>
 
-#include "regs/cheshire.h"
-#include "dif/clint.h"
-#include "dif/uart.h"
-#include "params.h"
-#include "util.h"
-#include "picobello_addrmap.h"
+#include "pb_addrmap.h"
 
 int main(void) {
 

@@ -5,7 +5,7 @@
 // Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
 #include <stdint.h>
-#include "picobello_addrmap.h"
+#include "pb_addrmap.h"
 
 // TODO(fischeti): Replace with snitch cluster RDL for this once merged.
 #include "snitch_peripheral_addrmap.h"
