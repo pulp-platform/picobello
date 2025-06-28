@@ -99,12 +99,12 @@ sim-vsim:
 # Physical Design #
 ###################
 
-# subpipe:
-#   stage: build
-#   needs:
-#     - init-deps             # TODO(cdurrer): is this necessary?
-#   trigger:
-#     include:
-#       - artifact: pd/ci.yml
-#         job: init-deps
-#     strategy: depend
+subpipe:
+  stage: build
+  needs:
+    - init-deps
+  trigger:
+    include:
+      - artifact: pd/ci.yml
+        job: init-deps
+    strategy: depend
