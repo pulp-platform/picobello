@@ -5,7 +5,7 @@
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PD_COMMIT: "cdurrer/clk_gating_rst_pd"
-  SPU_COMMIT: "312d32d1f9c248c20d9adb8f839ca028e862857c"
+  SPU_COMMIT: "cdurrer/clk_gating_rst"
 
 # Sources the environment variables for the IIS environment
 .init-env:
