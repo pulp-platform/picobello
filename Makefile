@@ -45,29 +45,29 @@ SIM_TARGS += -t simulation -t test -t idma_test
 # General #
 ###########
 
+PEAKRDL_INCLUDES := -I $(PB_ROOT)/cfg/rdl
+PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
+PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
+
 $(PB_GEN_DIR)/pb_soc_regs.sv: $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
 $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
-$(PB_GEN_DIR)/pb_soc_regs_addrmap.svh: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
-	$(PEAKRDL) raw-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES) --format svh
+$(PB_GEN_DIR)/pb_addrmap.svh: $(PB_GEN_DIR)/picobello.rdl
+	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) --format svh
 
 $(PB_GEN_DIR)/pb_soc_regs.h: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) c-header $< -o $@ -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
-REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
-REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
-REG_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_addrmap.svh
+RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
+RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
+RDL_HW_ALL += $(PB_GEN_DIR)/pb_addrmap.svh
 
 .PHONY: pb-soc-regs pb-soc-regs-clean
-pb-soc-regs: $(REG_HW_ALL)
+pb-soc-regs: $(RDL_HW_ALL)
 
 pb-soc-regs-clean:
-	rm -rf $(REG_HW_ALL)
-
-PEAKRDL_INCLUDES := -I $(PB_ROOT)/cfg/rdl
-PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
-PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
+	rm -rf $(RDL_HW_ALL)
 
 $(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem --rdl-memwidth=32
@@ -166,7 +166,7 @@ clean-pd:
 PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
-PB_HW_ALL += $(REG_HW_ALL)
+PB_HW_ALL += $(RDL_HW_ALL)
 PB_HW_ALL += update-sn-cfg
 
 .PHONY: picobello-hw-all picobello-clean clean
