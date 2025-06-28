@@ -70,6 +70,19 @@ pb-soc-regs: $(REG_HW_ALL) $(REG_SW_ALL)
 pb-soc-regs-clean:
 	rm -rf $(REG_HW_ALL) $(REG_SW_ALL)
 
+PEAKRDL_INCLUDES := -I $(PB_ROOT)/cfg/rdl
+PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
+PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
+
+$(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
+	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem --rdl-memwidth=32
+
+$(PB_GEN_DIR)/picobello_addrmap.h: $(PB_GEN_DIR)/picobello.rdl
+	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) -o $@ -i
+
+.PHONY: picobello-addrmap
+picobello-addrmap: $(PB_GEN_DIR)/picobello_addrmap.h
+
 ############
 # Cheshire #
 ############
@@ -118,12 +131,10 @@ floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
 
-floo-rdl: $(PB_GEN_DIR)/picobello.rdl
-$(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem
 
 floo-clean:
-	rm -rf $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
+	rm -f $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
+	rm -f $(PB_GEN_DIR)/picobello.rdl
 
 ###################
 # Physical Design #
@@ -211,16 +222,6 @@ python-venv-clean:
 
 verible-fmt:
 	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
-
-PEAKRDL_INCLUDES := -I $(PB_ROOT)/cfg/rdl
-PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
-PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
-
-.PHONY: test-peakrdl
-test-peakrdl: $(PB_ROOT)/picobello_addrmap.svh
-$(PB_ROOT)/picobello_addrmap.svh: $(PB_ROOT)/cfg/rdl/picobello.rdl $(SN_CLUSTER_RDL)
-	$(PEAKRDL) raw-header $(PB_ROOT)/cfg/rdl/picobello.rdl $(PEAKRDL_INCLUDES) -o picobello_addrmap.svh --format svh
-
 
 #################
 # Documentation #

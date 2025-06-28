@@ -14,12 +14,6 @@
 #include "picobello_addrmap.h"
 
 int main(void) {
-    volatile uint32_t *cluster_clk_en_reg_ptr = (volatile uint32_t *)(PB_CHS_CLK_GATING_RST_BASE_ADDR + PB_SOC_REGS_CLUSTER_CLK_ENABLES_REG_OFFSET);    // 16b
-    volatile uint32_t *mem_tile_clk_en_reg_ptr = (volatile uint32_t *)(PB_CHS_CLK_GATING_RST_BASE_ADDR + PB_SOC_REGS_MEM_TILE_CLK_ENABLES_REG_OFFSET);  // 8b
-    volatile uint32_t *fhg_spu_clk_en_reg_ptr = (volatile uint32_t *)(PB_CHS_CLK_GATING_RST_BASE_ADDR + PB_SOC_REGS_FHG_SPU_CLK_ENABLES_REG_OFFSET);    // 1b
-    volatile uint32_t *cluster_rst_n_reg_ptr = (volatile uint32_t *)(PB_CHS_CLK_GATING_RST_BASE_ADDR + PB_SOC_REGS_CLUSTER_RSTS_REG_OFFSET);      // 16b
-    volatile uint32_t *mem_tile_rst_n_reg_ptr = (volatile uint32_t *)(PB_CHS_CLK_GATING_RST_BASE_ADDR + PB_SOC_REGS_MEM_TILE_RSTS_REG_OFFSET);    // 8b
-    volatile uint32_t *fhg_spu_rst_n_reg_ptr = (volatile uint32_t *)(PB_CHS_CLK_GATING_RST_BASE_ADDR + PB_SOC_REGS_FHG_SPU_RSTS_REG_OFFSET);      // 1b
 
     uint32_t rtc_freq = *reg32(&__base_regs, CHESHIRE_RTC_FREQ_REG_OFFSET);
     uint64_t reset_freq = clint_get_core_freq(rtc_freq, 2500);
@@ -27,56 +21,59 @@ int main(void) {
     // uart_write_str(&__base_uart, "Testing ctrl regs: tile_clk_en and tile_rst_n\r\n", 47);
     uart_write_str(&__base_uart, "Testing ctrl regs\r\n", 19);
 
+    uint32_t n_errors = 0;
+
     // Write all 0s and check
-    *(cluster_clk_en_reg_ptr) = 0x00000000;
-    *(mem_tile_clk_en_reg_ptr) = 0x00000000;
-    *(fhg_spu_clk_en_reg_ptr) = 0x00000000;
-    *(cluster_rst_n_reg_ptr) = 0x00000000;
-    *(mem_tile_rst_n_reg_ptr) = 0x00000000;
-    *(fhg_spu_rst_n_reg_ptr) = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts = 0x00000000;
 
-    if(*cluster_clk_en_reg_ptr==0x00000000 && *mem_tile_clk_en_reg_ptr==0x00000000 && *fhg_spu_clk_en_reg_ptr==0x00000000 && *cluster_rst_n_reg_ptr==0x00000000 && *mem_tile_rst_n_reg_ptr==0x00000000 && *fhg_spu_rst_n_reg_ptr==0x00000000) {
-        // uart_write_str(&__base_uart, "Write all 0s: OK\r\n", 18);
-        // uart_write_flush(&__base_uart);
-    } else {
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables == 0x00000000);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables == 0x00000000);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables == 0x00000000);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts == 0x00000000);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts == 0x00000000);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts == 0x00000000);
+
+    // Write all 1s and check again
+    picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables = 0x0000FFFF;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables = 0x000000FF;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables = 0x00000001;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts = 0x0000FFFF;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts = 0x000000FF;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts = 0x00000001;
+
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables == 0x0000FFFF);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables == 0x000000FF);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables == 0x00000001);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts == 0x0000FFFF);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts == 0x000000FF);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts == 0x00000001);
+
+    // Write all 1s and check again
+    picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables = 0x0000AAAA;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables = 0x000000AA;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables = 0x00000000;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts = 0x00005555;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts = 0x00000055;
+    picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts = 0x00000000;
+
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_clk_enables == 0x0000AAAA);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_clk_enables == 0x000000AA);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_clk_enables == 0x00000000);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.cluster_rsts == 0x00005555);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.mem_tile_rsts == 0x00000055);
+    n_errors += (picobello_addrmap.cheshire_internal.pb_soc_regs.fhg_spu_rsts == 0x00000000);
+
+    if (n_errors > 0) {
         uart_write_str(&__base_uart, "ERROR: Control register access failed!\r\n", 40);
         uart_write_flush(&__base_uart);
-        return 1;
     }
 
-    // Write all 1s and check
-    *(cluster_clk_en_reg_ptr) = 0x0000FFFF;
-    *(mem_tile_clk_en_reg_ptr) = 0x000000FF;
-    *(fhg_spu_clk_en_reg_ptr) = 0x00000001;
-    *(cluster_rst_n_reg_ptr) = 0x0000FFFF;
-    *(mem_tile_rst_n_reg_ptr) = 0x000000FF;
-    *(fhg_spu_rst_n_reg_ptr) = 0x00000001;
-
-    if(*cluster_clk_en_reg_ptr==0x0000FFFF && *mem_tile_clk_en_reg_ptr==0x000000FF && *fhg_spu_clk_en_reg_ptr==0x00000001 && *cluster_rst_n_reg_ptr==0x0000FFFF && *mem_tile_rst_n_reg_ptr==0x000000FF && *fhg_spu_rst_n_reg_ptr==0x00000001) {
-        // uart_write_str(&__base_uart, "Write all 1s: OK\r\n", 18);
-        // uart_write_flush(&__base_uart);
-    } else {
-        uart_write_str(&__base_uart, "ERROR: Control register access failed!\r\n", 40);
-        uart_write_flush(&__base_uart);
-        return 1;
-    }
-
-    // Write checkerboard pattern and check
-    *(cluster_clk_en_reg_ptr) = 0x0000AAAA;
-    *(mem_tile_clk_en_reg_ptr) = 0x000000AA;
-    *(fhg_spu_clk_en_reg_ptr) = 0x00000000;
-    *(cluster_rst_n_reg_ptr) = 0x00005555;
-    *(mem_tile_rst_n_reg_ptr) = 0x00000055;
-    *(fhg_spu_rst_n_reg_ptr) = 0x00000000;
-
-    if(*cluster_clk_en_reg_ptr==0x0000AAAA && *mem_tile_clk_en_reg_ptr==0x000000AA && *fhg_spu_clk_en_reg_ptr==0x00000000 && *cluster_rst_n_reg_ptr==0x00005555 && *mem_tile_rst_n_reg_ptr==0x00000055 && *fhg_spu_rst_n_reg_ptr==0x00000000) {
-        // uart_write_str(&__base_uart, "Write checkerboard pattern: OK\r\n", 32);
-    } else {
-        uart_write_str(&__base_uart, "ERROR: Control register access failed!\r\n", 40);
-        uart_write_flush(&__base_uart);
-        return 1;
-    }
     uart_write_str(&__base_uart, "CTRL REG test complete: No errors\r\n", 26);
     uart_write_flush(&__base_uart);
-    return 0;
+    return n_errors;
 }

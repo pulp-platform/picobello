@@ -23,27 +23,24 @@
 #define NUM_L2_BANK_PER_ROW 32
 
 int main() {
-  volatile uint32_t *l2ptr = (volatile uint32_t *)PB_L2_BASE_ADDR;
+  volatile uint32_t *l2ptr;
   volatile uint32_t result_aligned;
   volatile uint32_t result_missaligned;
 
   // Write TESTVAL to each physical bank:
   for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
     for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
-      l2ptr = (volatile uint32_t *)((uintptr_t)PB_L2_BASE_ADDR +
-                                    (phyBank << 15) + (logBank << 5));
-      // Write to aligned and miss-aligned loactiuon
+      l2ptr = &picobello_addrmap.l2_spm[0].mem + (phyBank << 15) + (logBank << 5);
+      // Write to aligned and miss-aligned location
       *(l2ptr ) = (uintptr_t)l2ptr;           // aligned
       *(l2ptr + 1) =(uintptr_t)(l2ptr + 1);   // miss-aligned
     }
   }
 
   // Read back and verify TESTVAL in each bank:
-  l2ptr = (volatile uint32_t *)PB_L2_BASE_ADDR;
   for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
     for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
-      l2ptr = (volatile uint32_t *)((uintptr_t)PB_L2_BASE_ADDR +
-                                    (phyBank << 15) + (logBank << 5));
+      l2ptr = &picobello_addrmap.l2_spm[0].mem + (phyBank << 15) + (logBank << 5);
 
       result_aligned = *(l2ptr);           // aligned
       result_missaligned = *(l2ptr + 1);   // miss-aligned

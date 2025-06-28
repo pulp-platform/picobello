@@ -47,7 +47,7 @@ pb-sn-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
 clean-pb-sn-tests:
 	rm -rf $(PB_SNRT_TEST_ELFS)
 
-$(PB_SNRT_TEST_ELFS): $(REG_SW_ALL)
+$(PB_SNRT_TEST_ELFS): $(PB_GEN_DIR)/picobello_addrmap.h
 
 $(PB_SNRT_TESTS_BUILDDIR)/%.d: $(PB_SNRT_TESTS_DIR)/%.c | $(PB_SNRT_TESTS_BUILDDIR)
 	$(RISCV_CXX) $(SNRT_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' -x c++ $< > $@
@@ -62,9 +62,8 @@ $(PB_SNRT_TESTS_BUILDDIR)/%.dump: $(PB_SNRT_TESTS_BUILDDIR)/%.elf | $(PB_SNRT_TE
 ## Picobello Global ##
 ######################
 
-PB_ADDRMAP = $(PB_SW_DIR)/include/picobello_addrmap.h
-
-$(PB_ADDRMAP): $(SNRT_TARGET_C_HDRS)
+# TODO(fischeti): Remove this once RDL is integrated into snitch_cluster
+$(PB_GEN_DIR)/picobello_addrmap.h: $(SNRT_TARGET_C_HDRS)
 
 ##############
 ## Cheshire ##
@@ -77,9 +76,6 @@ CHS_SW_INCLUDES += -I$(PB_INCDIR)
 CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
 CHS_SW_INCLUDES += -I$(PB_GEN_DIR)
 
-# TODO(fischeti): This does not work yet for some reason
-CHS_SW_GEN_HDRS += $(PB_ADDRMAP)
-
 # Collect tests, which should be build for all modes, and their .dump targets
 PB_CHS_SW_TEST_SRC += $(wildcard $(PB_CHS_SW_DIR)/tests/*.c)
 PB_CHS_SW_TEST_DUMP += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).dump)
@@ -87,7 +83,7 @@ PB_CHS_SW_TEST_ELF += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).elf)
 
 PB_CHS_SW_TEST = $(PB_CHS_SW_TEST_DUMP)
 
-$(PB_CHS_SW_TEST_SRC): $(REG_SW_ALL)
+$(PB_CHS_SW_TEST_SRC): $(PB_GEN_DIR)/picobello_addrmap.h
 $(PB_CHS_SW_TEST_DUMP): $(PB_CHS_SW_TEST_ELF)
 
 .PHONY: chs-sw-tests chs-sw-tests-clean
