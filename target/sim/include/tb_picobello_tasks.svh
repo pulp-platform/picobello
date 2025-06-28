@@ -11,36 +11,27 @@ import "DPI-C" context function byte read_section(input longint address, inout b
 
 import picobello_pkg::*;
 
-
-// Task to enable clocks and deassert resets for all tiles
-`include "pb_soc_regs_addrmap.svh"
-localparam bit [63:0] CTRL_REGS_BASE_ADDR = 64'h18003000;    // TODO(cdurrer): take from global addrmap
-localparam bit [63:0] cluster_clk_en_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_CLUSTER_CLK_ENABLES_REG_OFFSET;
-localparam bit [63:0] mem_tile_clk_en_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_MEM_TILE_CLK_ENABLES_REG_OFFSET;
-localparam bit [63:0] fhg_spu_clk_en_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_FHG_SPU_CLK_ENABLES_REG_OFFSET;
-localparam bit [63:0] cluster_rst_n_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_CLUSTER_RSTS_REG_OFFSET;
-localparam bit [63:0] mem_tile_rst_n_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_MEM_TILE_RSTS_REG_OFFSET;
-localparam bit [63:0] fhg_spu_rst_n_addr = CTRL_REGS_BASE_ADDR + `PB_SOC_REGS_FHG_SPU_RSTS_REG_OFFSET;
+`include "pb_addrmap.svh"
 
 task automatic jtag_enable_tiles();
   $display("Turning on clock (tile_clk_en = 1, default: 1 (ON)) and deactivate reset (tile_rst_n = 1, default: 0 (in reset)) for all tiles...");
   fix.vip.jtag_init();
-  fix.vip.jtag_write_reg32(cluster_clk_en_addr, 32'h0000FFFF, 1'b1);
-  fix.vip.jtag_write_reg32(mem_tile_clk_en_addr, 32'h000000FF, 1'b1);
-  fix.vip.jtag_write_reg32(fhg_spu_clk_en_addr, 32'h00000001, 1'b1);
-  fix.vip.jtag_write_reg32(cluster_rst_n_addr, 32'h0000FFFF, 1'b1);
-  fix.vip.jtag_write_reg32(mem_tile_rst_n_addr, 32'h000000FF, 1'b1);
-  fix.vip.jtag_write_reg32(fhg_spu_rst_n_addr, 32'h00000001, 1'b1);
+  fix.vip.jtag_write_reg32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_CLUSTER_CLK_ENABLES_REG_ADDR, 32'h0000FFFF, 1'b1);
+  fix.vip.jtag_write_reg32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_MEM_TILE_CLK_ENABLES_REG_ADDR, 32'h000000FF, 1'b1);
+  fix.vip.jtag_write_reg32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_FHG_SPU_CLK_ENABLES_REG_ADDR, 32'h00000001, 1'b1);
+  fix.vip.jtag_write_reg32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_CLUSTER_RSTS_REG_ADDR, 32'h0000FFFF, 1'b1);
+  fix.vip.jtag_write_reg32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_MEM_TILE_RSTS_REG_ADDR, 32'h000000FF, 1'b1);
+  fix.vip.jtag_write_reg32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_FHG_SPU_RSTS_REG_ADDR, 32'h00000001, 1'b1);
 endtask
 
 task automatic slink_enable_tiles();
   $display("[SLINK] Turning on clock (tile_clk_en = 1, default: 1 (ON)) and deactivate reset (tile_rst_n = 1, default: 0 (in reset)) for all tiles...");
-  fix.vip.slink_write_32(cluster_clk_en_addr, 32'h0000FFFF);
-  fix.vip.slink_write_32(mem_tile_clk_en_addr, 32'h000000FF);
-  fix.vip.slink_write_32(fhg_spu_clk_en_addr, 32'h00000001);
-  fix.vip.slink_write_32(cluster_rst_n_addr, 32'h0000FFFF);
-  fix.vip.slink_write_32(mem_tile_rst_n_addr, 32'h000000FF);
-  fix.vip.slink_write_32(fhg_spu_rst_n_addr, 32'h00000001);
+  fix.vip.slink_write_32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_CLUSTER_CLK_ENABLES_REG_ADDR, 32'h0000FFFF);
+  fix.vip.slink_write_32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_MEM_TILE_CLK_ENABLES_REG_ADDR, 32'h000000FF);
+  fix.vip.slink_write_32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_FHG_SPU_CLK_ENABLES_REG_ADDR, 32'h00000001);
+  fix.vip.slink_write_32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_CLUSTER_RSTS_REG_ADDR, 32'h0000FFFF);
+  fix.vip.slink_write_32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_MEM_TILE_RSTS_REG_ADDR, 32'h000000FF);
+  fix.vip.slink_write_32(`PICOBELLO_ADDRMAP_CHESHIRE_INTERNAL_PB_SOC_REGS_FHG_SPU_RSTS_REG_ADDR, 32'h00000001);
 endtask
 
 // FAST_PRELOAD mode trick with virtual class to write directly to L2 sram module inside various for generate

@@ -28,9 +28,6 @@ workspace:
   package_links:
     .deps/snitch_cluster: snitch_cluster
 
-export_include_dirs:
-  - .generated
-
 sources:
   # Source files grouped in levels. Files in level 0 have no dependencies on files in this
   # package. Files in level 1 only depend on files in level 0, files in level 2 on files in
@@ -68,6 +65,7 @@ sources:
 
   - target: any(simulation, test)
     include_dirs:
+      - .generated
       - target/sim/include
     files:
       - target/sim/src/fixture_picobello_top.sv
@@ -80,6 +78,7 @@ sources:
 
   - target: all(any(simulation, test), asic)
     include_dirs:
+      - .generated
       - pd/target/sim/include
       - target/sim/include
     files:
