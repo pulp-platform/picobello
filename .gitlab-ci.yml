@@ -11,6 +11,11 @@ stages:
   - build
   - run
 
+# Sources the environment variables for the IIS environment
+.init-env:
+  before_script:
+    - source iis-env.sh
+
 ##################
 # Initialization #
 ##################
