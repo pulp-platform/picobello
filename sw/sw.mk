@@ -13,6 +13,7 @@ PB_CHS_SW_DIR = $(PB_SW_DIR)/cheshire
 PB_SNITCH_SW_DIR = $(PB_SW_DIR)/snitch
 
 PB_INCDIR = $(PB_SW_DIR)/include
+PB_GEN_DIR = $(PB_ROOT)/.generated
 
 -include $(PD_DIR)/sw/sw.mk
 -include $(SPU_DIR)/sw/sw.mk
@@ -24,7 +25,7 @@ PB_INCDIR = $(PB_SW_DIR)/include
 SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
 SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
 SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
-SNRT_INCDIRS        = $(PB_INCDIR)
+SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 
@@ -46,6 +47,8 @@ pb-sn-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
 clean-pb-sn-tests:
 	rm -rf $(PB_SNRT_TEST_ELFS)
 
+$(PB_SNRT_TEST_ELFS): $(PB_GEN_DIR)/pb_addrmap.h
+
 $(PB_SNRT_TESTS_BUILDDIR)/%.d: $(PB_SNRT_TESTS_DIR)/%.c | $(PB_SNRT_TESTS_BUILDDIR)
 	$(RISCV_CXX) $(SNRT_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' -x c++ $< > $@
 
@@ -59,9 +62,8 @@ $(PB_SNRT_TESTS_BUILDDIR)/%.dump: $(PB_SNRT_TESTS_BUILDDIR)/%.elf | $(PB_SNRT_TE
 ## Picobello Global ##
 ######################
 
-PB_ADDRMAP = $(PB_SW_DIR)/include/picobello_addrmap.h
-
-$(PB_ADDRMAP): $(SNRT_TARGET_C_HDRS)
+# TODO(fischeti): Remove this once RDL is integrated into snitch_cluster
+$(PB_GEN_DIR)/pb_addrmap.h: $(SNRT_TARGET_C_HDRS)
 
 ##############
 ## Cheshire ##
@@ -72,9 +74,7 @@ PB_LINK_MODE ?= spm
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
 CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
-
-# TODO(fischeti): This does not work yet for some reason
-CHS_SW_GEN_HDRS += $(PB_ADDRMAP)
+CHS_SW_INCLUDES += -I$(PB_GEN_DIR)
 
 # Collect tests, which should be build for all modes, and their .dump targets
 PB_CHS_SW_TEST_SRC += $(wildcard $(PB_CHS_SW_DIR)/tests/*.c)
@@ -83,6 +83,7 @@ PB_CHS_SW_TEST_ELF += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).elf)
 
 PB_CHS_SW_TEST = $(PB_CHS_SW_TEST_DUMP)
 
+$(PB_CHS_SW_TEST_SRC): $(PB_GEN_DIR)/pb_addrmap.h
 $(PB_CHS_SW_TEST_DUMP): $(PB_CHS_SW_TEST_ELF)
 
 .PHONY: chs-sw-tests chs-sw-tests-clean

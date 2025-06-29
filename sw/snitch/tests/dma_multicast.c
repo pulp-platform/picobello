@@ -9,7 +9,7 @@
 // in the Picobello system.
 
 #include <stdint.h>
-#include "picobello_addrmap.h"
+#include "pb_addrmap.h"
 #include "snrt.h"
 
 #define INITIALIZER 0xAAAAAAAA

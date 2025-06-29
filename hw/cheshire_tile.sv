@@ -4,6 +4,7 @@
 //
 // Author: Tim Fischer <fischeti@iis.ee.ethz.ch>
 
+`include "apb/typedef.svh"
 `include "cheshire/typedef.svh"
 `include "floo_noc/typedef.svh"
 `include "axi/assign.svh"
@@ -13,6 +14,7 @@ module cheshire_tile
   import floo_pkg::*;
   import floo_picobello_noc_pkg::*;
   import picobello_pkg::*;
+  import pb_soc_regs_pkg::*;
 (
   input logic clk_i,
   input logic rst_ni,
@@ -86,7 +88,14 @@ module cheshire_tile
   output floo_wide_t floo_wide_south_o,
   input floo_req_t floo_req_south_i,
   output floo_rsp_t floo_rsp_south_o,
-  input floo_wide_t floo_wide_south_i
+  input floo_wide_t floo_wide_south_i,
+  // Tile-specific clock gating and reset
+  output logic [NumClusters-1:0] cluster_rst_no,
+  output logic [NumClusters-1:0] cluster_clk_en_o,
+  output logic [NumMemTiles-1:0] mem_tile_rst_no,
+  output logic [NumMemTiles-1:0] mem_tile_clk_en_o,
+  output logic fhg_spu_rst_no,
+  output logic fhg_spu_clk_en_o
 );
 
   ////////////
@@ -414,5 +423,53 @@ module cheshire_tile
     .slv_req_i (dram_slink_err_req),
     .slv_resp_o(dram_slink_err_rsp)
   );
+
+  // to apb bus (declare type for req and resp)
+  `APB_TYPEDEF_ALL(apb, logic[CheshireCfg.AddrWidth-1:0], logic[31:0], logic[3:0])
+
+  apb_req_t                           csh_apb_req;
+  apb_resp_t                          csh_apb_rsp;
+  pb_soc_regs_pkg::pb_soc_regs__out_t control_reg;
+
+  reg_to_apb #(
+    .reg_req_t(csh_reg_req_t),
+    .reg_rsp_t(csh_reg_rsp_t),
+    .apb_req_t(apb_req_t),
+    .apb_rsp_t(apb_resp_t)
+  ) i_reg_to_apb (
+    .clk_i,
+    .rst_ni,
+    .reg_req_i(reg_ext_req[CshRegExtClkGatingRst]),
+    .reg_rsp_o(reg_ext_rsp[CshRegExtClkGatingRst]),
+    .apb_req_o(csh_apb_req),
+    .apb_rsp_i(csh_apb_rsp)
+  );
+
+  pb_soc_regs i_pb_soc_regs (
+    .clk          (clk_i),
+    .arst_n       (rst_ni),
+    .s_apb_paddr  (csh_apb_req.paddr[PB_SOC_REGS_MIN_ADDR_WIDTH-1:0]),
+    .s_apb_penable(csh_apb_req.penable),
+    .s_apb_psel   (csh_apb_req.psel),
+    .s_apb_pwrite (csh_apb_req.pwrite),
+    .s_apb_pprot  (csh_apb_req.pprot),
+    .s_apb_pwdata (csh_apb_req.pwdata),
+    .s_apb_pstrb  (csh_apb_req.pstrb),
+    .s_apb_prdata (csh_apb_rsp.prdata),
+    .s_apb_pready (csh_apb_rsp.pready),
+    .s_apb_pslverr(csh_apb_rsp.pslverr),
+    .hwif_out     (control_reg)
+  );
+
+  for (genvar i = 0; i < NumClusters; i++) begin : gen_cluster_ctrl_out
+    assign cluster_rst_no[i]   = control_reg.cluster_rsts.rst.value[i];
+    assign cluster_clk_en_o[i] = control_reg.cluster_clk_enables.clk_en.value[i];
+  end
+  for (genvar i = 0; i < NumMemTiles; i++) begin : gen_mem_tile_ctrl_out
+    assign mem_tile_rst_no[i]   = control_reg.mem_tile_rsts.rst.value[i];
+    assign mem_tile_clk_en_o[i] = control_reg.mem_tile_clk_enables.clk_en.value[i];
+  end
+  assign fhg_spu_rst_no   = control_reg.fhg_spu_rsts.rst.value;
+  assign fhg_spu_clk_en_o = control_reg.fhg_spu_clk_enables.clk_en.value;
 
 endmodule

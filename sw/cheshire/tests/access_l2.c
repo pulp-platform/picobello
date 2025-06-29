@@ -6,52 +6,53 @@
 //
 // This test simply read and write from some L2 locations.
 // It will read the first uint32 data from each memory bank.
-// Each memeory tile is organized as follow:
-// - L2Size = 1 MiB
-// - NumWordsPerBank = 512
-// - DataWidth = 256 bit
-// - BankSize = (NumWordsPerBank x DataWidth)/8 = 16 kiB [14 bits shift]
-// - NumBanks = L2Size/BankSize = 64 banks (Physical Banks)
-
 
 #include <stdint.h>
-#include "picobello_addrmap.h"
+#include "pb_addrmap.h"
 
-#define TESTVAL 0xABCD9876
-#define BANKS_SIZE 0x00004000
-#define NUM_L2_BANKS_PER_WORDS 2
-#define NUM_L2_BANK_PER_ROW 32
+#define WIDE_WORD_WIDTH 512
+#define NARROW_WORD_WIDTH (sizeof(uint32_t) * 8)
+#define NUM_L2_MEM_TILES 8
+#define L2_MEM_TILE_SIZE sizeof(picobello_addrmap__l2_spm_t) // 1 MiB
+#define L2_SRAM_DATA_WIDTH 128
+#define L2_SRAM_NUM_WORDS 1024
+#define L2_BANKS_PER_WORD (WIDE_WORD_WIDTH / L2_SRAM_DATA_WIDTH) // 4 banks per 512-bit word
+#define L2_BANK_ROWS (L2_MEM_TILE_SIZE / (WIDE_WORD_WIDTH / 8)) / L2_SRAM_NUM_WORDS
+
+typedef uint32_t l2_mem_t[NUM_L2_MEM_TILES][L2_BANK_ROWS][L2_SRAM_NUM_WORDS][L2_BANKS_PER_WORD][L2_SRAM_DATA_WIDTH / NARROW_WORD_WIDTH];
+
+static_assert((sizeof(l2_mem_t)/NUM_L2_MEM_TILES) == sizeof(picobello_addrmap__l2_spm_t), "Packing error");
 
 int main() {
-  volatile uint32_t *l2ptr = (volatile uint32_t *)PB_L2_BASE_ADDR;
-  volatile uint32_t result_aligned;
-  volatile uint32_t result_missaligned;
 
-  // Write TESTVAL to each physical bank:
-  for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
-    for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
-      l2ptr = (volatile uint32_t *)((uintptr_t)PB_L2_BASE_ADDR +
-                                    (phyBank << 15) + (logBank << 5));
-      // Write to aligned and miss-aligned loactiuon
-      *(l2ptr ) = (uintptr_t)l2ptr;           // aligned
-      *(l2ptr + 1) =(uintptr_t)(l2ptr + 1);   // miss-aligned
-    }
-  }
+  volatile l2_mem_t *l2_mem = (volatile l2_mem_t *)&picobello_addrmap.l2_spm;
 
-  // Read back and verify TESTVAL in each bank:
-  l2ptr = (volatile uint32_t *)PB_L2_BASE_ADDR;
-  for (int phyBank = 0; phyBank < NUM_L2_BANK_PER_ROW; phyBank++) {
-    for (int logBank = 0; logBank < NUM_L2_BANKS_PER_WORDS; logBank++) {
-      l2ptr = (volatile uint32_t *)((uintptr_t)PB_L2_BASE_ADDR +
-                                    (phyBank << 15) + (logBank << 5));
+  uint32_t n_errors = NUM_L2_MEM_TILES * L2_BANK_ROWS * L2_BANKS_PER_WORD * 4; // Total number of writes
 
-      result_aligned = *(l2ptr);           // aligned
-      result_missaligned = *(l2ptr + 1);   // miss-aligned
-      if ((result_aligned != (uintptr_t)l2ptr) || (result_missaligned != (uintptr_t)(l2ptr + 1))) {
-        return 1;
+  // Write to each physical bank
+  // One aligned access, one unaligned access
+  for (uint32_t i = 0; i < NUM_L2_MEM_TILES; i++) {
+    for (uint32_t j = 0; j < L2_BANK_ROWS; j++) {
+        for (uint32_t k = 0; k < L2_BANKS_PER_WORD; k++) {
+          (*l2_mem)[i][j][0][k][0] = i * j * k;
+          (*l2_mem)[i][j][0][k][1] = i * j * k + 1;
+          (*l2_mem)[i][j][1][k][0] = i * j * k + 2;
+          (*l2_mem)[i][j][1][k][1] = i * j * k + 3;
       }
     }
   }
 
-  return 0;
+  // Read from each physical bank and check if the value is correct
+  for (uint32_t i = 0; i < NUM_L2_MEM_TILES; i++) {
+    for (uint32_t j = 0; j < L2_BANK_ROWS; j++) {
+      for (uint32_t k = 0; k < L2_BANKS_PER_WORD; k++) {
+          n_errors -= ((*l2_mem)[i][j][0][k][0] == i * j * k);
+          n_errors -= ((*l2_mem)[i][j][0][k][1] == i * j * k + 1);
+          n_errors -= ((*l2_mem)[i][j][1][k][0] == i * j * k + 2);
+          n_errors -= ((*l2_mem)[i][j][1][k][1] == i * j * k + 3);
+      }
+    }
+  }
+
+  return n_errors;
 }
