@@ -7,12 +7,6 @@ variables:
   PD_COMMIT: "cdurrer/clk_gating_rst_pd"
   SPU_COMMIT: "cdurrer/clk_gating_rst"
 
-# Sources the environment variables for the IIS environment
-.init-env:
-  before_script:
-    - source iis-env.sh
-    - make init-pd
-
 # Check the cache for bender and python dependencies
 .cache-deps:
   cache: &global_cache
