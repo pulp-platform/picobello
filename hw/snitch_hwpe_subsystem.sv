@@ -128,8 +128,8 @@ module snitch_hwpe_subsystem
     periph[1].id            = hwpe_ctrl_req_i.q.user;
 
     if ((hwpe_ctrl_req_i.q.addr[7:0] == 'h9C || hwpe_ctrl_req_i.q.addr[7:0] == 'h98 ||
-         hwpe_ctrl_req_i.q.addr[7:0] == 'h94) && hwpe_ctrl_req_i.q_valid) begin
-      hwpe_ctrl_rsp_o.q_ready = '1;
+         hwpe_ctrl_req_i.q.addr[7:0] == 'h94)) begin
+      hwpe_ctrl_rsp_o.q_ready = hwpe_ctrl_req_i.q_valid;
       hwpe_ctrl_rsp_o.p_valid = '1;
     end else begin
       // request channel
