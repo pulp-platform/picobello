@@ -63,8 +63,8 @@ module cluster_tile
                    snitch_cluster_pkg::narrow_out_id_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t,
                    snitch_cluster_pkg::user_t)
 
-  cluster_narrow_out_dw_conv_req_t  cluster_narrow_out_dw_conv_req;
-  cluster_narrow_out_dw_conv_resp_t cluster_narrow_out_dw_conv_rsp;
+  cluster_narrow_out_dw_conv_req_t cluster_narrow_out_dw_conv_req, cluster_narrow_out_cut_req;
+  cluster_narrow_out_dw_conv_resp_t cluster_narrow_out_dw_conv_rsp, cluster_narrow_out_cut_rsp;
 
   `TCDM_TYPEDEF_ALL(hwpectrl, addr_hwpe_ctrl_t, data_hwpe_ctrl_t, strb_hwpe_ctrl_t, logic)
 
@@ -126,6 +126,24 @@ module cluster_tile
     .mst_resp_i(cluster_narrow_out_dw_conv_rsp)
   );
 
+  axi_cut #(
+    .Bypass    (0),
+    .aw_chan_t (snitch_cluster_pkg::narrow_out_aw_chan_t),
+    .w_chan_t  (cluster_narrow_out_dw_conv_w_chan_t),
+    .b_chan_t  (snitch_cluster_pkg::narrow_out_b_chan_t),
+    .ar_chan_t (snitch_cluster_pkg::narrow_out_ar_chan_t),
+    .r_chan_t  (cluster_narrow_out_dw_conv_r_chan_t),
+    .axi_req_t (cluster_narrow_out_dw_conv_req_t),
+    .axi_resp_t(cluster_narrow_out_dw_conv_resp_t)
+  ) i_cut_ext_narrow_slv (
+    .clk_i     (clk_i),
+    .rst_ni    (rst_ni),
+    .slv_req_i (cluster_narrow_out_dw_conv_req),
+    .slv_resp_o(cluster_narrow_out_dw_conv_rsp),
+    .mst_req_o (cluster_narrow_out_cut_req),
+    .mst_resp_i(cluster_narrow_out_cut_rsp)
+  );
+
   axi_to_tcdm #(
     .axi_req_t (cluster_narrow_out_dw_conv_req_t),
     .axi_rsp_t (cluster_narrow_out_dw_conv_resp_t),
@@ -137,8 +155,8 @@ module cluster_tile
   ) i_axi_to_hwpe_ctrl (
     .clk_i     (clk_i),
     .rst_ni    (rst_ni),
-    .axi_req_i (cluster_narrow_out_dw_conv_req),
-    .axi_rsp_o (cluster_narrow_out_dw_conv_rsp),
+    .axi_req_i (cluster_narrow_out_cut_req),
+    .axi_rsp_o (cluster_narrow_out_cut_rsp),
     .tcdm_req_o(hwpectrl_req),
     .tcdm_rsp_i(hwpectrl_rsp)
   );
