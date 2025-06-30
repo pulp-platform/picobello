@@ -12,7 +12,7 @@
 //   - All clusters except for cluster 0 check the multicast result
 
 #include <stdint.h>
-#include "picobello_addrmap.h"
+#include "pb_addrmap.h"
 #include "snrt.h"
 
 /* Parameters */

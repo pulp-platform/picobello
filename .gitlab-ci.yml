@@ -11,6 +11,11 @@ stages:
   - build
   - run
 
+# Sources the environment variables for the IIS environment
+.init-env:
+  before_script:
+    - source iis-env.sh
+
 ##################
 # Initialization #
 ##################
@@ -22,6 +27,15 @@ init-deps:
   artifacts:
     paths:
       - pd/ci.yml
+
+########################################
+# Generate RTL Sources and Addressmaps #
+########################################
+
+generate-rtl:
+  stage: build
+  extends:
+    - .generate-rtl-tpl
 
 ########################
 # Build Software Tests #
@@ -36,15 +50,6 @@ chs-sw:
   stage: build
   extends:
     - .chs-sw-tpl
-
-########################
-# Generate RTL Sources #
-########################
-
-generate-rtl:
-  stage: build
-  extends:
-    - .generate-rtl-tpl
 
 #####################
 # Build Simulations #

@@ -59,23 +59,25 @@ module tb_picobello_top;
       // Idle boot: preload with the specified mode
       case (preload_mode)
         0: begin  // JTAG
-          fix.vip.jtag_init();
+          jtag_enable_tiles();  // Write control registers
           if (snitch_preload) fix.vip.jtag_elf_preload(snitch_elf, snitch_entry);
           fix.vip.jtag_elf_run(preload_elf);
           fix.vip.jtag_wait_for_eoc(exit_code);
         end
         1: begin  // Serial Link
+          slink_enable_tiles();  // Write control registers
           if (snitch_preload) fix.vip.slink_elf_preload(snitch_elf, snitch_entry);
           fix.vip.slink_elf_run(preload_elf);
           fix.vip.slink_wait_for_eoc(exit_code);
         end
         2: begin  // UART
+          jtag_enable_tiles();  // Write control registers
           if (snitch_preload)
             $fatal(1, "Unsupported snitch binary preload mode %d (UART)!", preload_mode);
           fix.vip.uart_debug_elf_run_and_wait(preload_elf, exit_code);
         end
         3: begin  // Fast Mode
-          fix.vip.jtag_init();
+          jtag_enable_tiles();  // Write control registers
           if (snitch_preload) fastmode_elf_preload(snitch_elf, snitch_entry);
           // TODO(fischeti): Implement fast mode for Cheshire binary
           fix.vip.jtag_elf_run(preload_elf);

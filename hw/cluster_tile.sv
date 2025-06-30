@@ -17,6 +17,9 @@ module cluster_tile
   input  logic                                    clk_i,
   input  logic                                    rst_ni,
   input  logic                                    test_enable_i,
+  input  logic                                    tile_clk_en_i,
+  input  logic                                    tile_rst_ni,
+  input  logic                                    clk_rst_bypass_i,
   // Cluster ports
   input  logic                      [NrCores-1:0] debug_req_i,
   input  logic                      [NrCores-1:0] meip_i,
@@ -34,6 +37,10 @@ module cluster_tile
   output floo_rsp_t                 [ West:North] floo_rsp_o,
   input  floo_wide_t                [ West:North] floo_wide_i
 );
+
+  // Tile-specific reset and clock signals
+  logic                                 tile_clk;
+  logic                                 tile_rst_n;
 
   ////////////////////
   // Snitch Cluster //
@@ -74,8 +81,8 @@ module cluster_tile
   logic          [NrCores-1:0] mxip;
 
   snitch_cluster_wrapper i_cluster (
-    .clk_i,
-    .rst_ni,
+    .clk_i            (tile_clk),
+    .rst_ni           (tile_rst_n),
     .debug_req_i,
     .meip_i,
     .mtip_i,
@@ -256,8 +263,8 @@ module cluster_tile
     .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t),
     .user_struct_t       (picobello_pkg::mcast_user_t)
   ) i_chimney (
-    .clk_i,
-    .rst_ni,
+    .clk_i               (tile_clk),
+    .rst_ni              (tile_rst_n),
     .test_enable_i,
     .id_i,
     .route_table_i       ('0),
@@ -277,5 +284,30 @@ module cluster_tile
     .floo_rsp_i          (router_floo_rsp_out[Eject]),
     .floo_wide_i         (router_floo_wide_out[Eject])
   );
+
+  //////////////////////////
+  // Clock Gating & Reset //
+  //////////////////////////
+
+  tc_clk_gating i_tc_clk_gating_cluster (
+    .clk_i,
+    .en_i     (tile_clk_en_i),
+    .test_en_i(clk_rst_bypass_i),
+    .clk_o    (tile_clk)
+  );
+
+`ifdef TARGET_XILINX
+  // Using clk cells makes Vivado flag the reset as a clock tree
+  assign tile_rst_n = (clk_rst_bypass_i) ? rst_ni : tile_rst_ni;
+`else
+  tc_clk_mux2 i_tc_reset_mux (
+    .clk0_i   (tile_rst_ni),
+    .clk1_i   (rst_ni),
+    .clk_sel_i(clk_rst_bypass_i),
+    .clk_o    (tile_rst_n)
+  );
+`endif
+
+
 
 endmodule

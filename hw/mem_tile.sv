@@ -21,6 +21,9 @@ module mem_tile
   input  logic                    clk_i,
   input  logic                    rst_ni,
   input  logic                    test_enable_i,
+  input  logic                    tile_clk_en_i,
+  input  logic                    tile_rst_ni,
+  input  logic                    clk_rst_bypass_i,
   // Chimney ports
   input  id_t                     id_i,
   // Router ports
@@ -31,6 +34,9 @@ module mem_tile
   output floo_rsp_t  [West:North] floo_rsp_o,
   input  floo_wide_t [West:North] floo_wide_i
 );
+
+  logic tile_clk;
+  logic tile_rst_n;
 
   ////////////
   // Router //
@@ -108,8 +114,8 @@ module mem_tile
     .floo_rsp_t          (floo_rsp_t),
     .floo_wide_t         (floo_wide_t)
   ) i_chimney (
-    .clk_i,
-    .rst_ni,
+    .clk_i               (tile_clk),
+    .rst_ni              (tile_rst_n),
     .test_enable_i,
     .id_i,
     .route_table_i       ('0),
@@ -158,8 +164,8 @@ module mem_tile
     .axi_req_t       (axi_nw_join_req_t),
     .axi_rsp_t       (axi_nw_join_rsp_t)
   ) i_floo_nw_join (
-    .clk_i           (clk_i),
-    .rst_ni          (rst_ni),
+    .clk_i           (tile_clk),
+    .rst_ni          (tile_rst_n),
     .test_enable_i   (test_enable_i),
     .axi_narrow_req_i(axi_narrow_req),
     .axi_narrow_rsp_o(axi_narrow_rsp),
@@ -281,8 +287,8 @@ module mem_tile
     .axi_req_t   (axi_nw_join_req_t),
     .axi_rsp_t   (axi_nw_join_rsp_t)
   ) i_axi_to_obi (
-    .clk_i,
-    .rst_ni,
+    .clk_i     (tile_clk),
+    .rst_ni    (tile_rst_n),
     .testmode_i(test_enable_i),
     .axi_req_i (axi_req),
     .axi_rsp_o (axi_rsp),
@@ -341,8 +347,8 @@ module mem_tile
     .RegisterAmo              (1'b1),
     .RiscvWordWidth           (32)
   ) i_obi_atop_resolver (
-    .clk_i,
-    .rst_ni,
+    .clk_i         (tile_clk),
+    .rst_ni        (tile_rst_n),
     .testmode_i    (test_enable_i),
     .sbr_port_req_i(obi_req),
     .sbr_port_rsp_o(obi_rsp),
@@ -355,8 +361,8 @@ module mem_tile
     .obi_req_t(sbr_obi_req_t),
     .obi_rsp_t(sbr_obi_rsp_t)
   ) i_sram_shim_bank (
-    .clk_i,
-    .rst_ni,
+    .clk_i    (tile_clk),
+    .rst_ni   (tile_rst_n),
     .obi_req_i(mem_obi_req),
     .obi_rsp_o(mem_obi_rsp),
     .req_o    (mem_req),
@@ -395,8 +401,8 @@ module mem_tile
         .NumPorts (1),
         .Latency  (1)
       ) i_mem (
-        .clk_i,
-        .rst_ni,
+        .clk_i  (tile_clk),
+        .rst_ni (tile_rst_n),
         .req_i  (mem_req && (sram_macro_sel[i] == j)),
         .we_i   (mem_we && (sram_macro_sel[i] == j)),
         .addr_i (sram_addr[i]),
@@ -406,5 +412,28 @@ module mem_tile
       );
     end
   end
+
+  //////////////////////////
+  // Clock Gating & Reset //
+  //////////////////////////
+
+  tc_clk_gating i_tc_clk_gating_mem_tile (
+    .clk_i,
+    .en_i     (tile_clk_en_i),
+    .test_en_i(clk_rst_bypass_i),
+    .clk_o    (tile_clk)
+  );
+
+`ifdef TARGET_XILINX
+  // Using clk cells makes Vivado flag the reset as a clock tree
+  assign tile_rst_n = (clk_rst_bypass_i) ? rst_ni : tile_rst_ni;
+`else
+  tc_clk_mux2 i_tc_reset_mux (
+    .clk0_i   (tile_rst_ni),
+    .clk1_i   (rst_ni),
+    .clk_sel_i(clk_rst_bypass_i),
+    .clk_o    (tile_rst_n)
+  );
+`endif
 
 endmodule

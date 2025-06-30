@@ -4,13 +4,8 @@
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PD_COMMIT: "ad2e9f57b952d298c751463a57c653eae4f8c699"
-
-# Sources the environment variables for the IIS environment
-.init-env:
-  before_script:
-    - source iis-env.sh
-    - make init-pd
+  PD_COMMIT: "6e9eccad2289ced39bb25723d514cac5770dd70d"
+  SPU_COMMIT: "c2e8815487bd713624d74ef3e3e0465196b6d67f"
 
 # Check the cache for bender and python dependencies
 .cache-deps:
@@ -27,6 +22,16 @@ variables:
 # Update the cache with bender and python dependencies
 .init-deps-tpl:
   script:
+    # Check out the biggest bender dependencies serially
+    # to avoid rate limiting issues
+    # TODO(fischeti): Remove once bender supports rate limiting
+    - bender path cheshire
+    - bender path cva6
+    - bender path ibex
+    - bender path floo_noc
+    - bender path idma
+    - bender path cluster_interconnect
+    - bender path snitch_cluster
     # Collect bender sourcess
     - bender checkout
     # Install the python venv
@@ -75,7 +80,6 @@ variables:
     - .init-env
   script:
     - make chs-sw-tests
-    - cp .deps/fhg_spu_cluster/sw/cheshire/tests/*.elf sw/cheshire/tests/
   artifacts:
     paths:
       - sw/cheshire/tests/*.elf

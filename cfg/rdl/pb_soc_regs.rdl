@@ -1,0 +1,47 @@
+// Copyright 2025 ETH Zurich and University of Bologna.
+// Solderpad Hardware License, Version 0.51, see LICENSE for details.
+// SPDX-License-Identifier: SHL-0.51
+
+`ifndef __PB_SOC_REGS_RDL__
+`define __PB_SOC_REGS_RDL__
+
+addrmap pb_soc_regs #(
+    longint unsigned Num_Clusters = 16,
+    longint unsigned Num_Mem_Tiles = 8,
+    longint unsigned Num_SPUs = 1
+) {
+    reg clk_control #(
+        longint unsigned NumClkEnables = 32
+    ) {
+       desc = "Clock gate Control Register for SoC tiles";
+        field {
+            name = "clk_enable";
+            desc = "Clock gate control for SoC tiles";
+            hw = r;
+            sw = rw;
+            reset = 0;
+        } clk_en [NumClkEnables-1:0];
+    };
+
+    reg rst_control #(
+        longint unsigned NumResets = 32
+    ) {
+        desc = "Reset Control Register for SoC tiles";
+        field {
+            name = "rst";
+            desc = "Reset control for SoC tiles";
+            hw = r;
+            sw = rw;
+            reset = {NumResets{1'b1}};
+        } rst [NumResets-1:0];
+    };
+
+    clk_control #(.NumClkEnables(Num_Clusters) )    cluster_clk_enables;
+    clk_control #(.NumClkEnables(Num_Mem_Tiles) )   mem_tile_clk_enables;
+    clk_control #(.NumClkEnables(Num_SPUs) )        fhg_spu_clk_enables;
+    rst_control #(.NumResets(Num_Clusters) )        cluster_rsts;
+    rst_control #(.NumResets(Num_Mem_Tiles) )       mem_tile_rsts;
+    rst_control #(.NumResets(Num_SPUs) )            fhg_spu_rsts;
+};
+
+`endif // __PB_SOC_REGS_RDL__
