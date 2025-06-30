@@ -19,7 +19,7 @@ addrmap pb_soc_regs #(
             desc = "Clock gate control for SoC tiles";
             hw = r;
             sw = rw;
-            reset = {NumClkEnables{1'b1}};
+            reset = 0;
         } clk_en [NumClkEnables-1:0];
     };
 
@@ -32,7 +32,7 @@ addrmap pb_soc_regs #(
             desc = "Reset control for SoC tiles";
             hw = r;
             sw = rw;
-            reset = 0;
+            reset = {NumResets{1'b1}};
         } rst [NumResets-1:0];
     };
 
