@@ -61,7 +61,7 @@ $(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl:
 	@touch $@
 
 $(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello.rdl $(PB_RDL_ALL)
-	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) -o $@ -i
+	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) -o $@ -i -b ltoh
 
 $(PB_GEN_DIR)/pb_addrmap.svh: $(PB_RDL_ALL)
 	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --format svh
