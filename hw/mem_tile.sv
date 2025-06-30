@@ -165,7 +165,7 @@ module mem_tile
     .axi_rsp_t       (axi_nw_join_rsp_t)
   ) i_floo_nw_join (
     .clk_i           (tile_clk),
-    .rst_ni          (rst_ni),
+    .rst_ni          (tile_rst_n),
     .test_enable_i   (test_enable_i),
     .axi_narrow_req_i(axi_narrow_req),
     .axi_narrow_rsp_o(axi_narrow_rsp),
