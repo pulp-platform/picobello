@@ -238,10 +238,9 @@ module mem_tile
 
 
   logic [AxiCfgJoin.OutIdWidth-1:0] axi_in_aw_id, axi_in_ar_id;
-  logic [AxiCfgJoin.UserWidth-1:0] axi_in_aw_user, axi_in_w_user, axi_in_ar_user;
+  logic [AxiCfgJoin.UserWidth-1:0] axi_in_aw_user, axi_in_ar_user;
   logic [MgrObiCfg.IdWidth-1:0] obi_in_write_aid, obi_in_read_aid;
 
-  logic [AxiCfgJoin.UserWidth-1:0] axi_in_rsp_aw_user, axi_in_rsp_w_user, axi_in_rsp_ar_user;
   logic [AxiCfgJoin.UserWidth-1:0] axi_in_r_user, axi_in_b_user;
   logic axi_in_rsp_write_bank_strobe, axi_in_rsp_read_size_enable;
 
@@ -249,8 +248,8 @@ module mem_tile
 
   mgr_obi_req_t obi_req;
   mgr_obi_rsp_t obi_rsp;
-  sbr_obi_req_t mem_obi_req;
-  sbr_obi_rsp_t mem_obi_rsp;
+  sbr_obi_req_t mem_obi_req, mem_obi_req_cut;
+  sbr_obi_rsp_t mem_obi_rsp, mem_obi_rsp_cut;
 
   if (AxiUserAtop) begin : gen_user_atop
     assign obi_in_write_aid = axi_in_aw_user[AxiUserAtopMsb-1:AxiUserAtopLsb];
@@ -297,7 +296,7 @@ module mem_tile
 
     .req_aw_id_o      (axi_in_aw_id),
     .req_aw_user_o    (axi_in_aw_user),
-    .req_w_user_o     (axi_in_w_user),
+    .req_w_user_o     (),
     .req_write_aid_i  (obi_in_write_aid),
     .req_write_auser_i('0),
     .req_write_wuser_i('0),
@@ -307,19 +306,19 @@ module mem_tile
     .req_read_aid_i  (obi_in_read_aid),
     .req_read_auser_i('0),
 
-    .rsp_write_aw_user_o  (axi_in_rsp_aw_user),
-    .rsp_write_w_user_o   (axi_in_rsp_w_user),
+    .rsp_write_aw_user_o  (),
+    .rsp_write_w_user_o   (),
     .rsp_write_bank_strb_o(axi_in_rsp_write_bank_strobe),
     .rsp_write_rid_o      (obi_in_rsp_write_rid),
-    .rsp_write_ruser_o    (  /* Unused */),
-    .rsp_write_last_o     (  /* Unused */),
-    .rsp_write_hs_o       (  /* Unused */),
+    .rsp_write_ruser_o    (),
+    .rsp_write_last_o     (),
+    .rsp_write_hs_o       (),
     .rsp_b_user_i         (axi_in_b_user),
 
-    .rsp_read_ar_user_o    (  /* Unused */),
+    .rsp_read_ar_user_o    (),
     .rsp_read_size_enable_o(axi_in_rsp_read_size_enable),
     .rsp_read_rid_o        (obi_in_rsp_read_rid),
-    .rsp_read_ruser_o      (  /* Unused */),
+    .rsp_read_ruser_o      (),
     .rsp_r_user_i          (axi_in_r_user)
   );
 
@@ -344,7 +343,6 @@ module mem_tile
     .mgr_port_obi_a_optional_t(sbr_obi_a_optional_t),
     .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
-    .RegisterAmo              (1'b1),
     .RiscvWordWidth           (32)
   ) i_obi_atop_resolver (
     .clk_i         (tile_clk),
@@ -356,6 +354,21 @@ module mem_tile
     .mgr_port_rsp_i(mem_obi_rsp)
   );
 
+  obi_cut #(
+    .ObiCfg      (SbrObiCfg),
+    .obi_a_chan_t(sbr_obi_a_chan_t),
+    .obi_r_chan_t(sbr_obi_r_chan_t),
+    .obi_req_t   (sbr_obi_req_t),
+    .obi_rsp_t   (sbr_obi_rsp_t)
+  ) i_obi_cut (
+    .clk_i         (tile_clk),
+    .rst_ni        (tile_rst_n),
+    .sbr_port_req_i(mem_obi_req),
+    .sbr_port_rsp_o(mem_obi_rsp),
+    .mgr_port_req_o(mem_obi_req_cut),
+    .mgr_port_rsp_i(mem_obi_rsp_cut)
+  );
+
   obi_sram_shim #(
     .ObiCfg   (SbrObiCfg),
     .obi_req_t(sbr_obi_req_t),
@@ -363,8 +376,8 @@ module mem_tile
   ) i_sram_shim_bank (
     .clk_i    (tile_clk),
     .rst_ni   (tile_rst_n),
-    .obi_req_i(mem_obi_req),
-    .obi_rsp_o(mem_obi_rsp),
+    .obi_req_i(mem_obi_req_cut),
+    .obi_rsp_o(mem_obi_rsp_cut),
     .req_o    (mem_req),
     .we_o     (mem_we),
     .addr_o   (mem_addr),
