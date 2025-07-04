@@ -16,6 +16,8 @@ uint32_t *local_z;
 
 int main() {
 
+  if (snrt_cluster_idx() > 0) return 0;
+
   uint32_t errors = 0;
   int offload_id_tmp;
 
@@ -27,10 +29,10 @@ int main() {
 
   // Allocate space in TCDM and copy inputs to TCDM
   if (snrt_is_dm_core()) {
-    local_x = (uint16_t *) PB_SNITCH_CL_TCDM_BASE_ADDR(0);
-    local_w = (uint16_t *) (PB_SNITCH_CL_TCDM_BASE_ADDR(0) + 0x2000);
-    local_y = (uint16_t *) (PB_SNITCH_CL_TCDM_BASE_ADDR(0) + 0x4000);
-    local_z = (uint32_t *) (PB_SNITCH_CL_TCDM_BASE_ADDR(0) + 0x6000);
+    local_x = (uint16_t *) snrt_l1_alloc_cluster_local(x_size, 64);
+    local_w = (uint16_t *) snrt_l1_alloc_cluster_local(w_size, 64);
+    local_y = (uint16_t *) snrt_l1_alloc_cluster_local(y_size, 64);
+    local_z = (uint32_t *) snrt_l1_alloc_cluster_local(y_size, 64);
     snrt_dma_start_1d(local_x, x_inp, x_size);
     snrt_dma_start_1d(local_w, w_inp, w_size);
     snrt_dma_start_1d(local_y, y_inp, y_size);
