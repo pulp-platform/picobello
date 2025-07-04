@@ -370,10 +370,10 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: 8cb327800098263035efd9e7c9d431f10d19cd0b
+    revision: 3d3e2ec16c9b97bb04c1937818412ede7fb432a85
     version: null
     source:
-      Git: https://github.com/Lore0599/snitch_cluster.git
+      Git: https://github.com/colluca/snitch_cluster.git
     dependencies:
     - axi
     - axi_riscv_atomics
