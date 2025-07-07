@@ -56,7 +56,7 @@ static inline void broadcast_wrapper(void* dst, void* src, size_t size) {
     else if ((snrt_cluster_idx() == 0) && snrt_is_dm_core()) {
         for (int i = 0; i < snrt_cluster_num(); i++) {
             if (!cluster_participates_in_bcast(i))
-                *(uint32_t*)(CLUSTER_CLINT_SET_ADDR + SNRT_CLUSTER_OFFSET * i) = 0x1ff;
+                snrt_cluster()->peripheral_reg.cl_clint_set.f.cl_clint_set = 0x1ff;
         }
     }
 }

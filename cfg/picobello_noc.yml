@@ -47,7 +47,7 @@ endpoints:
     addr_range:
       base: 0x2000_0000
       size: 0x0004_0000
-      rdl_name: "snitch_tile"
+      rdl_name: "snitch_cluster"
     mgr_port_protocol:
       - "narrow_in"
       - "wide_in"

@@ -47,6 +47,7 @@ SIM_TARGS += -t simulation -t test -t idma_test
 
 PB_RDL_ALL += $(PB_GEN_DIR)/picobello.rdl
 PB_RDL_ALL += $(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl
+PB_RDL_ALL += $(PB_GEN_DIR)/snitch_cluster.rdl
 PB_RDL_ALL += $(wildcard $(PB_ROOT)/cfg/rdl/*.rdl)
 
 $(PB_GEN_DIR)/pb_soc_regs.sv: $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
@@ -160,6 +161,7 @@ clean-pd:
 
 -include $(PD_DIR)/pd.mk
 
+# TODO(colluca): can these be moved to the RDL section of the Makefile?
 PEAKRDL_INCLUDES += -I $(PB_ROOT)/cfg/rdl
 PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
 PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)

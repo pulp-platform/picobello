@@ -37,10 +37,9 @@
  *
  */
 inline void snrt_wake_clusters(uint32_t core_mask, uint32_t mask, uint32_t cluster_stride) {
-    uint32_t* addr = (uint32_t *)snrt_remote_l1_ptr((void*) snrt_cluster_clint_set_ptr(),
-                                           snrt_cluster_idx(), snrt_cluster_idx() + cluster_stride);
+    uint32_t *addr = (uint32_t *)&(snrt_cluster(snrt_cluster_idx() + cluster_stride)->peripheral_reg.cl_clint_set);
     snrt_enable_multicast(mask);
-    *((uint32_t *)addr) = core_mask;
+    *addr = core_mask;
     snrt_disable_multicast();
 }
 
@@ -62,7 +61,7 @@ void send_mcast(uint32_t* dst, uint32_t mask){
 
 /* Main Function */
 int main(){
-  uint32_t* mcast_dst   = (uint32_t*)snrt_l1_start_addr();
+  uint32_t* mcast_dst   = (uint32_t*)(snrt_cluster()->tcdm.mem);
   uint32_t  row_mask    = ROW_MASK;
   uint32_t  column_mask = COLUMN_MASK;
 
@@ -71,16 +70,14 @@ int main(){
     // Row multicast
     if (snrt_cluster_idx() == 0){
       // Send multicast data over first row
-      mcast_dst = (uint32_t *)snrt_remote_l1_ptr((void*) snrt_l1_start_addr(),
-                                           snrt_cluster_idx(), 4);
+      mcast_dst = (uint32_t *)(snrt_cluster(4)->tcdm.mem);
       send_mcast(mcast_dst, row_mask);
 
       // Send multicast wake up signal to the first row
       snrt_wake_clusters((1 << snrt_cluster_core_idx()),  row_mask, 4);
 
       // Send multicast over first column
-      mcast_dst = (uint32_t *)snrt_remote_l1_ptr((void*) snrt_l1_start_addr(),
-                                           snrt_cluster_idx(), 1);
+      mcast_dst = (uint32_t *)(snrt_cluster(1)->tcdm.mem);
       send_mcast(mcast_dst, column_mask);
       snrt_wake_clusters((1 << snrt_cluster_core_idx()), column_mask, 1);
 
@@ -91,8 +88,7 @@ int main(){
       // The first row clusters issue a multicast to their own column
       if (snrt_cluster_idx()%4 == 0){
         uint32_t dst_idx = snrt_cluster_idx() + 1;
-        mcast_dst = (uint32_t *)snrt_remote_l1_ptr((void*) snrt_l1_start_addr(),
-                                           snrt_cluster_idx(), dst_idx);
+        mcast_dst = (uint32_t *)(snrt_cluster(dst_idx)->tcdm.mem);
         send_mcast(mcast_dst, column_mask);
         snrt_wake_clusters((1 << snrt_cluster_core_idx()), column_mask, 1);
       }
