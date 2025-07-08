@@ -83,13 +83,13 @@ endpoints:
   - name: "top_spm_narrow"
     addr_range:
       start: 0x6000_0000
-      size: 0x0001_0000
+      size: 0x0004_0000
     sbr_port_protocol:
       - "narrow_out"
   - name: "top_spm_wide"
     addr_range:
-      start: 0x6001_0000
-      size: 0x0001_0000
+      start: 0x6004_0000
+      size: 0x0004_0000
     sbr_port_protocol:
       - "wide_out"
   - name: "l2_spm"

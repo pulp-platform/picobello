@@ -291,9 +291,85 @@ module picobello_top
 
   end
 
-  // ////////////////
-  // // Dummy tile //
-  // ////////////////
+  ///////////////
+  // SPM  tile //
+  ///////////////
+
+  // Narrow SPM tile
+  localparam int  SpmNarrowTileSamIdx = int'(TopSpmNarrowSamIdx);
+  localparam id_t SpmNarrowTileId = SamMcast[SpmNarrowTileSamIdx].idx.id;
+  localparam id_t SpmNarrowTilePhysicalId = SamPhysical[SpmNarrowTileSamIdx].idx;
+  localparam int  SpmNarrowTileX = int'(SpmNarrowTilePhysicalId.x);
+  localparam int  SpmNarrowTileY = int'(SpmNarrowTilePhysicalId.y);
+
+  spm_tile #(
+    .axi_aw_chan_t      (floo_picobello_noc_pkg::axi_narrow_out_aw_chan_t),
+    .axi_w_chan_t       (floo_picobello_noc_pkg::axi_narrow_out_w_chan_t),
+    .axi_b_chan_t       (floo_picobello_noc_pkg::axi_narrow_out_b_chan_t),
+    .axi_ar_chan_t      (floo_picobello_noc_pkg::axi_narrow_out_ar_chan_t),
+    .axi_r_chan_t       (floo_picobello_noc_pkg::axi_narrow_out_r_chan_t),
+    .axi_to_mem_req_t   (floo_picobello_noc_pkg::axi_narrow_out_req_t),
+    .axi_to_mem_rsp_t   (floo_picobello_noc_pkg::axi_narrow_out_rsp_t),
+    .AxiIdWidth         (AxiCfgN.InIdWidth),
+    .AxiDataWidth       (AxiCfgN.DataWidth),
+    .SpmTileSize        (SpmNarrowTileSize),
+    .SpmWordsPerBank    (SpmNarrowWordsPerBank),
+    .SpmDataWidth       (SpmNarrowDataWidth),
+    .SpmNumBanksPerWord (SpmNarrowNumBanksPerWord),
+    .SpmNumBankRows     (SpmNarrowNumBankRows),
+    .IsNarrow        (1'b1)
+  ) i_narrow_spm_tile (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i   (test_mode_i),
+    .id_i            (SpmNarrowTileId),
+    .floo_req_o      (floo_req_out[SpmNarrowTileX][SpmNarrowTileY]),
+    .floo_rsp_i      (floo_rsp_in[SpmNarrowTileX][SpmNarrowTileY]),
+    .floo_wide_o     (floo_wide_out[SpmNarrowTileX][SpmNarrowTileY]),
+    .floo_req_i      (floo_req_in[SpmNarrowTileX][SpmNarrowTileY]),
+    .floo_rsp_o      (floo_rsp_out[SpmNarrowTileX][SpmNarrowTileY]),
+    .floo_wide_i     (floo_wide_in[SpmNarrowTileX][SpmNarrowTileY])
+  );
+
+  // Wide SPM tile
+  localparam int  SpmWideTileSamIdx = int'(TopSpmWideSamIdx);
+  localparam id_t SpmWideTileId = SamMcast[SpmWideTileSamIdx].idx.id;
+  localparam id_t SpmWideTilePhysicalId = SamPhysical[SpmWideTileSamIdx].idx;
+  localparam int  SpmWideTileX = int'(SpmWideTilePhysicalId.x);
+  localparam int  SpmWideTileY = int'(SpmWideTilePhysicalId.y);
+
+  spm_tile #(
+    .axi_aw_chan_t      (floo_picobello_noc_pkg::axi_wide_out_aw_chan_t),
+    .axi_w_chan_t       (floo_picobello_noc_pkg::axi_wide_out_w_chan_t),
+    .axi_b_chan_t       (floo_picobello_noc_pkg::axi_wide_out_b_chan_t),
+    .axi_ar_chan_t      (floo_picobello_noc_pkg::axi_wide_out_ar_chan_t),
+    .axi_r_chan_t       (floo_picobello_noc_pkg::axi_wide_out_r_chan_t),
+    .axi_to_mem_req_t   (floo_picobello_noc_pkg::axi_wide_out_req_t),
+    .axi_to_mem_rsp_t   (floo_picobello_noc_pkg::axi_wide_out_rsp_t),
+    .AxiIdWidth         (AxiCfgW.InIdWidth),
+    .AxiDataWidth       (AxiCfgW.DataWidth),
+    .SpmTileSize        (SpmWideTileSize),
+    .SpmWordsPerBank    (SpmWideWordsPerBank),
+    .SpmDataWidth       (SpmWideDataWidth),
+    .SpmNumBanksPerWord (SpmWideNumBanksPerWord),
+    .SpmNumBankRows     (SpmWideNumBankRows),
+    .IsNarrow           (1'b0)
+  ) i_wide_spm_tile (
+    .clk_i,
+    .rst_ni,
+    .test_enable_i   (test_mode_i),
+    .id_i            (SpmWideTileId),
+    .floo_req_o      (floo_req_out[SpmWideTileX][SpmWideTileY]),
+    .floo_rsp_i      (floo_rsp_in[SpmWideTileX][SpmWideTileY]),
+    .floo_wide_o     (floo_wide_out[SpmWideTileX][SpmWideTileY]),
+    .floo_req_i      (floo_req_in[SpmWideTileX][SpmWideTileY]),
+    .floo_rsp_o      (floo_rsp_out[SpmWideTileX][SpmWideTileY]),
+    .floo_wide_i     (floo_wide_in[SpmWideTileX][SpmWideTileY])
+  );
+
+  ////////////////
+  // Dummy tile //
+  ////////////////
 
   for (genvar d = 0; d < NumDummyTiles; d++) begin : gen_dummytiles
 
