@@ -50,6 +50,10 @@ PB_RDL_ALL += $(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl
 PB_RDL_ALL += $(PB_GEN_DIR)/snitch_cluster.rdl
 PB_RDL_ALL += $(wildcard $(PB_ROOT)/cfg/rdl/*.rdl)
 
+PEAKRDL_INCLUDES += -I $(PB_ROOT)/cfg/rdl
+PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
+PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
+
 $(PB_GEN_DIR)/pb_soc_regs.sv: $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
 $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
@@ -161,10 +165,6 @@ clean-pd:
 
 -include $(PD_DIR)/pd.mk
 
-# TODO(colluca): can these be moved to the RDL section of the Makefile?
-PEAKRDL_INCLUDES += -I $(PB_ROOT)/cfg/rdl
-PEAKRDL_INCLUDES += -I $(SN_ROOT)/hw/snitch_cluster/src/snitch_cluster_peripheral
-PEAKRDL_INCLUDES += -I $(PB_GEN_DIR)
 
 #########################
 # General Phony targets #
