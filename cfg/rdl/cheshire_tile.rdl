@@ -8,10 +8,8 @@
 // `include "cheshire.rdl"
 // `include "serial_link_single_channel.rdl"
 `include "pb_soc_regs.rdl"
-`ifdef PB_CHIP_RDL
 `include "fll.rdl"
 `include "pb_chip_regs.rdl"
-`endif
 
 addrmap cheshire_tile {
 

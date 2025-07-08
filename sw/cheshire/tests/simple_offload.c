@@ -7,8 +7,7 @@
 #include <stdint.h>
 #include "pb_addrmap.h"
 
-// TODO(fischeti): Replace with snitch cluster RDL for this once merged.
-#include "snitch_peripheral_addrmap.h"
+#include "snitch_cluster_cfg.h"
 
 // This needs to be in a region which is not cached
 volatile uint32_t (*return_code_array)[CFG_CLUSTER_NR_CORES] = (uint32_t (*)[CFG_CLUSTER_NR_CORES])0x707FF000;
@@ -19,16 +18,15 @@ int main() {
   // and return code address to scratch register 0
   // Initalize return address loaction before offloading.
   for (int i = 0; i < SNRT_CLUSTER_NUM; i++) {
-    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 1)) = (uintptr_t)&picobello_addrmap.l2_spm;
-    *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_SCRATCH_ADDR(i, 0)) =
-        (uintptr_t)&return_code_array[i];
+    *(volatile uint64_t *)&(picobello_addrmap.cluster[i].peripheral_reg.scratch[1].w) = (uintptr_t)&picobello_addrmap.l2_spm;
+    *(volatile uint64_t *)&(picobello_addrmap.cluster[i].peripheral_reg.scratch[0].w) = (uintptr_t)&return_code_array[i];
     for (int j = 0; j < CFG_CLUSTER_NR_CORES; j++) {
       return_code_array[i][j] = 0;
     }
   }
 
-  // Start only Cluster 0 core 0 which will wake up all other clusters
-  *(volatile uint32_t *)((uintptr_t)PB_SNITCH_CL_CLINT_SET_ADDR(0)) = (1 << CFG_CLUSTER_NR_CORES) - 1;
+  // Start all cores in Cluster 0, which will wake up all other clusters
+  *(volatile uint64_t *)&(picobello_addrmap.cluster[0].peripheral_reg.cl_clint_set.w) = (1 << CFG_CLUSTER_NR_CORES) - 1;
 
   // Wait until all cores have finished
   int all_finished = 0;

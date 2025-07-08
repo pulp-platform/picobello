@@ -28,6 +28,7 @@ SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
 SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
+SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
 
 ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
@@ -57,13 +58,6 @@ $(PB_SNRT_TESTS_BUILDDIR)/%.elf: $(PB_SNRT_TESTS_DIR)/%.c $(SNRT_LIB) | $(PB_SNR
 
 $(PB_SNRT_TESTS_BUILDDIR)/%.dump: $(PB_SNRT_TESTS_BUILDDIR)/%.elf | $(PB_SNRT_TESTS_BUILDDIR)
 	$(RISCV_OBJDUMP) $(RISCV_OBJDUMP_FLAGS) $< > $@
-
-######################
-## Picobello Global ##
-######################
-
-# TODO(fischeti): Remove this once RDL is integrated into snitch_cluster
-$(PB_GEN_DIR)/pb_addrmap.h: $(SNRT_TARGET_C_HDRS)
 
 ##############
 ## Cheshire ##
@@ -98,10 +92,11 @@ chs-sw-tests-clean:
 # General Phony targets #
 #########################
 
-# Alias sn-clean-tests to align target with Picobello naming convention
+# Alias targets to align them with Picobello naming convention
 sn-tests-clean: sn-clean-tests
+sn-runtime-clean: sn-clean-runtime
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
 sw sw-tests: chs-sw-tests sn-tests pb-sn-tests
 
-sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean clean-pb-sn-tests
+sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean clean-pb-sn-tests

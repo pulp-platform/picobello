@@ -19,8 +19,7 @@
 
 
 static inline volatile uint32_t* snrt_exit_code_destination() {
-    volatile uint32_t* scratch0_addr = (volatile uint32_t*)(ALIAS_PERIPH_BASE_ADDR + SNITCH_CLUSTER_PERIPHERAL_SCRATCH_0_REG_OFFSET);
-    return (uint32_t*)(*scratch0_addr);
+    return (volatile uint32_t*)snrt_cluster()->peripheral_reg.scratch[0].f.scratch;
 }
 
 inline void snrt_exit(int exit_code) {
