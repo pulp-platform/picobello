@@ -110,6 +110,8 @@ make vsim-run CHS_BINARY=sw/cheshire/tests/simple_offload.spm.elf SN_BINARY=sw/s
 
 Use the `vsim-run-batch` command to run tests in batch mode with RTL optimizations to reduce the Questasim runtime.
 
+Use the `PRELMODE=3` flag to enable fast preload of the Snitch binary, and speed up the simulation.
+
 ### Additional help
 
 Additionally, you can run the following command to get a list of all available commands:
