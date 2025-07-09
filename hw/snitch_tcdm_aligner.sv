@@ -44,13 +44,16 @@ module snitch_tcdm_aligner
   assign tcdm_req_aligned_o.q.addr = tcdm_req_misaligned_i.q.addr & AddrMask;
   assign tcdm_req_aligned_o.q.write = tcdm_req_misaligned_i.q.write;
   assign tcdm_req_aligned_o.q.amo = tcdm_req_misaligned_i.q.amo;
-  assign tcdm_req_aligned_o.q.data  = tcdm_req_misaligned_i.q.data << (addr_significant_d * TCDMDataWidth);
-  assign tcdm_req_aligned_o.q.strb  = tcdm_req_misaligned_i.q.strb << (addr_significant_d * TCDMDataWidth/8);
+  assign tcdm_req_aligned_o.q.data  = tcdm_req_misaligned_i.q.data
+                                          << (addr_significant_d * TCDMDataWidth);
+  assign tcdm_req_aligned_o.q.strb  = tcdm_req_misaligned_i.q.strb
+                                          << (addr_significant_d * TCDMDataWidth/8);
   assign tcdm_req_aligned_o.q.user = tcdm_req_misaligned_i.q.user;
   assign tcdm_req_aligned_o.q_valid = tcdm_req_misaligned_i.q_valid;
 
   // Bind tcdm_rsp_misaligned_o signals
-  assign tcdm_rsp_misaligned_o.p.data  = tcdm_rsp_aligned_i.p.data >> (addr_significant_q * TCDMDataWidth);
+  assign tcdm_rsp_misaligned_o.p.data  = tcdm_rsp_aligned_i.p.data
+                                             >> (addr_significant_q * TCDMDataWidth);
   assign tcdm_rsp_misaligned_o.p_valid = tcdm_rsp_aligned_i.p_valid;
   assign tcdm_rsp_misaligned_o.q_ready = tcdm_rsp_aligned_i.q_ready;
 
