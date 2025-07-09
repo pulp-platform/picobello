@@ -46,6 +46,7 @@ sources:
   # Level 1
   - hw/picobello_pkg.sv
   - hw/snitch_hwpe_subsystem.sv
+  - hw/snitch_tcdm_aligner.sv
   # Level 2
   - hw/cluster_tile.sv
   - hw/cheshire_tile.sv
