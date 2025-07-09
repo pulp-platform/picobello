@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#include "snitch_peripheral_addrmap.h"
+#include "pb_addrmap.h"
 
 #include "snrt.h"
 #include "data/redmule/archi_redmule.h"
