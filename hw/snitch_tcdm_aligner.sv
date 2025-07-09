@@ -21,12 +21,16 @@ module snitch_tcdm_aligner
   output tcdm_rsp_t tcdm_rsp_misaligned_o
 );
 
-  localparam logic [AddrWidth-1:0] AddrMask  = ~(DataWidth/8-1);
+  localparam logic [AddrWidth-1:0] AddrMask = ~(DataWidth / 8 - 1);
 
   logic [$clog2(DataWidth/TCDMDataWidth)-1:0] addr_significant_d, addr_significant_q;
 
 
-  assign addr_significant_d = tcdm_req_misaligned_i.q.addr[$clog2(DataWidth/8)-1:$clog2(TCDMDataWidth/8)];
+  assign addr_significant_d = tcdm_req_misaligned_i.q.addr[$clog2(
+      DataWidth/8
+  )-1:$clog2(
+      TCDMDataWidth/8
+  )];
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
@@ -37,12 +41,12 @@ module snitch_tcdm_aligner
   end
 
   // Bind tcdm_req_aligned_o signals
-  assign tcdm_req_aligned_o.q.addr  = tcdm_req_misaligned_i.q.addr & AddrMask;
+  assign tcdm_req_aligned_o.q.addr = tcdm_req_misaligned_i.q.addr & AddrMask;
   assign tcdm_req_aligned_o.q.write = tcdm_req_misaligned_i.q.write;
-  assign tcdm_req_aligned_o.q.amo   = tcdm_req_misaligned_i.q.amo;
+  assign tcdm_req_aligned_o.q.amo = tcdm_req_misaligned_i.q.amo;
   assign tcdm_req_aligned_o.q.data  = tcdm_req_misaligned_i.q.data << (addr_significant_d * TCDMDataWidth);
   assign tcdm_req_aligned_o.q.strb  = tcdm_req_misaligned_i.q.strb << (addr_significant_d * TCDMDataWidth/8);
-  assign tcdm_req_aligned_o.q.user  = tcdm_req_misaligned_i.q.user;
+  assign tcdm_req_aligned_o.q.user = tcdm_req_misaligned_i.q.user;
   assign tcdm_req_aligned_o.q_valid = tcdm_req_misaligned_i.q_valid;
 
   // Bind tcdm_rsp_misaligned_o signals

@@ -183,7 +183,7 @@ module cluster_tile
     .tcdm_req_aligned_o   (cluster_tcdm_ext_req_aligned),
     .tcdm_rsp_aligned_i   (cluster_tcdm_ext_rsp_aligned),
     .tcdm_rsp_misaligned_o(cluster_tcdm_ext_rsp_misaligned)
-);
+  );
 
   snitch_hwpe_subsystem #(
     .tcdm_req_t   (snitch_cluster_pkg::tcdm_dma_req_t),
