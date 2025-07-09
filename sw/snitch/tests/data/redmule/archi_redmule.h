@@ -50,7 +50,7 @@
 #define ARCHI_CL_EVT_ACC1 1
 
 // Base address
-#define REDMULE_BASE_ADD CLUSTER_ZERO_MEM_END_ADDR
+#define REDMULE_BASE_ADD (unsigned long)snrt_cluster()->zeromem.mem+sizeof(snrt_cluster()->zeromem.mem)
 
 // Commands
 #define REDMULE_TRIGGER 0x00
