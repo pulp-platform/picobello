@@ -273,7 +273,9 @@ module picobello_top
     localparam int MemTileX = int'(MemTilePhysicalId.x);
     localparam int MemTileY = int'(MemTilePhysicalId.y);
 
-    mem_tile i_mem_tile (
+    mem_tile #(
+      .MemTileId(int'(m))
+    ) i_mem_tile (
       .clk_i,
       .rst_ni,
       .test_enable_i   (test_mode_i),
