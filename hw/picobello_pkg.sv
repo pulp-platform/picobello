@@ -489,14 +489,15 @@ package picobello_pkg;
   // Narrow SPM tile size
   localparam int unsigned SpmNarrowTileSize = ep_addr_size(TopSpmNarrowSamIdx);
   // Narrow SPM number words per bank
-  localparam int unsigned SpmNarrowWordsPerBank = 2048; // in #words
+  localparam int unsigned SpmNarrowWordsPerBank = 2048;  // in #words
   // Narrow SPM dataWidth
-  localparam int unsigned SpmNarrowDataWidth = 64; // in bits
+  localparam int unsigned SpmNarrowDataWidth = 64;  // in bits
 
   // Narrow SPM number of banks per word
   localparam int unsigned SpmNarrowNumBanksPerWord = AxiCfgN.DataWidth / SpmNarrowDataWidth;
   // Narrow SPM number of bank rows
-  localparam int unsigned SpmNarrowNumBankRows = (SpmNarrowTileSize / (AxiCfgN.DataWidth / 8) / SpmNarrowWordsPerBank);
+  localparam int unsigned SpmNarrowNumBankRows = (SpmNarrowTileSize / (AxiCfgN.DataWidth / 8)
+                                                 / SpmNarrowWordsPerBank);
 
   // The number of LSBs to address the bytes in an SRAM word
   localparam int unsigned SpmNarrowByteOffsetWidth = $clog2(SpmNarrowDataWidth / 8);
@@ -520,9 +521,9 @@ package picobello_pkg;
   // Wide SPM tile
   localparam int unsigned SpmWideTileSize = ep_addr_size(TopSpmWideSamIdx);
   // Wide SPM number words per bank
-  localparam int unsigned SpmWideWordsPerBank = 1024; // in #words
+  localparam int unsigned SpmWideWordsPerBank = 1024;  // in #words
   // Wide SPM dataWidth
-  localparam int unsigned SpmWideDataWidth = 128;
+  localparam int unsigned SpmWideDataWidth = 128;  // in bits
 
   // Wide SPM number of banks per word
   localparam int unsigned SpmWideNumBanksPerWord = AxiCfgW.DataWidth / SpmWideDataWidth;
