@@ -482,4 +482,68 @@ package picobello_pkg;
   localparam int unsigned SramAddrWidthOffset = SramBankSelOffset + SramBankSelWidth;
   localparam int unsigned SramMacroSelOffset = SramAddrWidthOffset + SramAddrWidth;
 
+  ////////////////////////
+  //  SPM Narrow Tiles  //
+  ////////////////////////
+
+  // Narrow SPM tile size
+  localparam int unsigned SpmNarrowTileSize = ep_addr_size(TopSpmNarrowSamIdx);
+  // Narrow SPM number words per bank
+  localparam int unsigned SpmNarrowWordsPerBank = 2048;  // in #words
+  // Narrow SPM dataWidth
+  localparam int unsigned SpmNarrowDataWidth = 64;  // in bits
+
+  // Narrow SPM number of banks per word
+  localparam int unsigned SpmNarrowNumBanksPerWord = AxiCfgN.DataWidth / SpmNarrowDataWidth;
+  // Narrow SPM number of bank rows
+  localparam int unsigned SpmNarrowNumBankRows = (SpmNarrowTileSize / (AxiCfgN.DataWidth / 8)
+                                                 / SpmNarrowWordsPerBank);
+
+  // The number of LSBs to address the bytes in an SRAM word
+  localparam int unsigned SpmNarrowByteOffsetWidth = $clog2(SpmNarrowDataWidth / 8);
+  // The number of bits required to select the subbank for a Narrow word
+  localparam int unsigned SpmNarrowBankSelWidth = $clog2(SpmNarrowNumBanksPerWord);
+  // The number of bits for the SpmNarrow address
+  localparam int unsigned SpmNarrowAddrWidth = $clog2(SpmNarrowWordsPerBank);
+  // The number of bits to index the SpmNarrow macro
+  localparam int unsigned SpmNarrowMacroSelWidth = $clog2(SpmNarrowNumBankRows);
+
+  // Various offsets for the SpmNarrow address
+  localparam int unsigned SpmNarrowBankSelOffset = SpmNarrowByteOffsetWidth;
+  localparam int unsigned SpmNarrowAddrWidthOffset = SpmNarrowBankSelOffset + SpmNarrowBankSelWidth;
+  localparam int unsigned SpmNarrowMacroSelOffset = SpmNarrowAddrWidthOffset + SpmNarrowAddrWidth;
+
+
+  //////////////////////
+  //  SPM Wide Tiles  //
+  //////////////////////
+
+  // Wide SPM tile
+  localparam int unsigned SpmWideTileSize = ep_addr_size(TopSpmWideSamIdx);
+  // Wide SPM number words per bank
+  localparam int unsigned SpmWideWordsPerBank = 1024;  // in #words
+  // Wide SPM dataWidth
+  localparam int unsigned SpmWideDataWidth = 128;  // in bits
+
+  // Wide SPM number of banks per word
+  localparam int unsigned SpmWideNumBanksPerWord = AxiCfgW.DataWidth / SpmWideDataWidth;
+  // Wide SPM number of bank rows
+  localparam int unsigned SpmWideNumBankRows = (SpmWideTileSize / (AxiCfgW.DataWidth / 8)
+                                               / SpmWideWordsPerBank);
+
+  // The number of LSBs to address the bytes in an SRAM word
+  localparam int unsigned SpmWideByteOffsetWidth = $clog2(SpmWideDataWidth / 8);
+  // The number of bits required to select the subbank for a wide word
+  localparam int unsigned SpmWideBankSelWidth = $clog2(SpmWideNumBanksPerWord);
+  // The number of bits for the SpmWide address
+  localparam int unsigned SpmWideAddrWidth = $clog2(SpmWideWordsPerBank);
+  // The number of bits to index the SpmWide macro
+  localparam int unsigned SpmWideMacroSelWidth = $clog2(SpmWideNumBankRows);
+
+  // Various offsets for the SpmWide address
+  localparam int unsigned SpmWideBankSelOffset = SpmWideByteOffsetWidth;
+  localparam int unsigned SpmWideAddrWidthOffset = SpmWideBankSelOffset + SpmWideBankSelWidth;
+  localparam int unsigned SpmWideMacroSelOffset = SpmWideAddrWidthOffset + SpmWideAddrWidth;
+
+
 endpackage

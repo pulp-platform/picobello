@@ -80,6 +80,18 @@ endpoints:
     sbr_port_protocol:
       - "narrow_out"
       - "wide_out"
+  - name: "top_spm_narrow"
+    addr_range:
+      start: 0x6000_0000
+      size: 0x0004_0000
+    sbr_port_protocol:
+      - "narrow_out"
+  - name: "top_spm_wide"
+    addr_range:
+      start: 0x6004_0000
+      size: 0x0004_0000
+    sbr_port_protocol:
+      - "wide_out"
   - name: "l2_spm"
     array: [8]
     addr_range:
@@ -139,4 +151,12 @@ connections:
     dst_range:
       - [0, 0]
       - [0, 3]
+    dst_dir: "Eject"
+  - src: "top_spm_narrow"
+    dst: "router_right"
+    dst_idx: [1, 2]
+    dst_dir: "Eject"
+  - src: "top_spm_wide"
+    dst: "router_right"
+    dst_idx: [1, 1]
     dst_dir: "Eject"

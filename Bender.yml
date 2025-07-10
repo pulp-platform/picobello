@@ -51,6 +51,7 @@ sources:
   - hw/cluster_tile.sv
   - hw/cheshire_tile.sv
   - hw/mem_tile.sv
+  - hw/spm_tile.sv
   - hw/dummy_tile.sv
 
   - target: not(asic)
