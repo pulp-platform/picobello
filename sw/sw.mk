@@ -35,8 +35,7 @@ include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
 
 # SNITCH APPLICATIONS
-gemm_BUILD_DIR = $(PB_SNITCH_SW_DIR)/apps/build
-$(eval include $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/gemm/app.mk)
+$(eval include $(PB_SNITCH_SW_DIR)/apps/blas/gemm/app.mk)
 
 
 # Collect Snitch tests which should be built
