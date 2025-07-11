@@ -86,3 +86,4 @@ sources:
     files:
       - pd/target/sim/src/fixture_picobello_chip.sv
       - pd/target/sim/src/tb_picobello_chip.sv
+      - pd/target/sim/src/tb_picobello_chip_config.sv
