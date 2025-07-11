@@ -1,0 +1,28 @@
+[
+    <% N_TILES = 4 %>
+
+    % for cluster in range(0,15):
+        // Compute cores
+        % for j in range(0, 8):
+        {
+            "thread": "${f'hart_{cluster * 9 + j + 1}'}",
+            "roi": [
+            % for i in range(0, N_TILES):
+                {"idx": ${2 * i + 1}, "label": "${f'tile_{i}'}"},
+            % endfor
+            ]
+        },
+        % endfor
+
+        // DMA core
+        {
+
+            "thread": "${f'hart_{cluster * 9 + 8 + 1}'}",
+            "roi": [
+                % for i in range(0, N_TILES):
+                    {"idx": ${2 * i + 1}, "label": "${f'tile_{i}'}"},
+                % endfor
+            ]
+        },
+    % endfor
+]
