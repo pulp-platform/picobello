@@ -21,6 +21,7 @@
         zero_mem_size: 60, // kB
         ext_mem_size: 4, //kB
         dma_data_width: 512,
+        dma_nr_channels: 2,
         // TODO(fischeti): Check with Thomas
         dma_axi_req_fifo_depth: 24,
         dma_req_fifo_depth: 8,
