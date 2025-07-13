@@ -32,7 +32,7 @@ addrmap pb_soc_regs #(
             desc = "Reset control for SoC tiles";
             hw = r;
             sw = rw;
-            reset = {NumResets{1'b1}};
+            reset = 0;
         } rst [NumResets-1:0];
     };
 
