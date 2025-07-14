@@ -54,6 +54,7 @@ endclass
 
 virtual_class_fastmode_l2 l2_sram_class_list[NumMemTiles][NumBanksPerWord][NumBankRows];
 
+`ifndef TARGET_MEM_TILE_NET
 for(genvar i = 0; i < NumMemTiles; i++) begin : gen_fastmode_class_per_l2_tile
   for(genvar j = 0; j < NumBanksPerWord; j++) begin : gen_fastmode_class_per_l2_col
     for(genvar k = 0; k < NumBankRows; k++) begin : gen_fastmode_class_per_l2_row
@@ -72,6 +73,7 @@ for(genvar i = 0; i < NumMemTiles; i++) begin : gen_fastmode_class_per_l2_tile
     end : gen_fastmode_class_per_l2_row
   end : gen_fastmode_class_per_l2_col
 end : gen_fastmode_class_per_l2_tile
+`endif
 
 // Write a 32-bit word into an `tc_sram` at a given address
 task automatic fastmode_write_word(input longint addr, input logic [31:0] data);
