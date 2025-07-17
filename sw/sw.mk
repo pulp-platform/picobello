@@ -33,8 +33,8 @@ SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
 SNRT_HAL_HDRS      += $(PB_GEN_DIR)/pb_raw_addrmap.h
 
 SNRT_APPS  = $(PB_SNITCH_SW_DIR)/apps/gemm_2d
-SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/gemm
-SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/axpy
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/gemm
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/axpy
 SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/dnn/flashattention_2
 SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/fused_concat_linear
 SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/mha

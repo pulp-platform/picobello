@@ -66,11 +66,13 @@ variables:
     - .cache-deps
     - .init-env
   script:
-    - make sn-tests
+    - make sn-tests DEBUG=ON
+    - make sn-apps DEBUG=ON
     - make pb-sn-tests
   artifacts:
     paths:
       - sw/snitch/tests/build/*.elf
+      - sw/snitch/apps/**/build/*.elf
     expire_in: 1 day
 
 # Compile the cheshire software tests

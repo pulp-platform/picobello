@@ -87,15 +87,16 @@ sim-vsim:
     - vsim-compile
   script:
     # Run the simulation
-    - make vsim-run-batch
+    - make vsim-run-batch-verify
     # Check either success or failure for non-zero exit codes
     - 'if [ -z "${NZ_EXIT_CODE}" ]; then grep "] SUCCESS" transcript || (exit 1); else grep "] FAILED: return code ${NZ_EXIT_CODE}" transcript || (exit 1); fi'
     # Check for UART output
     - 'if [ ! -z "${USTR}" ]; then (grep " \[UART\] ${USTR}" transcript); fi'
     # Check for any fatal errors
     - 'if grep "Fatal:" transcript; then exit 1; fi'
-    # Check for any errors (except one for non-zero exit codes)
-    - 'if [ ! -z "${NZ_EXIT_CODE}" ]; then count=$(grep -c "Error:" transcript); if [ "$count" -ne 1 ]; then exit 1; fi; else if grep -q "Error:" transcript; then exit 1; fi; fi'
+    # Check for any non-fatal errors. One and only one error is expected with a non-zero exit code.
+    # Ignore all errors when using a separate verification script.
+    - 'if [ -z "${VERIFY_PY}" ]; then if [ ! -z "${NZ_EXIT_CODE}" ]; then count=$(grep -c "Error:" transcript); if [ "$count" -ne 1 ]; then exit 1; fi; else if grep -q "Error:" transcript; then exit 1; fi; fi; fi'
   artifacts:
     paths:
       - transcript
