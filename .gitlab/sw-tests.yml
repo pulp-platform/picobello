@@ -7,6 +7,7 @@
   variables:
     CHS_BUILD_DIR: sw/cheshire/tests
     SN_BUILD_DIR: sw/snitch/tests/build
+    SN_ROOT: .deps/snitch_cluster
   parallel:
     matrix:
       - { CHS_BINARY: $CHS_BUILD_DIR/sanity.spm.elf, PRELMODE: 0 }
@@ -26,3 +27,5 @@
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/multi_mcast.elf }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/row_col_mcast.elf }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/access_spm.elf }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/blas/gemm/build/gemm.elf, VERIFY_PY: $SN_ROOT/sw/blas/gemm/scripts/verify.py}
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_ROOT/target/snitch_cluster/sw/apps/blas/axpy/build/axpy.elf, VERIFY_PY: $SN_ROOT/sw/blas/axpy/scripts/verify.py}

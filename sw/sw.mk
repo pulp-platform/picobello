@@ -30,6 +30,9 @@ SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
 
+SNRT_APPS  = $(PB_SNITCH_SW_DIR)/apps/blas/gemm
+SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/axpy
+
 ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
@@ -95,8 +98,9 @@ chs-sw-tests-clean:
 # Alias targets to align them with Picobello naming convention
 sn-tests-clean: sn-clean-tests
 sn-runtime-clean: sn-clean-runtime
+sn-apps-clean: sn-clean-apps
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests sn-tests pb-sn-tests
+sw sw-tests: chs-sw-tests sn-tests pb-sn-tests sn-apps
 
-sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean clean-pb-sn-tests
+sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean clean-pb-sn-tests sn-apps-clean
