@@ -53,3 +53,8 @@ vsim-run:
 
 vsim-run-batch:
 	$(VSIM) -c $(VSIM_FLAGS) $(TB_DUT) -do "run -all; quit"
+
+vsim-run-batch-verify: vsim-run-batch
+ifdef VERIFY_PY
+	$(VERIFY_PY) placeholder $(SN_BINARY) --no-ipc --memdump l2mem.bin --memaddr 0x70000000
+endif
