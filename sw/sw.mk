@@ -30,13 +30,12 @@ SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
 
+SNRT_APPS  = $(PB_SNITCH_SW_DIR)/apps/blas/gemm
+SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/axpy
+
 ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
-
-# SNITCH APPLICATIONS
-$(eval include $(PB_SNITCH_SW_DIR)/apps/blas/gemm/app.mk)
-
 
 # Collect Snitch tests which should be built
 PB_SNRT_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
