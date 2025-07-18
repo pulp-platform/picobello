@@ -207,12 +207,18 @@ static inline int gemm_picobello(const gemm_args_t *args) {
                                 banks_per_buffer * SNRT_TCDM_BANK_WIDTH,
                                 SNRT_TCDM_HYPERBANK_WIDTH);
                         } else {
-                            // Multicast B to all clusters
-                            if (snrt_cluster_idx() == 0) {
-                                // Load B from L2
-                                snrt_dma_load_2d_tile_mcast(
-                                lb[buff_idx], largs->b, dma_in_k_abs, dma_in_n,
-                                tile_k, tile_n, largs->ldb, largs->prec, 0x003C0000);
+                            if (largs->parallelize_k) {
+                                snrt_dma_load_2d_tile(
+                                    lb[buff_idx], largs->b, dma_in_k_abs, dma_in_n,
+                                    tile_k, tile_n, largs->ldb, largs->prec);
+                            } else {
+                                // Multicast B to all clusters
+                                if (snrt_cluster_idx() == 0) {
+                                    // Load B from L2
+                                    snrt_dma_load_2d_tile_mcast(
+                                    lb[buff_idx], largs->b, dma_in_k_abs, dma_in_n,
+                                    tile_k, tile_n, largs->ldb, largs->prec, 0x003C0000);
+                                }
                             }
                         }
                     }
