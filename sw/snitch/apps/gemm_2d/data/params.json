@@ -16,10 +16,10 @@
     partition_banks: 0,
     transa: false,
     transb: false, // must be true for SIMD
-    m: 16,
-    n: 16,
-    k: 2048,
+    m: 8,
+    n: 1,
+    k: 16,
     alpha: 1,
     beta: 0,
-    gemm_fp: "gemm_fp64_opt"
+    gemm_fp: "gemm_fp64_naive"
 }
