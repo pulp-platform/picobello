@@ -29,6 +29,7 @@ SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
 SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
+SNRT_HAL_HDRS      += $(PB_GEN_DIR)/pb_raw_addrmap.h
 
 SNRT_APPS  = $(PB_SNITCH_SW_DIR)/apps/gemm_2d
 SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/gemm
@@ -38,6 +39,9 @@ SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/dnn/flashattention_2
 ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
+
+$(PB_GEN_DIR)/pb_raw_addrmap.h: $(PB_RDL_ALL)
+	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --base_name $(notdir $(basename $@)) --format c
 
 # Collect Snitch tests which should be built
 PB_SNRT_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
