@@ -28,6 +28,7 @@ SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
 SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
+SNRT_HAL_BUILD_DIR  = $(PB_SNITCH_SW_DIR)/runtime/build
 SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
 SNRT_HAL_HDRS      += $(PB_GEN_DIR)/pb_raw_addrmap.h
 
@@ -77,7 +78,7 @@ PB_LINK_MODE ?= spm
 
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
-CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
+CHS_SW_INCLUDES += -I$(SNRT_HAL_BUILD_DIR)
 CHS_SW_INCLUDES += -I$(PB_GEN_DIR)
 
 # Collect tests, which should be build for all modes, and their .dump targets
