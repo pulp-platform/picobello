@@ -7,8 +7,8 @@
 
 #pragma once
 
-#define ARCHI_CL_EVT_ACC0 0
-#define ARCHI_CL_EVT_ACC1 1
+#define DATAMOVER_ARCHI_CL_EVT_ACC0 0
+#define DATAMOVER_ARCHI_CL_EVT_ACC1 1
 
 // Base address
 #define DATAMOVER_BASE_ADD (unsigned long)snrt_cluster()->zeromem.mem+sizeof(snrt_cluster()->zeromem.mem)+0x100
@@ -47,9 +47,9 @@
 // Transposition mode (LSB: 000=none, 001=8b, 010=16b, 100=32b) + Leftover (MSB 31:16)
 #define DATAMOVER_REG_TRANSP_MODE    0x28
 
-#define HWPE_EVT_OFFS 0x94
-#define MUX_SEL_OFFS 0x98
-#define CK_GATE_OFFS 0x9C
+#define DATAMOVER_EVT_OFFS 0x94
+#define DATAMOVER_MUX_SEL_OFFS 0x98
+#define DATAMOVER_CK_GATE_OFFS 0x9C
 
 // Transposition formats
 #define DATAMOVER_TRANSP_NONE 0x0
@@ -58,7 +58,7 @@
 #define DATAMOVER_TRANSP_32B  0x4
 
 // FP Formats encoding
-#define FP16 0x2
-#define FP8 0x3
-#define FP16ALT 0x4
-#define FP8ALT 0x5
+#define DATAMOVER_FP16 0x2
+#define DATAMOVER_FP8 0x3
+#define DATAMOVER_FP16ALT 0x4
+#define DATAMOVER_FP8ALT 0x5

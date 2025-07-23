@@ -9,7 +9,7 @@
 
 #define ERR 0x0011
 
-int redmule16_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
+static inline int redmule16_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
   uint32_t actual_word = 0;
   uint16_t actual_MSHWord, actual_LSHWord;
   uint32_t golden_word = 0;
@@ -58,7 +58,7 @@ int redmule16_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
   return errors;
 }
 
-int redmule8_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
+static inline int redmule8_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
   uint32_t actual_word = 0;
   uint8_t actual_Byte0, actual_Byte1, actual_Byte2, actual_Byte3;
   uint32_t golden_word = 0;

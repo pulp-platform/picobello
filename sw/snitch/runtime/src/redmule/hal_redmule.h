@@ -10,62 +10,62 @@
 #define REDMULE_ADDR_BASE REDMULE_BASE_ADD
 #define REDMULE_ADDR_SPACE 0x00000100
 
-#define HWPE_WRITE(value, offset) *(volatile int *)(REDMULE_ADDR_BASE + offset) = value
-#define HWPE_READ(offset) *(volatile int *)(REDMULE_ADDR_BASE + offset)
+#define REDMULE_WRITE(value, offset) *(volatile int *)(REDMULE_ADDR_BASE + offset) = value
+#define REDMULE_READ(offset) *(volatile int *)(REDMULE_ADDR_BASE + offset)
 
 static inline void redmule_x_add_set(unsigned int value) {
-  HWPE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_X_PTR);
+  REDMULE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_X_PTR);
 }
 
 static inline void redmule_w_add_set(unsigned int value) {
-  HWPE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_W_PTR);
+  REDMULE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_W_PTR);
 }
 
 static inline void redmule_z_add_set(unsigned int value) {
-  HWPE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_Z_PTR);
+  REDMULE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_Z_PTR);
 }
 
 static inline void redmule_g_add_set(unsigned int value) {
-  HWPE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_G_PTR);
+  REDMULE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_G_PTR);
 }
 
 static inline void redmule_s_add_set(unsigned int value) {
-  HWPE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_S_PTR);
+  REDMULE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_S_PTR);
 }
 
 static inline void redmule_b_add_set(unsigned int value) {
-  HWPE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_B_PTR);
+  REDMULE_WRITE(value, REDMULE_REG_OFFS + REDMULE_REG_B_PTR);
 }
 
 static inline void redmule_mcfg_set(uint32_t mcfg0, uint32_t mcfg1) {
-  HWPE_WRITE(mcfg0, REDMULE_REG_OFFS + REDMULE_MCFG0_PTR);
-  HWPE_WRITE(mcfg1, REDMULE_REG_OFFS + REDMULE_MCFG1_PTR);
+  REDMULE_WRITE(mcfg0, REDMULE_REG_OFFS + REDMULE_MCFG0_PTR);
+  REDMULE_WRITE(mcfg1, REDMULE_REG_OFFS + REDMULE_MCFG1_PTR);
 }
 
 static inline void redmule_arith_set(uint32_t arith) {
-  HWPE_WRITE(arith, REDMULE_REG_OFFS + REDMULE_ARITH_PTR);
+  REDMULE_WRITE(arith, REDMULE_REG_OFFS + REDMULE_ARITH_PTR);
 }
 
-static inline void hwpe_trigger_job() { HWPE_WRITE(0, REDMULE_TRIGGER); }
+static inline void redmule_trigger_job() { REDMULE_WRITE(0, REDMULE_TRIGGER); }
 
-static inline int hwpe_acquire_job() { return HWPE_READ(REDMULE_ACQUIRE); }
+static inline int redmule_acquire_job() { return REDMULE_READ(REDMULE_ACQUIRE); }
 
-static inline unsigned int hwpe_get_status() { return HWPE_READ(REDMULE_STATUS); }
+static inline unsigned int redmule_get_status() { return REDMULE_READ(REDMULE_STATUS); }
 
-static inline void hwpe_soft_clear() {
+static inline void redmule_soft_clear() {
   volatile int i;
-  HWPE_WRITE(0, REDMULE_SOFT_CLEAR);
+  REDMULE_WRITE(0, REDMULE_SOFT_CLEAR);
 }
 
-static inline void hwpe_evt_clear(int value) {
-  HWPE_WRITE(value, HWPE_EVT_OFFS);
+static inline void redmule_evt_clear(int value) {
+  REDMULE_WRITE(value, REDMULE_EVT_OFFS);
 }
 
-static inline void hwpe_cg_enable() { HWPE_WRITE(1, CK_GATE_OFFS); }
+static inline void redmule_cg_enable() { REDMULE_WRITE(1, REDMULE_CK_GATE_OFFS); }
 
-static inline void hwpe_cg_disable() { HWPE_WRITE(0, CK_GATE_OFFS); }
+static inline void redmule_cg_disable() { REDMULE_WRITE(0, REDMULE_CK_GATE_OFFS); }
 
-void redmule_cfg(unsigned int x, unsigned int w, unsigned int z, uint16_t m_size, uint16_t n_size,
+static inline void redmule_cfg(unsigned int x, unsigned int w, unsigned int z, uint16_t m_size, uint16_t n_size,
                  uint16_t k_size, uint8_t gemm_op, uint8_t gemm_fmt) {
 
   uint32_t mcfg_reg0 = 0;
@@ -84,7 +84,7 @@ void redmule_cfg(unsigned int x, unsigned int w, unsigned int z, uint16_t m_size
   redmule_arith_set((unsigned int)arith_reg);
 }
 
-void redmule_cfg(unsigned int x, unsigned int w, unsigned int z, unsigned int g, unsigned int s, unsigned int b, uint16_t m_size, uint16_t n_size,
+static inline void redmule_cfg(unsigned int x, unsigned int w, unsigned int z, unsigned int g, unsigned int s, unsigned int b, uint16_t m_size, uint16_t n_size,
                  uint16_t k_size, uint8_t gemm_op, uint8_t gemm_fmt, uint8_t dequant_en, uint8_t q_fmt) {
 
   uint32_t mcfg_reg0 = 0;

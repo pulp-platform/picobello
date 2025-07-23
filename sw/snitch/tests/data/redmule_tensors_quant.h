@@ -11,8 +11,8 @@
 #define DST_FMT FP16
 #define FPFORMAT 16
 #define DEQUANT
-uint8_t gemm_ops = GEMM;
-uint8_t quant_fmt = Q_INT8;
+uint8_t gemm_ops = REDMULE_GEMM;
+uint8_t quant_fmt = REDMULE_Q_INT8;
 
 uint32_t golden [512] __attribute__ ((aligned(64))) = {
 0xcd36446b, 0x38c24801, 0x39dbc2c1, 0xcb46b924, 0xc6f0c53a, 0xbdc6cdc5, 0xd06fcb37, 0x4221c591, 0xc8d1cf6b, 0x4aa2cdf5, 0xc406c175, 0xc9f2c6d9, 0x49a2ca48, 0x46f6ccad, 0xc9adcd59, 0x44404295,

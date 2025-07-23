@@ -50,3 +50,11 @@ typedef snitch_cluster__stride40000_t snitch_cluster_t;
 #include "sync.h"
 #include "team.h"
 #include "types.h"
+
+// Accelerators
+#include "datamover/archi_datamover.h"
+#include "datamover/hal_datamover.h"
+#include "datamover/datamover_utils.h"
+#include "redmule/archi_redmule.h"
+#include "redmule/hal_redmule.h"
+#include "redmule/redmule_utils.h"

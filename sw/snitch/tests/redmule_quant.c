@@ -7,10 +7,7 @@
 #include "pb_addrmap.h"
 
 #include "snrt.h"
-#include "data/redmule/archi_redmule.h"
-#include "data/redmule/hal_redmule.h"
-#include "data/redmule/redmule_tensors_quant.h"
-#include "data/redmule/redmule_utils.h"
+#include "data/redmule_tensors_quant.h"
 
 uint16_t *local_x;
 uint8_t  *local_w;
@@ -59,11 +56,11 @@ int main() {
 
   if (core_idx == 0) {
     // Enable RedMulE
-    hwpe_cg_enable();
+    redmule_cg_enable();
 
-    hwpe_soft_clear();
+    redmule_soft_clear();
 
-    while( ( offload_id_tmp = hwpe_acquire_job() ) < 0);
+    while( ( offload_id_tmp = redmule_acquire_job() ) < 0);
 
     redmule_cfg((unsigned int)local_x,
                 (unsigned int)local_w,
@@ -73,9 +70,9 @@ int main() {
                 (unsigned int)local_b,
                 M_SIZE, N_SIZE, K_SIZE,
                 (uint8_t)gemm_ops,
-                (uint8_t) Float16, 1, quant_fmt);
+                (uint8_t) REDMULE_Float16, 1, quant_fmt);
     // Start RedMulE operation
-    hwpe_trigger_job();
+    redmule_trigger_job();
   }
 
   snrt_cluster_hw_barrier();
@@ -83,12 +80,12 @@ int main() {
   if (core_idx == 0) {
     int status;
     snrt_interrupt_enable(IRQ_M_ACC);
-    while ((status = hwpe_get_status()) != 0) snrt_wfi();
-    hwpe_evt_clear(1 << core_idx);
+    while ((status = redmule_get_status()) != 0) snrt_wfi();
+    redmule_evt_clear(1 << core_idx);
     snrt_interrupt_disable(IRQ_M_ACC);
 
     // Disable RedMulE
-    hwpe_cg_disable();
+    redmule_cg_disable();
 
     // Check computation is correct
     errors = redmule16_compare_int((uint32_t*)local_y, local_z, M_SIZE*K_SIZE/2);

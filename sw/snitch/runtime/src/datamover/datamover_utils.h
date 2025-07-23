@@ -9,7 +9,7 @@
 
 #define ERR 0x0011
 
-int datamover_compare_int(
+static inline int datamover_compare_int(
   uint64_t *actual,
   uint64_t *golden,
   int len

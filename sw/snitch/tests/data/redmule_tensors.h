@@ -10,7 +10,7 @@
 #define SRC_FMT FP16
 #define DST_FMT FP16
 #define FPFORMAT 16
-uint8_t gemm_ops = GEMM;
+uint8_t gemm_ops = REDMULE_GEMM;
 
 uint32_t golden [512] __attribute__ ((aligned(64))) = {
 0x49134903, 0x48db48f5, 0x487e493f, 0x48884841, 0x48924892, 0x48b14817, 0x48954948, 0x48f44811, 0x48a248df, 0x485647ab, 0x4938481d, 0x4879464e, 0x499248dc, 0x47e248db, 0x48cb48d2, 0x47b648df,

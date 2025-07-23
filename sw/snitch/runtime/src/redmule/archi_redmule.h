@@ -46,8 +46,8 @@
  *
  */
 
-#define ARCHI_CL_EVT_ACC0 0
-#define ARCHI_CL_EVT_ACC1 1
+#define REDMULE_ARCHI_CL_EVT_ACC0 0
+#define REDMULE_ARCHI_CL_EVT_ACC1 1
 
 // Base address
 #define REDMULE_BASE_ADD (unsigned long)snrt_cluster()->zeromem.mem+sizeof(snrt_cluster()->zeromem.mem)
@@ -72,33 +72,33 @@
 #define REDMULE_REG_S_PTR 0x1C
 #define REDMULE_REG_B_PTR 0x20
 
-#define HWPE_EVT_OFFS 0x94
-#define CK_GATE_OFFS 0x9C
+#define REDMULE_EVT_OFFS 0x94
+#define REDMULE_CK_GATE_OFFS 0x9C
 
 // OPs definition
-#define MATMUL 0x0
-#define GEMM 0x1
-#define ADDMAX 0x2
-#define ADDMIN 0x3
-#define MULMAX 0x4
-#define MULMIN 0x5
-#define MAXMIN 0x6
-#define MINMAX 0x7
-#define PACE 0x8
+#define REDMULE_MATMUL 0x0
+#define REDMULE_GEMM 0x1
+#define REDMULE_ADDMAX 0x2
+#define REDMULE_ADDMIN 0x3
+#define REDMULE_MULMAX 0x4
+#define REDMULE_MULMIN 0x5
+#define REDMULE_MAXMIN 0x6
+#define REDMULE_MINMAX 0x7
+#define REDMULE_PACE 0x8
 
 // GEMM formats
-#define Float8 0x0
-#define Float16 0x1
-#define Float8Alt 0x2
-#define Float16Alt 0x3
+#define REDMULE_Float8 0x0
+#define REDMULE_Float16 0x1
+#define REDMULE_Float8Alt 0x2
+#define REDMULE_Float16Alt 0x3
 
 // FP Formats encoding
-#define FP16 0x2
-#define FP8 0x3
-#define FP16ALT 0x4
-#define FP8ALT 0x5
+#define REDMULE_FP16 0x2
+#define REDMULE_FP8 0x3
+#define REDMULE_FP16ALT 0x4
+#define REDMULE_FP8ALT 0x5
 
 // Quantized formats
-#define Q_INT2 0x0
-#define Q_INT4 0x1
-#define Q_INT8 0x2
+#define REDMULE_Q_INT2 0x0
+#define REDMULE_Q_INT4 0x1
+#define REDMULE_Q_INT8 0x2

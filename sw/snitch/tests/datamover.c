@@ -7,10 +7,7 @@
 #include "snrt.h"
 #include "pb_addrmap.h"
 
-#include "data/datamover/data.h"
-#include "data/datamover/archi_datamover.h"
-#include "data/datamover/hal_datamover.h"
-#include "data/datamover/datamover_utils.h"
+#include "data/datamover_data.h"
 
 uint8_t *local_in;
 uint8_t *local_out;
@@ -57,10 +54,10 @@ int main() {
     datamover_cg_enable();
     datamover_mux_enable();
 
-    hwpe_soft_clear();
+    datamover_soft_clear();
 
     // First job: 8b transpose, 64x64 matrix
-    while( ( offload_id_tmp = hwpe_acquire_job() ) < 0);
+    while( ( offload_id_tmp = datamover_acquire_job() ) < 0);
 
     datamover_in_set((unsigned int) local_in);
     datamover_out_set((unsigned int) local_out);
@@ -76,10 +73,10 @@ int main() {
     datamover_transp_mode_set(DATAMOVER_TRANSP_8B);
 
     // Start Datamover operation
-    hwpe_trigger_job();
+    datamover_trigger_job();
 
     // Second job: 16b transpose, 32x32 matrix
-    while( ( offload_id_tmp = hwpe_acquire_job() ) < 0);
+    while( ( offload_id_tmp = datamover_acquire_job() ) < 0);
 
     datamover_in_set((unsigned int) local_out);
     datamover_out_set((unsigned int) local_out2);
@@ -95,10 +92,10 @@ int main() {
     datamover_transp_mode_set(DATAMOVER_TRANSP_16B);
 
     // Start Datamover operation
-    hwpe_trigger_job();
+    datamover_trigger_job();
 
     // Third job: 32b transpose, 16x16 matrix
-    while( ( offload_id_tmp = hwpe_acquire_job() ) < 0);
+    while( ( offload_id_tmp = datamover_acquire_job() ) < 0);
 
     datamover_in_set((unsigned int) local_out2);
     datamover_out_set((unsigned int) local_out3bis);
@@ -114,10 +111,10 @@ int main() {
     datamover_transp_mode_set(DATAMOVER_TRANSP_32B);
 
     // Start Datamover operation
-    hwpe_trigger_job();
+    datamover_trigger_job();
 
     // Fourth job: no transpose, 16x16 matrix
-    while( ( offload_id_tmp = hwpe_acquire_job() ) < 0);
+    while( ( offload_id_tmp = datamover_acquire_job() ) < 0);
 
     datamover_in_set((unsigned int) local_out3bis);
     datamover_out_set((unsigned int) local_out3);
@@ -133,7 +130,7 @@ int main() {
     datamover_transp_mode_set(DATAMOVER_TRANSP_NONE);
 
     // Start Datamover operation
-    hwpe_trigger_job();
+    datamover_trigger_job();
 
   }
 
@@ -143,8 +140,8 @@ int main() {
 
     int status;
     snrt_interrupt_enable(IRQ_M_ACC);
-    while ((status = hwpe_get_status()) != 0) snrt_wfi();
-    hwpe_evt_clear(1 << core_idx);
+    while ((status = datamover_get_status()) != 0) snrt_wfi();
+    datamover_evt_clear(1 << core_idx);
     snrt_interrupt_disable(IRQ_M_ACC);
 
     // Disable Datamover
