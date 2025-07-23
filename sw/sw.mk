@@ -37,6 +37,7 @@ SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/gemm
 SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/blas/axpy
 SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/dnn/flashattention_2
 SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/fused_concat_linear
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/mha
 
 ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
