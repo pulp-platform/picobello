@@ -282,7 +282,7 @@ module mem_tile
     .AxiDataWidth(AxiCfgJoin.DataWidth),
     .AxiIdWidth  (AxiCfgJoin.OutIdWidth),
     .AxiUserWidth(AxiCfgJoin.UserWidth),
-    .MaxTrans    (2),
+    .MaxTrans    (4),
     .axi_req_t   (axi_nw_join_req_t),
     .axi_rsp_t   (axi_nw_join_rsp_t)
   ) i_axi_to_obi (
@@ -343,7 +343,8 @@ module mem_tile
     .mgr_port_obi_a_optional_t(sbr_obi_a_optional_t),
     .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
-    .RiscvWordWidth           (32)
+    .RiscvWordWidth           (32),
+    .NumTxns (4)
   ) i_obi_atop_resolver (
     .clk_i         (tile_clk),
     .rst_ni        (tile_rst_n),
