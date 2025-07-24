@@ -140,6 +140,7 @@ static inline int gemm_picobello(const gemm_args_t *args) {
         // DMA out phase
         if (snrt_is_dm_core()) {
             if (dma_out_i >= 0) {
+                snrt_mcycle();
                 // Switch buffers
                 int buff_idx = largs->double_buffer ? dma_out_mn % 2 : 0;
 
@@ -160,6 +161,7 @@ static inline int gemm_picobello(const gemm_args_t *args) {
                     }
                     snrt_dma_wait_all();
                 }
+                snrt_mcycle();
             }
         }
 
