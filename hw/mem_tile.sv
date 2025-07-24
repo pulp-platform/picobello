@@ -16,7 +16,8 @@ module mem_tile
 #(
   parameter bit          AxiUserAtop    = 1'b1,
   parameter int unsigned AxiUserAtopMsb = 3,
-  parameter int unsigned AxiUserAtopLsb = 0
+  parameter int unsigned AxiUserAtopLsb = 0,
+  parameter int unsigned MemTileId      = 0
 ) (
   input  logic                    clk_i,
   input  logic                    rst_ni,
@@ -272,6 +273,23 @@ module mem_tile
     end
   end
 
+  // AXI Monitor dumper to improvce debiugging
+  axi_dumper #(
+    .BusName   ($sformatf("mem_tile_%d", MemTileId)),
+    .LogAW     (1'b1),
+    .LogAR     (1'b1),
+    .LogW      (1'b1),
+    .LogB      (1'b1),
+    .LogR      (1'b1),
+    .axi_req_t (axi_nw_join_req_t),
+    .axi_resp_t(axi_nw_join_rsp_t)
+  ) i_axi_monitor (
+    .clk_i,
+    .rst_ni,
+    .axi_req_i (axi_req),
+    .axi_resp_i(axi_rsp)
+  );
+
   axi_to_obi #(
     .ObiCfg      (MgrObiCfg),
     .obi_req_t   (mgr_obi_req_t),
@@ -282,7 +300,7 @@ module mem_tile
     .AxiDataWidth(AxiCfgJoin.DataWidth),
     .AxiIdWidth  (AxiCfgJoin.OutIdWidth),
     .AxiUserWidth(AxiCfgJoin.UserWidth),
-    .MaxTrans    (2),
+    .MaxTrans    (4),
     .axi_req_t   (axi_nw_join_req_t),
     .axi_rsp_t   (axi_nw_join_rsp_t)
   ) i_axi_to_obi (
@@ -343,7 +361,8 @@ module mem_tile
     .mgr_port_obi_a_optional_t(sbr_obi_a_optional_t),
     .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
-    .RiscvWordWidth           (32)
+    .RiscvWordWidth           (32),
+    .NumTxns (4)
   ) i_obi_atop_resolver (
     .clk_i         (tile_clk),
     .rst_ni        (tile_rst_n),

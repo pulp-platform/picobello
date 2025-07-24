@@ -87,7 +87,7 @@ sim-vsim:
     - vsim-compile
   script:
     # Run the simulation
-    - make vsim-run-batch
+    - make vsim-run-batch-verify
     # Check either success or failure for non-zero exit codes
     - 'if [ -z "${NZ_EXIT_CODE}" ]; then grep "] SUCCESS" transcript || (exit 1); else grep "] FAILED: return code ${NZ_EXIT_CODE}" transcript || (exit 1); fi'
     # Check for UART output
