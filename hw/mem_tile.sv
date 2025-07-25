@@ -236,6 +236,9 @@ module mem_tile
                         sbr_obi_r_optional_t)
   `OBI_TYPEDEF_RSP_T(sbr_obi_rsp_t, sbr_obi_r_chan_t)
 
+  // Number of outstanding transactions should be larger than round-trip
+  // latency from converter to SRAM
+  localparam int unsigned ObiLatency = 4;
 
   logic [AxiCfgJoin.OutIdWidth-1:0] axi_in_aw_id, axi_in_ar_id;
   logic [AxiCfgJoin.UserWidth-1:0] axi_in_aw_user, axi_in_ar_user;
@@ -282,7 +285,7 @@ module mem_tile
     .AxiDataWidth(AxiCfgJoin.DataWidth),
     .AxiIdWidth  (AxiCfgJoin.OutIdWidth),
     .AxiUserWidth(AxiCfgJoin.UserWidth),
-    .MaxTrans    (4),
+    .MaxTrans    (ObiLatency),
     .axi_req_t   (axi_nw_join_req_t),
     .axi_rsp_t   (axi_nw_join_rsp_t)
   ) i_axi_to_obi (
@@ -333,6 +336,7 @@ module mem_tile
   logic [ AxiCfgW.DataWidth/8-1:0] mem_be;
   logic [   AxiCfgW.DataWidth-1:0] mem_rdata;
 
+
   obi_atop_resolver #(
     .SbrPortObiCfg            (MgrObiCfg),
     .MgrPortObiCfg            (SbrObiCfg),
@@ -344,7 +348,7 @@ module mem_tile
     .mgr_port_obi_r_optional_t(sbr_obi_r_optional_t),
     .LrScEnable               (1'b1),
     .RiscvWordWidth           (32),
-    .NumTxns (4)
+    .NumTxns                  (ObiLatency)
   ) i_obi_atop_resolver (
     .clk_i         (tile_clk),
     .rst_ni        (tile_rst_n),
