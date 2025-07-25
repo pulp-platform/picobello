@@ -143,7 +143,7 @@ module axi_to_obi #(
     .UserWidth     (AxiUserWidth),
     .NumBanks      (NumBanks),
     .BufDepth      (MaxTrans),
-    .HideStrb      (1'b1),
+    .HideStrb      (1'b0),
     .OutFifoDepth  (2),
     .PropagateWUser(1'b0),
     .RUserExtra    (IdRuserWidth)
@@ -198,7 +198,7 @@ module axi_to_obi #(
     .UserWidth     (AxiUserWidth),
     .NumBanks      (NumBanks),
     .BufDepth      (MaxTrans),
-    .HideStrb      (1'b1),
+    .HideStrb      (1'b0),
     .OutFifoDepth  (2),
     .PropagateWUser(1'b1),
     .RUserExtra    (IdRuserWidth)
