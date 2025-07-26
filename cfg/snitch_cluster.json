@@ -21,6 +21,7 @@
         zero_mem_size: 60, // kB
         ext_mem_size: 4, //kB
         dma_data_width: 512,
+        dma_nr_channels: 2,
         // TODO(fischeti): Check with Thomas
         dma_axi_req_fifo_depth: 24,
         dma_req_fifo_depth: 8,
@@ -61,9 +62,9 @@
             // Hive 0
             {
                 icache: {
-                    size: 8, // total instruction cache size in kByte
+                    size: 16, // total instruction cache size in kByte
                     ways: 2, // number of ways
-                    cacheline: 256 // word size in bits
+                    cacheline: 512 // word size in bits
                 },
                 cores: [
                     { $ref: "#/compute_core_template" },
@@ -115,7 +116,8 @@
         num_int_outstanding_mem: 4,
         num_fp_outstanding_loads: 4,
         num_fp_outstanding_mem: 4,
-        num_sequencer_instructions: 16,
+        num_sequencer_instructions: 32,
+        num_sequencer_loops: 2,
         num_dtlb_entries: 1,
         num_itlb_entries: 1,
         // SSSR configuration below
@@ -143,7 +145,6 @@
         num_int_outstanding_mem: 4,
         num_fp_outstanding_loads: 4,
         num_fp_outstanding_mem: 4,
-        num_sequencer_instructions: 16,
         num_dtlb_entries: 1,
         num_itlb_entries: 1,
     }
