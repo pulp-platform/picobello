@@ -10,7 +10,7 @@ package:
 dependencies:
   register_interface: { git: "https://github.com/pulp-platform/register_interface.git", version: "0.4.5"                                }
   axi:                { git: "https://github.com/pulp-platform/axi.git",                version: "0.39.6"                               }
-  common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "picobello"                                }
+  common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "snitch"                                   }
   cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "picobello"                                }
   snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "b20c37bc5e9c35fabb632ed7f8156ad9bcdd610f" }
   floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            rev: "develop"                                  }
