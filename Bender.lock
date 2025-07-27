@@ -15,15 +15,15 @@ packages:
     - apb
     - common_cells
   apb_uart:
-     revision: 8182a85d234417db46fe833533f8536644d3bee3
-     version: 0.2.3
-     source:
-       Git: https://github.com/pulp-platform/apb_uart.git
-     dependencies:
-     - apb
-     - obi
-     - obi_peripherals
-     - register_interface
+    revision: 8182a85d234417db46fe833533f8536644d3bee3
+    version: 0.2.3
+    source:
+      Git: https://github.com/pulp-platform/apb_uart.git
+    dependencies:
+    - apb
+    - obi
+    - obi_peripherals
+    - register_interface
   axi:
     revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
     version: null
@@ -185,10 +185,10 @@ packages:
     - fpnew
     - tech_cells_generic
   datamover:
-    revision: fb7d09c201ab52de23b11adf12b36d8e75c4c0e6
+    revision: 5df9c9bd9e10ad020763c4291c571adf35ef4ae2
     version: null
     source:
-      Git: https://github.com/FrancescoConti/datamover
+      Git: https://github.com/pulp-platform/datamover
     dependencies:
     - hci
     - hwpe-ctrl
@@ -239,8 +239,11 @@ packages:
       Git: https://github.com/pulp-platform/hci
     dependencies:
     - cluster_interconnect
+    - common_cells
     - hwpe-stream
     - l2_tcdm_hybrid_interco
+    - redundancy_cells
+    - register_interface
   hwpe-ctrl:
     revision: 3690a3c648f120546d8de2bc583d5170c36d2f20
     version: 2.0.0
@@ -249,7 +252,7 @@ packages:
     dependencies:
     - tech_cells_generic
   hwpe-stream:
-    revision: db62a6411a7f3dc2b2a74e202377da118a4a6673
+    revision: 7eb50a7cb37dc2a970e0cfee10aff5d961e41340
     version: null
     source:
       Git: https://github.com/pulp-platform/hwpe-stream.git
@@ -290,7 +293,7 @@ packages:
       Git: https://github.com/pulp-platform/L2_tcdm_hybrid_interco.git
     dependencies: []
   obi:
-    revision: 8ceb36dd8b1a2179d56cc7ddb0c31d6b11257a28
+    revision: acfcd0f80c7539aa8da7821a66d9acf2074a5b4e
     version: null
     source:
       Git: https://github.com/pulp-platform/obi.git
@@ -298,13 +301,13 @@ packages:
     - common_cells
     - common_verification
   obi_peripherals:
-     revision: 079894a6cbd4e544c477643d184a4c340bd4e391
-     version: 0.1.1
-     source:
-       Git: https://github.com/pulp-platform/obi_peripherals.git
-     dependencies:
-     - common_cells
-     - obi
+    revision: 079894a6cbd4e544c477643d184a4c340bd4e391
+    version: 0.1.1
+    source:
+      Git: https://github.com/pulp-platform/obi_peripherals.git
+    dependencies:
+    - common_cells
+    - obi
   opentitan_peripherals:
     revision: cd3153de2783abd3d03d0595e6c4b32413c62f14
     version: 0.4.0
@@ -321,7 +324,7 @@ packages:
       Path: pd
     dependencies: []
   redmule:
-    revision: 8556300b93be5124377113a983907a20dfaa37e6
+    revision: 8639ec70d53814b95798d75e78562b2cdebbf66e
     version: null
     source:
       Git: https://github.com/pulp-platform/redmule
@@ -334,6 +337,16 @@ packages:
     - hwpe-ctrl
     - hwpe-stream
     - ibex
+    - tech_cells_generic
+  redundancy_cells:
+    revision: c37bdb47339bf70e8323de8df14ea8bbeafb6583
+    version: null
+    source:
+      Git: https://github.com/pulp-platform/redundancy_cells.git
+    dependencies:
+    - common_cells
+    - common_verification
+    - register_interface
     - tech_cells_generic
   register_interface:
     revision: 5daa85d164cf6b54ad061ea1e4c6f3624556e467
@@ -375,13 +388,13 @@ packages:
     source:
       Git: https://github.com/pulp-platform/snitch_cluster.git
     dependencies:
+    - apb
     - axi
     - axi_riscv_atomics
     - cluster_icache
     - common_cells
     - fpnew
     - idma
-    - register_interface
     - riscv-dbg
     - tech_cells_generic
   tech_cells_generic:
