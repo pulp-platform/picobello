@@ -31,7 +31,7 @@
         cluster_base_expose: true,
         alias_region_enable: true,
         alias_region_base: 0x30000000,
-        wide_tcdm_port_expose: true,
+        num_exposed_wide_tcdm_ports: 1,
         narrow_axi_port_expose: true,
         enable_external_interrupts: true,
         vm_support: false,
