@@ -116,6 +116,7 @@
         num_fp_outstanding_loads: 4,
         num_fp_outstanding_mem: 4,
         num_sequencer_instructions: 16,
+        num_sequencer_loops: 2,
         num_dtlb_entries: 1,
         num_itlb_entries: 1,
         // SSSR configuration below
@@ -143,7 +144,6 @@
         num_int_outstanding_mem: 4,
         num_fp_outstanding_loads: 4,
         num_fp_outstanding_mem: 4,
-        num_sequencer_instructions: 16,
         num_dtlb_entries: 1,
         num_itlb_entries: 1,
     }

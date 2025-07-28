@@ -12,7 +12,7 @@ dependencies:
   axi:                { git: "https://github.com/pulp-platform/axi.git",                version: "0.39.6"                               }
   common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "snitch"                                   }
   cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "picobello"                                }
-  snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "b20c37bc5e9c35fabb632ed7f8156ad9bcdd610f" }
+  snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "08cc3f457a147dadba97d7843805befdef5c463f" }
   floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            rev: "develop"                                  }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "acfcd0f80c7539aa8da7821a66d9acf2074a5b4e" }
   redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello"                                }
