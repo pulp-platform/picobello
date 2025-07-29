@@ -54,7 +54,7 @@ endclass
 
 virtual_class_fastmode_l2 l2_sram_class_list[NumMemTiles][NumBanksPerWord][NumBankRows];
 
-`ifndef TARGET_MEM_TILE_NET
+`ifdef L2_SRAM_PATH
 for(genvar i = 0; i < NumMemTiles; i++) begin : gen_fastmode_class_per_l2_tile
   for(genvar j = 0; j < NumBanksPerWord; j++) begin : gen_fastmode_class_per_l2_col
     for(genvar k = 0; k < NumBankRows; k++) begin : gen_fastmode_class_per_l2_row
