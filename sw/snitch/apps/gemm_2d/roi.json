@@ -19,17 +19,17 @@
             "thread": "${f'hart_{cluster * 9 + 8 + 1}'}",
             "roi": [
                 {"idx": 1, "label": "${f'tile_in_0'}"},
-                {"idx": 3, "label": "${f'tile_in_1'}"},
-                {"idx": 7, "label": "${f'tile_in_2'}"},
-                {"idx": 11, "label": "${f'tile_in_3'}"},
-                // % for i in range(2, N_TILES-1):
-                //     {"idx": ${2*i + 1}, "label": "${f'tile_out_{i}'}"},
-                //     {"idx": ${4*i + 5}, "label": "${f'tile_in_{i}'}"},
-                // % endfor
-                {"idx": 5, "label": "${f'tile_out_0'}"},
-                {"idx": 9, "label": "${f'tile_out_1'}"},
-                {"idx": 13, "label": "${f'tile_out_2'}"},
-                {"idx": 15, "label": "${f'tile_out_3'}"},
+                // {"idx": 3, "label": "${f'tile_in_1'}"},
+                // {"idx": 7, "label": "${f'tile_in_2'}"},
+                // {"idx": 11, "label": "${f'tile_in_3'}"},
+                % for i in range(0, N_TILES - 1):
+                    {"idx": ${4*i + 3}, "label": "${f'tile_in_{i+1}'}"},
+                    {"idx": ${4*i + 5}, "label": "${f'tile_out_{i}'}"},
+                % endfor
+                // {"idx": 5, "label": "${f'tile_out_0'}"},
+                // {"idx": 9, "label": "${f'tile_out_1'}"},
+                // {"idx": 13, "label": "${f'tile_out_2'}"},
+                {"idx": 15, "label": "${f'tile_out_{N_TILES-1}'}"},
             ]
         },
     % endfor
