@@ -20,7 +20,7 @@
 #include <math.h>
 #include "blas.h"
 
-#define HW_MCAST
+// #define HW_MCAST
 
 #define L3_START_ADDRESS    0x70000000UL    // Base address of memory tile 0
 #define L3_SIZE             0x100000UL      // Size of memory tile (1MiB)
@@ -33,6 +33,7 @@
 #include "data.h"
 #pragma clang diagnostic pop
 
+// TODO (lleone): This functions are Picobello specific and might be moved inside a dedicated header
 /*------------------------- NoC Helper functions ---------------------------*/
 static inline uintptr_t l3_tile_address(uint32_t tile_idx) {
     return (uintptr_t)L3_START_ADDRESS +
@@ -77,26 +78,16 @@ static inline void allocate_l3_buffers(gemm_args_t *largs ) {
 static inline void write_back_c_tiles(gemm_args_t* largs, uint32_t m_tile_size,
                                       uint32_t n_tile_size) {
     uintptr_t c_src, c_dst;
+    uint32_t transfer_size;
     int c_m_abs, c_n_abs;
 
 
-    for (uint32_t i = 0; i < largs->n_tiles; i++) {
-        // Position of the first element in the Tile to be written back
-        c_src = (uintptr_t )largs->c + (snrt_cluster_idx() * largs->n * m_tile_size + i * n_tile_size) * largs->prec;
-        c_dst = l3_tile_address(0) + l3_tile_offset(c_src);
+    // Position of the first element in the Tile to be written back
+    c_src = (uintptr_t )largs->c + (snrt_cluster_idx() * largs->n * m_tile_size) * largs->prec;
+    c_dst = l3_tile_address(0) + l3_tile_offset( (uintptr_t) c_src);
+    transfer_size = m_tile_size * largs->n * largs->prec;
 
-        if (c_src != c_dst) {
-            c_m_abs = snrt_cluster_idx() * m_tile_size;
-            c_n_abs = i * n_tile_size;
-
-            // Transfer the C tile into the destination
-            snrt_dma_store_2d_tile((void *) c_dst, (void *) c_src,
-                                    c_m_abs, c_n_abs, m_tile_size,
-                                    n_tile_size, largs->ldc, largs->prec);
-
-            snrt_dma_wait_all();
-        }
-    }
+    if (c_src != c_dst) snrt_dma_start_1d((void *) c_dst, (void *) c_src, transfer_size);
 }
 
 /**
@@ -211,24 +202,21 @@ static inline int gemm_picobello(const gemm_args_t *args) {
     // - With a proper linker script, data could be placed directly in the correct
     //   memory tiles without requiring extra DMA work from cluster 0.
 
-    // TODO (lleone): Improve copying only the necessary information and not the full data stack
-    if (snrt_is_dm_core())
-    {
-        allocate_l3_buffers(largs);
-        snrt_dma_wait_all();
-    }
-    snrt_global_barrier();
-
     // Distribute m and k tiles to clusters
     uint32_t cluster_m_tiles = largs->m_tiles;
     uint32_t cluster_k_tiles = largs->k_tiles;
+    uint32_t num_working_clusters = snrt_cluster_num();
     if (largs->parallelize_m) {
         uint32_t m_tiles_quotient = cluster_m_tiles / snrt_cluster_num();
         uint32_t m_tiles_remainder = cluster_m_tiles % snrt_cluster_num();
         cluster_m_tiles = m_tiles_quotient;
         if (snrt_cluster_idx() < m_tiles_remainder) cluster_m_tiles++;
+        if (m_tiles_quotient == 0) num_working_clusters = m_tiles_remainder;
     }
     if (largs->parallelize_k) cluster_k_tiles /= snrt_cluster_num();
+
+    snrt_comm_t comm;
+    snrt_comm_create(num_working_clusters, &comm);
 
     // Calculate number of iterations
     uint32_t num_tiles = cluster_m_tiles * largs->n_tiles * cluster_k_tiles;
@@ -237,6 +225,18 @@ static inline int gemm_picobello(const gemm_args_t *args) {
         num_iters += 2;
     else
         num_iters += 1;
+
+    // Place data in the correct memory tile pre-kernel.
+    // TODO (lleone): Improve copying only the necessary information and not the full data stack
+
+    if (snrt_is_dm_core())
+    {
+        allocate_l3_buffers(largs);
+        snrt_dma_wait_all();
+    }
+    snrt_global_barrier(comm);
+
+
 
     // Iterate over all tiles
     for (uint32_t i = 0; i < num_iters; i++) {
@@ -429,7 +429,7 @@ static inline int gemm_picobello(const gemm_args_t *args) {
         }
 
         // Additional barrier required when not double buffering
-        if (!largs->double_buffer) snrt_global_barrier();
+        if (!largs->double_buffer) snrt_global_barrier(comm);
 
         // Compute phase
         if (comp_i >= 0 && comp_i < num_tiles) {
@@ -492,14 +492,16 @@ static inline int gemm_picobello(const gemm_args_t *args) {
         }
 
         // Synchronize cores after every iteration
-        snrt_global_barrier();
+        snrt_global_barrier(comm);
     }
 
     // Before completing the kernel, each cluster writes back its C tiles in the
     // original memory tile. This is necessary only to run teh verify.py script
-    // if (snrt_is_dm_core()) {
-    //     write_back_c_tiles(largs, tile_m, tile_n);
-    // }
+
+    if (snrt_is_dm_core() && snrt_cluster_idx() < num_working_clusters) {
+        write_back_c_tiles(largs, tile_m, tile_n);
+    }
+
     return 0;
 }
 
