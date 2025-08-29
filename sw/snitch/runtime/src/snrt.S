@@ -1,1 +1,1 @@
-../../../../.deps/snitch_cluster/target/snitch_cluster/sw/runtime/rtl/src/snrt.S
+../../../../.deps/snitch_cluster/sw/runtime/impl/snrt.S
