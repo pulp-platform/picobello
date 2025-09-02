@@ -22,10 +22,6 @@
 
 // #define HW_MCAST
 
-#define L3_START_ADDRESS    0x70000000UL    // Base address of memory tile 0
-#define L3_SIZE             0x100000UL      // Size of memory tile (1MiB)
-#define NUM_L3_TILES        8               // Number of memory tiles
-
 // #define JOB_ARGS_PRELOADED
 
 #pragma clang diagnostic push
@@ -33,26 +29,7 @@
 #include "data.h"
 #pragma clang diagnostic pop
 
-// TODO (lleone): This functions are Picobello specific and might be moved inside a dedicated header
-/*------------------------- NoC Helper functions ---------------------------*/
-static inline uintptr_t l3_tile_address(uint32_t tile_idx) {
-    return (uintptr_t)L3_START_ADDRESS +
-           (uintptr_t)tile_idx * (uintptr_t)L3_SIZE;
-}
-
-static inline uintptr_t l3_tile_offset(uintptr_t src_addr) {
-    return (src_addr - (uintptr_t)L3_START_ADDRESS) & (uintptr_t)(L3_SIZE - 1);
-}
-
-static inline uint32_t cluster_row(uint32_t cid) { return cid % 4u; }
-
-static inline uint32_t dst_tile_for_cluster(uint32_t cid) {
-    uint32_t row = cluster_row(cid);
-    return (cid < 8u) ? row        // first 8 clusters -> left column tiles 0..3
-                      : (row + 4u); // clusters >= 8  -> right column tiles 4..7
-}
-
-// Allocate data in L3 to betetr map kernel in NoC system
+// Allocate data in L3 to better map kernel in NoC system
 static inline void allocate_l3_buffers(gemm_args_t *largs ) {
 
     uint32_t prec = largs->prec;
@@ -228,7 +205,6 @@ static inline int gemm_picobello(const gemm_args_t *args) {
 
     // Place data in the correct memory tile pre-kernel.
     // TODO (lleone): Improve copying only the necessary information and not the full data stack
-
     if (snrt_is_dm_core())
     {
         allocate_l3_buffers(largs);

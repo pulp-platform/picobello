@@ -12,6 +12,7 @@
 #include "snitch_cluster_cfg.h"
 #include "snitch_cluster_peripheral_addrmap.h"
 #include "pb_raw_addrmap.h"
+#include "pb_noc_cfg.h"
 #define SNRT_TCDM_START_ADDR PICOBELLO_ADDRMAP_CLUSTER_0_TCDM_BASE_ADDR
 
 // TODO: the 40000 stride is hardcoded here, but it would better be
@@ -51,6 +52,7 @@ typedef snitch_cluster__stride40000_t snitch_cluster_t;
 #include "sync.h"
 #include "team.h"
 #include "types.h"
+#include "pb_team.h"
 
 // Accelerators
 #include "datamover/archi_datamover.h"
