@@ -10,6 +10,9 @@ module tb_picobello_top;
                        gen_sram_banks[j].gen_sram_macros[k].i_mem.sram
 
   `include "tb_picobello_tasks.svh"
+  `include "cheshire/typedef.svh"
+
+  `CHESHIRE_TYPEDEF_ALL(, fix.vip.DutCfg)
 
   // Instantiate the fixture
   fixture_picobello_top fix ();
@@ -59,7 +62,7 @@ module tb_picobello_top;
     $display("[JTAG] Preload complete");
   endtask
 
-  task automatic slink_32b_elf_preload(input string binary, output doub_bt entry);
+  task automatic slink_32b_elf_preload(input string binary, output bit [63:0] entry);
     longint sec_addr, sec_len;
     $display("[SLINK] Preloading ELF binary: %s", binary);
     if (fix.vip.read_elf(binary)) $fatal(1, "[SLINK] Failed to load ELF!");
@@ -73,7 +76,7 @@ module tb_picobello_top;
         $fatal(1, "[SLINK] Failed to read ELF section!");
       // Write section in bursts <= SlinkBurstBytes that never cross a 4 KiB page
       for (longint sec_offs = 0; sec_offs < sec_len; sec_offs += burst_len) begin
-        longint sec_left, page_left;
+        longint    sec_left, page_left;
         axi_data_t beats                          [$];
         int        bus_offs;
         addr_t     addr_cur = sec_addr + sec_offs;
@@ -82,26 +85,26 @@ module tb_picobello_top;
                    sec_offs * 100 / (sec_len > 1 ? sec_len - 1 : 1));
         end
         // By default the burst length is SlinkBurstBytes
-        burst_len = SlinkBurstBytes;
+        burst_len = fix.vip.SlinkBurstBytes;
         // Cut the burst length if it exceeds the remaining section length
         // or it crosses a 4 KiB page boundary
         sec_left  = sec_len - sec_offs;
         page_left = 4096 - (addr_cur & 12'hFFF);
         if (burst_len > sec_left) burst_len = int'(sec_left);
         if (burst_len > page_left) burst_len = int'(page_left);
-        bus_offs  = addr_cur[AxiStrbBits-1:0];
+        bus_offs  = addr_cur[fix.vip.AxiStrbBits-1:0];
 
         // If the address is not aligned subtract the offset from the burst length to avoid an additional write
         burst_len = burst_len - bus_offs;
         // Assemble beats, handling unaligned start in the first beat
-        for (int b = -bus_offs; b < burst_len; b += AxiStrbWidth) begin
+        for (int b = -bus_offs; b < burst_len; b += fix.vip.AxiStrbWidth) begin
           axi_data_t beat = '0;
-          for (int e = 0; e < AxiStrbWidth; ++e)
+          for (int e = 0; e < fix.vip.AxiStrbWidth; ++e)
           if (b + e >= 0 && b + e < burst_len) beat[8*e+:8] = bf[sec_offs+b+e];
           beats.push_back(beat);
         end
         // Address must be beat‑aligned for slink_write_beats
-        fix.vip.slink_write_beats(addr_cur - bus_offs, AxiStrbBits, beats);
+        fix.vip.slink_write_beats(addr_cur - bus_offs, fix.vip.AxiStrbBits, beats);
       end
     end
     void'(fix.vip.get_entry(entry));
