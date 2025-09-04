@@ -76,7 +76,7 @@ module tb_picobello_top;
         $fatal(1, "[SLINK] Failed to read ELF section!");
       // Write section in bursts <= SlinkBurstBytes that never cross a 4 KiB page
       for (longint sec_offs = 0; sec_offs < sec_len; sec_offs += burst_len) begin
-        longint    sec_left, page_left;
+        longint sec_left, page_left;
         axi_data_t beats                          [$];
         int        bus_offs;
         addr_t     addr_cur = sec_addr + sec_offs;
