@@ -62,55 +62,96 @@ module tb_picobello_top;
     $display("[JTAG] Preload complete");
   endtask
 
+  // Handles misalignments, burst limits and 4KiB crossings
+  task automatic slink_write_generic(input addr_t addr, input longint size, ref byte bytes[]);
+    // Using `slink_write_beats`, writes must be beat-aligned and beat-sized (strobing is not
+    // possible). If we have a misaligned transfer of arbitrary size we may have at most two
+    // incomplete beats (start and end) and one misaligned beat (start). In case of an incomplete
+    // beat we read-modify-write the full beat.
+
+    // Burst and beat geometry
+    const int  beat_bytes = fix.vip.AxiStrbWidth;
+    const int  beat_mask = beat_bytes - 1;
+    const int  SlinkBurstBeats = fix.vip.SlinkBurstBytes / beat_bytes;
+
+    // Iterate beat-by-beat over the address range [addr, addr+size)
+    addr_t     first_aligned = addr_t'(addr) & ~addr_t'(beat_mask);
+    addr_t     end_addr = addr_t'(addr + size);
+    addr_t     last_aligned = addr_t'((end_addr - 1) & ~addr_t'(beat_mask));
+
+    // Running index into bytes[]: "how many bytes have we already consumed?"
+    longint    base_idx = 0;
+
+    // Group beats in a burst
+    addr_t     batch_addr = first_aligned;
+    axi_data_t burst                                                        [$];
+    burst = {};
+
+    for (addr_t beat_addr = first_aligned; beat_addr <= last_aligned; beat_addr += beat_bytes) begin
+      addr_t next_addr;
+      bit crosses_4k_next, exceeds_burst_length, last_beat_in_section;
+
+      // Window of the current beat that has to be written
+      int start_off = (beat_addr == first_aligned) ? int'(addr & beat_mask) : 0;
+      int end_off_excl = (beat_addr == last_aligned) ? int'(end_addr - last_aligned) : beat_bytes;
+      int win_len = end_off_excl - start_off;
+
+      // Compose beat
+      axi_data_t beat = '0;
+      if (win_len == beat_bytes && start_off == 0) begin
+        // FULL BEAT: write directly, no RMW
+        for (int e = 0; e < beat_bytes; e++) begin
+          beat[8*e+:8] = bytes[base_idx+e];
+        end
+      end else begin
+        // PARTIAL BEAT: RMW
+        axi_data_t rd[$];
+        fix.vip.slink_read_beats(beat_addr, fix.vip.AxiStrbBits, 0, rd);
+        beat = rd[0];
+        for (int i = 0; i < win_len; i++) begin
+          beat[8*(start_off+i)+:8] = bytes[base_idx+i];
+        end
+      end
+
+      // Accumulate and advance
+      burst.push_back(beat);
+      base_idx += win_len;
+
+      // Decide if the next beat would cross a 4 KiB boundary, exceed the maximum burst length
+      // or this is the last beat
+      next_addr            = beat_addr + win_len;
+      crosses_4k_next      = ((next_addr & 12'hFFF) == 12'h000);  // next beat starts a new page
+      exceeds_burst_length = (burst.size() == SlinkBurstBeats);
+      last_beat_in_section = (beat_addr == last_aligned);
+
+      if (crosses_4k_next || exceeds_burst_length || last_beat_in_section) begin
+        // Flush accumulated beats for this page
+        fix.vip.slink_write_beats(batch_addr, fix.vip.AxiStrbBits, burst);
+        burst      = {};
+        batch_addr = next_addr;
+      end
+    end
+  endtask
+
   task automatic slink_32b_elf_preload(input string binary, output bit [63:0] entry);
     longint sec_addr, sec_len;
+
     $display("[SLINK] Preloading ELF binary: %s", binary);
     if (fix.vip.read_elf(binary)) $fatal(1, "[SLINK] Failed to load ELF!");
+
     while (fix.vip.get_section(
         sec_addr, sec_len
     )) begin
-      byte bf        [] = new[sec_len];
-      int  burst_len;
+      byte bf[] = new[sec_len];
       $display("[SLINK] Preloading section at 0x%h (%0d bytes)", sec_addr, sec_len);
       if (fix.vip.read_section(sec_addr, bf, sec_len))
         $fatal(1, "[SLINK] Failed to read ELF section!");
-      // Write section in bursts <= SlinkBurstBytes that never cross a 4 KiB page
-      for (longint sec_offs = 0; sec_offs < sec_len; sec_offs += burst_len) begin
-        longint sec_left, page_left;
-        axi_data_t beats                          [$];
-        int        bus_offs;
-        addr_t     addr_cur = sec_addr + sec_offs;
-        if (sec_offs != 0) begin
-          $display("[SLINK] - %0d/%0d bytes (%0d%%)", sec_offs, sec_len,
-                   sec_offs * 100 / (sec_len > 1 ? sec_len - 1 : 1));
-        end
-        // By default the burst length is SlinkBurstBytes
-        burst_len = fix.vip.SlinkBurstBytes;
-        // Cut the burst length if it exceeds the remaining section length
-        // or it crosses a 4 KiB page boundary
-        sec_left  = sec_len - sec_offs;
-        page_left = 4096 - (addr_cur & 12'hFFF);
-        if (burst_len > sec_left) burst_len = int'(sec_left);
-        if (burst_len > page_left) burst_len = int'(page_left);
-        bus_offs  = addr_cur[fix.vip.AxiStrbBits-1:0];
-
-        // If the address is not aligned subtract the offset from the burst length to avoid an additional write
-        burst_len = burst_len - bus_offs;
-        // Assemble beats, handling unaligned start in the first beat
-        for (int b = -bus_offs; b < burst_len; b += fix.vip.AxiStrbWidth) begin
-          axi_data_t beat = '0;
-          for (int e = 0; e < fix.vip.AxiStrbWidth; ++e)
-          if (b + e >= 0 && b + e < burst_len) beat[8*e+:8] = bf[sec_offs+b+e];
-          beats.push_back(beat);
-        end
-        // Address must be beat‑aligned for slink_write_beats
-        fix.vip.slink_write_beats(addr_cur - bus_offs, fix.vip.AxiStrbBits, beats);
-      end
+      slink_write_generic(sec_addr, sec_len, bf);
     end
+
     void'(fix.vip.get_entry(entry));
     $display("[SLINK] Preload complete");
   endtask
-
 
   initial begin
     // Fetch plusargs or use safe (fail-fast) defaults
