@@ -104,8 +104,8 @@ $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 ##################
 
 SN_GEN_DIR = $(PB_GEN_DIR)
-include $(SN_ROOT)/target/common/common.mk
-include $(SN_ROOT)/target/common/rtl.mk
+include $(SN_ROOT)/make/common.mk
+include $(SN_ROOT)/make/rtl.mk
 
 .PHONY: sn-hw-clean sn-hw-all
 
@@ -198,6 +198,12 @@ TB_DUT = tb_picobello_top
 
 include $(PB_ROOT)/target/sim/vsim/vsim.mk
 include $(PB_ROOT)/target/sim/traces.mk
+
+##################
+# Snitch cluster #
+##################
+
+$(call sn_include_deps)
 
 ########
 # Misc #

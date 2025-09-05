@@ -22,42 +22,41 @@ PB_GEN_DIR = $(PB_ROOT)/.generated
 ## Snitch Cluster ##
 ####################
 
-SNRT_TARGET_DIR     = $(PB_SNITCH_SW_DIR)/runtime
-SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
+SN_RUNTIME_SRCDIR   = $(PB_SNITCH_SW_DIR)/runtime/src
+SN_RUNTIME_BUILDDIR = $(PB_SNITCH_SW_DIR)/runtime/build
+SN_TESTS_BUILDDIR   = $(PB_SNITCH_SW_DIR)/tests/build
 SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
-SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
-SNRT_BUILD_APPS     = OFF
-SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
-SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
+SN_RUNTIME_INCDIRS  = $(PB_INCDIR)
+SN_RUNTIME_INCDIRS += $(PB_GEN_DIR)
+SN_RUNTIME_HAL_HDRS = $(PB_GEN_DIR)/pb_addrmap.h
+SN_BUILD_APPS       = OFF
 
-ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
-include $(SN_ROOT)/target/snitch_cluster/sw.mk
-endif
+include $(SN_ROOT)/make/sw.mk
 
 # Collect Snitch tests which should be built
-PB_SNRT_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
-PB_SNRT_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
-PB_SNRT_TEST_NAMES = $(basename $(notdir $(wildcard $(PB_SNRT_TESTS_DIR)/*.c)))
-PB_SNRT_TEST_ELFS = $(abspath $(addprefix $(PB_SNRT_TESTS_BUILDDIR)/,$(addsuffix .elf,$(PB_SNRT_TEST_NAMES))))
-PB_SNRT_TEST_DUMP = $(abspath $(addprefix $(PB_SNRT_TESTS_BUILDDIR)/,$(addsuffix .dump,$(PB_SNRT_TEST_NAMES))))
+PB_SN_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
+PB_SN_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
+PB_SN_TEST_NAMES = $(basename $(notdir $(wildcard $(PB_SN_TESTS_DIR)/*.c)))
+PB_SN_TEST_ELFS = $(abspath $(addprefix $(PB_SN_TESTS_BUILDDIR)/,$(addsuffix .elf,$(PB_SN_TEST_NAMES))))
+PB_SN_TEST_DUMP = $(abspath $(addprefix $(PB_SN_TESTS_BUILDDIR)/,$(addsuffix .dump,$(PB_SN_TEST_NAMES))))
 
-.PHONY: pb-snrt-tests clean-pb-snrt-tests
+.PHONY: pb-sn-tests clean-pb-sn-tests
 
-pb-sn-tests: $(PB_SNRT_TEST_ELFS) $(PB_SNRT_TEST_DUMP)
+pb-sn-tests: $(PB_SN_TEST_ELFS) $(PB_SN_TEST_DUMP)
 
 clean-pb-sn-tests:
-	rm -rf $(PB_SNRT_TEST_ELFS)
+	rm -rf $(PB_SN_TEST_ELFS)
 
-$(PB_SNRT_TEST_ELFS): $(PB_GEN_DIR)/pb_addrmap.h
+$(PB_SN_TEST_ELFS): $(PB_GEN_DIR)/pb_addrmap.h
 
-$(PB_SNRT_TESTS_BUILDDIR)/%.d: $(PB_SNRT_TESTS_DIR)/%.c | $(PB_SNRT_TESTS_BUILDDIR)
-	$(RISCV_CXX) $(SNRT_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' -x c++ $< > $@
+$(PB_SN_TESTS_BUILDDIR)/%.d: $(PB_SN_TESTS_DIR)/%.c | $(PB_SN_TESTS_BUILDDIR)
+	$(SN_RISCV_CXX) $(SN_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' -x c++ $< > $@
 
-$(PB_SNRT_TESTS_BUILDDIR)/%.elf: $(PB_SNRT_TESTS_DIR)/%.c $(SNRT_LIB) | $(PB_SNRT_TESTS_BUILDDIR)
-	$(RISCV_CXX) $(SNRT_TESTS_RISCV_CFLAGS) $(SNRT_TESTS_RISCV_LDFLAGS) -x c++ $< -o $@
+$(PB_SN_TESTS_BUILDDIR)/%.elf: $(PB_SN_TESTS_DIR)/%.c $(SN_RUNTIME_LIB) | $(PB_SN_TESTS_BUILDDIR)
+	$(SN_RISCV_CXX) $(SN_TESTS_RISCV_CFLAGS) $(SN_TESTS_RISCV_LDFLAGS) -x c++ $< -o $@
 
-$(PB_SNRT_TESTS_BUILDDIR)/%.dump: $(PB_SNRT_TESTS_BUILDDIR)/%.elf | $(PB_SNRT_TESTS_BUILDDIR)
-	$(RISCV_OBJDUMP) $(RISCV_OBJDUMP_FLAGS) $< > $@
+$(PB_SN_TESTS_BUILDDIR)/%.dump: $(PB_SN_TESTS_BUILDDIR)/%.elf | $(PB_SN_TESTS_BUILDDIR)
+	$(SN_RISCV_OBJDUMP) $(SN_RISCV_OBJDUMP_FLAGS) $< > $@
 
 ##############
 ## Cheshire ##
@@ -67,7 +66,7 @@ PB_LINK_MODE ?= spm
 
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
-CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
+CHS_SW_INCLUDES += -I$(SN_RUNTIME_SRCDIR)
 CHS_SW_INCLUDES += -I$(PB_GEN_DIR)
 
 # Collect tests, which should be build for all modes, and their .dump targets
@@ -77,8 +76,8 @@ PB_CHS_SW_TEST_ELF += $(PB_CHS_SW_TEST_SRC:.c=.$(PB_LINK_MODE).elf)
 
 PB_CHS_SW_TEST = $(PB_CHS_SW_TEST_DUMP)
 
-$(PB_CHS_SW_TEST_SRC): $(PB_GEN_DIR)/pb_addrmap.h
 $(PB_CHS_SW_TEST_DUMP): $(PB_CHS_SW_TEST_ELF)
+$(PB_CHS_SW_TEST_ELF): $(PB_GEN_DIR)/pb_addrmap.h $(SN_RUNTIME_HAL_HDRS)
 
 .PHONY: chs-sw-tests chs-sw-tests-clean
 
