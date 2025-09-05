@@ -31,7 +31,8 @@ inline uintptr_t pb_l3_tile_address(uint32_t tile_idx) {
  * @return Address location offset respect to the tile start address
  */
 inline uintptr_t pb_l3_tile_offset(uintptr_t src_addr) {
-    return (src_addr - (uintptr_t)L3_START_ADDRESS) & (uintptr_t)(L3_SIZE - 1);
+    return (src_addr - PICOBELLO_ADDRMAP_L2_SPM_0_BASE_ADDR) %
+        PICOBELLO_ADDRMAP_L2_SPM_0_SIZE;
 }
 
 
@@ -42,7 +43,7 @@ inline uintptr_t pb_l3_tile_offset(uintptr_t src_addr) {
  */
 inline uint32_t pb_cluster_row(uint32_t cidx)
 {
-  return cidx % CLUSTER_PER_ROW;
+    return cidx % PB_CLUSTER_PER_ROW;
 }
 
 /**
@@ -52,7 +53,7 @@ inline uint32_t pb_cluster_row(uint32_t cidx)
  */
 inline uint32_t pb_cluster_row()
 {
-  return pb_cluster_row(snrt_cluster_idx());
+    return pb_cluster_row(snrt_cluster_idx());
 }
 
 
@@ -63,7 +64,7 @@ inline uint32_t pb_cluster_row()
  */
 inline uint32_t pb_cluster_col(uint32_t cidx)
 {
-  return cidx % CLUSTER_PER_COL;
+    return cidx / PB_CLUSTER_PER_COL;
 }
 
 /**
@@ -73,7 +74,7 @@ inline uint32_t pb_cluster_col(uint32_t cidx)
  */
 inline uint32_t pb_cluster_col()
 {
-  return pb_cluster_col(snrt_cluster_idx());
+    return pb_cluster_col(snrt_cluster_idx());
 }
 
 
@@ -84,13 +85,15 @@ inline uint32_t pb_cluster_col()
  */
 inline uint32_t pb_closest_mem_tile(uint32_t cidx) {
     uint32_t row = pb_cluster_row(cidx);
-    return (cidx < 8u) ? row        // first 8 clusters -> left column tiles 0..3
-                      : (row + 4u); // clusters >= 8  -> right column tiles 4..7
+    // e.g. with 4x4 matrix
+    // first 8 clusters -> left column tiles 0..3
+    // clusters >= 8 -> right column tiles 4..7
+    return (cidx < (snrt_cluster_num() / 2)) ? row : (row + PB_CLUSTER_PER_COL);
 }
 
 /**
  * @brief Get the index of the closest memory tile
- * This is a convenience orload of pb_closest_mem_tile()
+ * This is a convenience overload of pb_closest_mem_tile()
  */
 inline uint32_t pb_closest_mem_tile() {
     return pb_closest_mem_tile(snrt_cluster_idx());
