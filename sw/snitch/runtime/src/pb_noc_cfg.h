@@ -4,8 +4,5 @@
 //
 // Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
-#define L3_START_ADDRESS    PICOBELLO_ADDRMAP_L2_SPM_0_BASE_ADDR
-#define L3_SIZE             0x00100000
-
-#define CLUSTER_PER_ROW 4
-#define CLUSTER_PER_COL 4
+#define PB_CLUSTER_PER_ROW 4
+#define PB_CLUSTER_PER_COL 4
