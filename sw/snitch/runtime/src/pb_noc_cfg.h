@@ -4,8 +4,8 @@
 //
 // Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
-#define L3_START_ADDRESS    0x70000000UL    // Base address of memory tile 0
-#define L3_SIZE             0x100000UL      // Size of memory tile (1MiB)
+#define L3_START_ADDRESS    PICOBELLO_ADDRMAP_L2_SPM_0_BASE_ADDR
+#define L3_SIZE             0x00100000
 
 #define CLUSTER_PER_ROW 4
 #define CLUSTER_PER_COL 4

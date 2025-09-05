@@ -16,16 +16,13 @@
  * management and core-specific operations.
  */
 
-// TODO (lleone): Chekc if these functions can be difend as static
-
 /**
  * @brief Get start address of a memory tile
  * @param tile_idx The memory tile idx in the NoC
  * @return Start addres of memory tile idx
  */
-inline uintptr_t l3_tile_address(uint32_t tile_idx) {
-    return (uintptr_t)L3_START_ADDRESS +
-           (uintptr_t)tile_idx * (uintptr_t)L3_SIZE;
+inline uintptr_t pb_l3_tile_address(uint32_t tile_idx) {
+    return (uintptr_t) (picobello_addrmap.l2_spm[tile_idx].mem);
 }
 
 /**
@@ -33,32 +30,68 @@ inline uintptr_t l3_tile_address(uint32_t tile_idx) {
  * @param src_addr The data absolute address
  * @return Address location offset respect to the tile start address
  */
-inline uintptr_t l3_tile_offset(uintptr_t src_addr) {
+inline uintptr_t pb_l3_tile_offset(uintptr_t src_addr) {
     return (src_addr - (uintptr_t)L3_START_ADDRESS) & (uintptr_t)(L3_SIZE - 1);
 }
+
 
 /**
  * @brief Get the NoC row index
  * @param cidx The cluster index
  * @return The Row index
  */
-inline uint32_t cluster_row(uint32_t cidx)
+inline uint32_t pb_cluster_row(uint32_t cidx)
 {
   return cidx % CLUSTER_PER_ROW;
 }
+
+/**
+ * @brief Get the NoC row index
+ * This is a convenience orload of pb_cluster_row()
+ * @return The Row index
+ */
+inline uint32_t pb_cluster_row()
+{
+  return pb_cluster_row(snrt_cluster_idx());
+}
+
 
 /**
  * @brief Get the NoC column index
  * @param cidx The cluster index
  * @return The Column index
  */
-inline uint32_t cluster_col(uint32_t cidx)
+inline uint32_t pb_cluster_col(uint32_t cidx)
 {
   return cidx % CLUSTER_PER_COL;
 }
 
-inline uint32_t dst_tile_for_cluster(uint32_t cidx) {
-    uint32_t row = cluster_row(cidx);
+/**
+ * @brief Get the NoC column index
+ * This is a convenience orload of pb_cluster_row()
+ * @return The Column index
+ */
+inline uint32_t pb_cluster_col()
+{
+  return pb_cluster_col(snrt_cluster_idx());
+}
+
+
+/**
+ * @brief Get the index of the closest memory tile
+ * @param cidx The cluster index
+ * @return Index of the closest memory tile to cidx
+ */
+inline uint32_t pb_closest_mem_tile(uint32_t cidx) {
+    uint32_t row = pb_cluster_row(cidx);
     return (cidx < 8u) ? row        // first 8 clusters -> left column tiles 0..3
                       : (row + 4u); // clusters >= 8  -> right column tiles 4..7
+}
+
+/**
+ * @brief Get the index of the closest memory tile
+ * This is a convenience orload of pb_closest_mem_tile()
+ */
+inline uint32_t pb_closest_mem_tile() {
+    return pb_closest_mem_tile(snrt_cluster_idx());
 }
