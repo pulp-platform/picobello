@@ -276,6 +276,7 @@ module mem_tile
     end
   end
 
+`ifndef SYNTHESIS
   // AXI Monitor dumper to improvce debiugging
   axi_dumper #(
     .BusName   ($sformatf("mem_tile_%d", MemTileId)),
@@ -292,6 +293,7 @@ module mem_tile
     .axi_req_i (axi_req),
     .axi_resp_i(axi_rsp)
   );
+`endif
 
   axi_to_obi #(
     .ObiCfg      (MgrObiCfg),
