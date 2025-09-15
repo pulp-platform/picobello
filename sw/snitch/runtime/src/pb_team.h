@@ -9,11 +9,6 @@
  * @file
  * @brief This file contains functions and macros related to Picobello team
  * management.
- *
- * The functions in this file provide information about the Snitch hardware
- * configuration, such as the number of clusters, cores per cluster, and the
- * current core's index within the system. These functions can be used for team
- * management and core-specific operations.
  */
 
 /**
@@ -21,7 +16,7 @@
  * @param tile_idx The memory tile idx in the NoC
  * @return Start addres of memory tile idx
  */
-inline uintptr_t pb_l3_tile_address(uint32_t tile_idx) {
+inline uintptr_t pb_l2_tile_address(uint32_t tile_idx) {
     return (uintptr_t) (picobello_addrmap.l2_spm[tile_idx].mem);
 }
 
@@ -30,7 +25,7 @@ inline uintptr_t pb_l3_tile_address(uint32_t tile_idx) {
  * @param src_addr The data absolute address
  * @return Address location offset respect to the tile start address
  */
-inline uintptr_t pb_l3_tile_offset(uintptr_t src_addr) {
+inline uintptr_t pb_l2_tile_offset(uintptr_t src_addr) {
     return (src_addr - PICOBELLO_ADDRMAP_L2_SPM_0_BASE_ADDR) %
         PICOBELLO_ADDRMAP_L2_SPM_0_SIZE;
 }

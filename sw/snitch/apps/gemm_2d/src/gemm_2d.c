@@ -29,16 +29,16 @@
 #include "data.h"
 #pragma clang diagnostic pop
 
-// Allocate data in L3 to better map kernel in NoC system
-static inline void allocate_l3_buffers(gemm_args_t *largs ) {
+// Allocate data in L2 to better map kernel in NoC system
+static inline void allocate_l2_buffers(gemm_args_t *largs ) {
 
     uint32_t prec = largs->prec;
     uint32_t mem_tile_idx = pb_closest_mem_tile(snrt_cluster_idx());
 
-    uintptr_t a_off = pb_l3_tile_offset((uintptr_t) largs -> a);
-    uintptr_t c_off = pb_l3_tile_offset((uintptr_t) largs -> c);
-    uintptr_t a_dst = pb_l3_tile_address(mem_tile_idx) + a_off;
-    uintptr_t c_dst = pb_l3_tile_address(mem_tile_idx) + c_off;
+    uintptr_t a_off = pb_l2_tile_offset((uintptr_t) largs -> a);
+    uintptr_t c_off = pb_l2_tile_offset((uintptr_t) largs -> c);
+    uintptr_t a_dst = pb_l2_tile_address(mem_tile_idx) + a_off;
+    uintptr_t c_dst = pb_l2_tile_address(mem_tile_idx) + c_off;
 
     // Move data in the correct memory tile location
     uint32_t size_a = (size_t)largs->m * (size_t)largs->k;
@@ -61,7 +61,7 @@ static inline void write_back_c_tiles(gemm_args_t* largs, uint32_t m_tile_size,
 
     // Position of the first element in the Tile to be written back
     c_src = (uintptr_t )largs->c + (snrt_cluster_idx() * largs->n * m_tile_size) * largs->prec;
-    c_dst = pb_l3_tile_address(0) + pb_l3_tile_offset( (uintptr_t) c_src);
+    c_dst = pb_l2_tile_address(0) + pb_l2_tile_offset( (uintptr_t) c_src);
     transfer_size = m_tile_size * largs->n * largs->prec;
 
     if (c_src != c_dst) snrt_dma_start_1d((void *) c_dst, (void *) c_src, transfer_size);
@@ -207,7 +207,7 @@ static inline int gemm_picobello(const gemm_args_t *args) {
     // TODO (lleone): Improve copying only the necessary information and not the full data stack
     if (snrt_is_dm_core())
     {
-        allocate_l3_buffers(largs);
+        allocate_l2_buffers(largs);
         snrt_dma_wait_all();
     }
     snrt_global_barrier(comm);

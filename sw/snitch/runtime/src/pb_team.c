@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-extern inline uintptr_t pb_l3_tile_address(uint32_t tile_idx);
+extern inline uintptr_t pb_l2_tile_address(uint32_t tile_idx);
 
-extern inline uintptr_t pb_l3_tile_offset(uintptr_t src_addr);
+extern inline uintptr_t pb_l2_tile_offset(uintptr_t src_addr);
 
 extern inline uint32_t pb_cluster_row(uint32_t cidx);
 
