@@ -28,11 +28,23 @@ SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
 SNRT_INCDIRS        = $(PB_INCDIR) $(PB_GEN_DIR)
 SNRT_BUILD_APPS     = OFF
 SNRT_MEMORY_LD      = $(PB_SNITCH_SW_DIR)/memory.ld
+SNRT_HAL_BUILD_DIR  = $(PB_SNITCH_SW_DIR)/runtime/build
 SNRT_HAL_HDRS       = $(PB_GEN_DIR)/pb_addrmap.h
+SNRT_HAL_HDRS      += $(PB_GEN_DIR)/pb_raw_addrmap.h
 
-ifneq (,$(filter chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
+SNRT_APPS  = $(PB_SNITCH_SW_DIR)/apps/gemm_2d
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/gemm
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/axpy
+SNRT_APPS += $(SN_ROOT)/target/snitch_cluster/sw/apps/dnn/flashattention_2
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/fused_concat_linear
+SNRT_APPS += $(PB_SNITCH_SW_DIR)/apps/mha
+
+ifneq (,$(filter $(PB_SNITCH_SW_DIR)% chs-bootrom% chs-sw% sn% pb-sn-tests% sw%,$(MAKECMDGOALS)))
 include $(SN_ROOT)/target/snitch_cluster/sw.mk
 endif
+
+$(PB_GEN_DIR)/pb_raw_addrmap.h: $(PB_RDL_ALL)
+	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --base_name $(notdir $(basename $@)) --format c
 
 # Collect Snitch tests which should be built
 PB_SNRT_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
@@ -67,7 +79,7 @@ PB_LINK_MODE ?= spm
 
 # We need to include the address map and snitch cluster includes
 CHS_SW_INCLUDES += -I$(PB_INCDIR)
-CHS_SW_INCLUDES += -I$(SNRT_HAL_HDRS_DIR)
+CHS_SW_INCLUDES += -I$(SNRT_HAL_BUILD_DIR)
 CHS_SW_INCLUDES += -I$(PB_GEN_DIR)
 
 # Collect tests, which should be build for all modes, and their .dump targets
@@ -95,8 +107,9 @@ chs-sw-tests-clean:
 # Alias targets to align them with Picobello naming convention
 sn-tests-clean: sn-clean-tests
 sn-runtime-clean: sn-clean-runtime
+sn-apps-clean: sn-clean-apps
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests sn-tests pb-sn-tests
+sw sw-tests: chs-sw-tests sn-tests pb-sn-tests sn-apps
 
-sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean clean-pb-sn-tests
+sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean clean-pb-sn-tests sn-apps-clean

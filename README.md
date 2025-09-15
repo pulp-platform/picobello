@@ -112,6 +112,14 @@ Use the `vsim-run-batch` command to run tests in batch mode with RTL optimizatio
 
 Use the `PRELMODE=3` flag to enable fast preload of the Snitch binary, and speed up the simulation.
 
+Some applications produce a lot of output data, which would be time-consuming to check in simulation.
+Said applications usually come with a Python verification script that can check the results from a dump of the memory contents at the end of the simulation.
+For example, a verification script for the GEMM kernel can be found under `$(bender path snitch_cluster)/sw/blas/gemm/scripts/verify.py`
+To run an application on Snitch and verify its results, do:
+```bash
+make vsim-run-batch-verify VERIFY_PY=$(bender path snitch_cluster)/sw/blas/gemm/scripts/verify.py PRELMODE=3 CHS_BINARY=sw/cheshire/tests/simple_offload.spm.elf SN_BINARY=sw/snitch/apps/blas/gemm/build/gemm.elf
+```
+
 ### Additional help
 
 Additionally, you can run the following command to get a list of all available commands:

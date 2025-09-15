@@ -4,7 +4,7 @@
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PD_COMMIT: "c22baf1fcce6b0cf76b85d2009e146ba3bbb6807"
+  PD_COMMIT: "245dd3d4a7c33f6052a913691382871bd2c53fc0"
   SPU_COMMIT: "c2e8815487bd713624d74ef3e3e0465196b6d67f"
 
 # Check the cache for bender and python dependencies
@@ -66,11 +66,13 @@ variables:
     - .cache-deps
     - .init-env
   script:
-    - make sn-tests
+    - make sn-tests DEBUG=ON
+    - make sn-apps DEBUG=ON
     - make pb-sn-tests
   artifacts:
     paths:
       - sw/snitch/tests/build/*.elf
+      - sw/snitch/apps/**/build/*.elf
     expire_in: 1 day
 
 # Compile the cheshire software tests

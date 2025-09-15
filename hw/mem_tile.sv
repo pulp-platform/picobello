@@ -16,7 +16,8 @@ module mem_tile
 #(
   parameter bit          AxiUserAtop    = 1'b1,
   parameter int unsigned AxiUserAtopMsb = 3,
-  parameter int unsigned AxiUserAtopLsb = 0
+  parameter int unsigned AxiUserAtopLsb = 0,
+  parameter int unsigned MemTileId      = 0
 ) (
   input  logic                    clk_i,
   input  logic                    rst_ni,
@@ -274,6 +275,25 @@ module mem_tile
                                                         obi_in_rsp_write_rid : '0;
     end
   end
+
+`ifndef SYNTHESIS
+  // AXI Monitor dumper to improvce debiugging
+  axi_dumper #(
+    .BusName   ($sformatf("mem_tile_%d", MemTileId)),
+    .LogAW     (1'b1),
+    .LogAR     (1'b1),
+    .LogW      (1'b1),
+    .LogB      (1'b1),
+    .LogR      (1'b1),
+    .axi_req_t (axi_nw_join_req_t),
+    .axi_resp_t(axi_nw_join_rsp_t)
+  ) i_axi_monitor (
+    .clk_i,
+    .rst_ni,
+    .axi_req_i (axi_req),
+    .axi_resp_i(axi_rsp)
+  );
+`endif
 
   axi_to_obi #(
     .ObiCfg      (MgrObiCfg),

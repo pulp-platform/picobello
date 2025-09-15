@@ -218,7 +218,7 @@ python-venv: .venv
 	python -m pip install --upgrade pip setuptools && \
 	python -m pip install --cache-dir $(PIP_CACHE_DIR) -r requirements.txt && \
 	python -m pip install --cache-dir $(PIP_CACHE_DIR) $(shell $(BENDER) path floo_noc) --no-deps && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) $(shell $(BENDER) path snitch_cluster)
+	python -m pip install --cache-dir $(PIP_CACHE_DIR) "$(shell $(BENDER) path snitch_cluster)[kernels]"
 
 python-venv-clean:
 	rm -rf .venv
