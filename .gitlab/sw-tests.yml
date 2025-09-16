@@ -30,8 +30,8 @@
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/redmule.elf }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/redmule_quant.elf }
       - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: $SN_BUILD_DIR/datamover.elf }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/gemm_2d/build/gemm_2d.elf, VERIFY_PY: $SN_ROOT/sw/blas/gemm/scripts/verify.py, PRELMODE: 3 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/fused_concat_linear/build/fused_concat_linear.elf, VERIFY_PY: $SN_ROOT/sw/dnn/fused_concat_linear/scripts/verify.py, PRELMODE: 3 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/mha/build/mha.elf, VERIFY_PY: $SN_ROOT/sw/dnn/mha/scripts/verify.py, PRELMODE: 3 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/gemm/build/gemm.elf, VERIFY_PY: $SN_ROOT/sw/blas/gemm/scripts/verify.py, PRELMODE: 3 }
-      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/axpy/build/axpy.elf, VERIFY_PY: $SN_ROOT/sw/blas/axpy/scripts/verify.py, PRELMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/gemm_2d/build/gemm_2d.elf, VERIFY_PY: $SN_ROOT/sw/kernels/blas/gemm/scripts/verify.py, PRELMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/fused_concat_linear/build/fused_concat_linear.elf, VERIFY_PY: $SN_ROOT/sw/kernels/dnn/fused_concat_linear/scripts/verify.py, PRELMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/mha/build/mha.elf, VERIFY_PY: $SN_ROOT/sw/kernels/dnn/mha/scripts/verify.py, PRELMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/gemm/build/gemm.elf, VERIFY_PY: $SN_ROOT/sw/kernels/blas/gemm/scripts/verify.py, PRELMODE: 3 }
+      - { CHS_BINARY: $CHS_BUILD_DIR/simple_offload.spm.elf, SN_BINARY: sw/snitch/apps/axpy/build/axpy.elf, VERIFY_PY: $SN_ROOT/sw/kernels/blas/axpy/scripts/verify.py, PRELMODE: 3 }

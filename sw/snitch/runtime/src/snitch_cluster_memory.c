@@ -1,1 +1,1 @@
-../../../../.deps/snitch_cluster/target/snitch_cluster/sw/runtime/common/snitch_cluster_memory.c
+../../../../.deps/snitch_cluster/sw/runtime/impl/snitch_cluster_memory.c
