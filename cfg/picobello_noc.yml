@@ -48,6 +48,7 @@ endpoints:
       base: 0x2000_0000
       size: 0x0004_0000
       rdl_name: "snitch_cluster"
+      en_multicast: true
     mgr_port_protocol:
       - "narrow_in"
       - "wide_in"
