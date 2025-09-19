@@ -267,82 +267,6 @@ package picobello_pkg;
     logic [snitch_cluster_pkg::AtomicIdWidth-1:0] atomic;
   } mcast_user_t;
 
-  typedef struct packed {
-    logic [5:0] offset;
-    logic [2:0] len;
-    logic [2:0] grp_base_id;
-  } mask_sel_t;
-
-  typedef struct packed {
-    id_t       id;
-    mask_sel_t mask_x;
-    mask_sel_t mask_y;
-  } sam_idx_t;
-
-  typedef struct packed {
-    sam_idx_t                             idx;
-    logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] start_addr;
-    logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] end_addr;
-  } sam_multicast_rule_t;
-
-
-  // Packed original SAM with extra information necessary for multicast handling
-  function automatic sam_multicast_rule_t [SamNumRules-1:0] get_sam_multicast();
-    sam_multicast_rule_t [SamNumRules-1:0] sam_multicast;
-
-    int unsigned len_id_x, len_id_y;
-    int unsigned offset_id_x, offset_id_y;
-    int unsigned empty_cols, empty_rows;
-    int unsigned tileSize;
-    // Evaluate where the X and Y node coordinate associated with the multicast endpoints
-    // are actaully located
-    // clog2 returns 0 when idx.x = 1. To workaround this problem, separate the case where max idx is 1
-    len_id_x    = (Sam[NumClusters-1].idx.x == 1) ? 1 : $clog2(Sam[NumClusters-1].idx.x);
-    len_id_y    = (Sam[NumClusters-1].idx.y == 1) ? 1 : $clog2(Sam[NumClusters-1].idx.y);
-    tileSize    = ep_addr_size(sam_idx_e'(NumClusters - 1));
-    offset_id_y = $clog2(tileSize);
-    offset_id_x = $clog2(tileSize) + len_id_y;
-
-    // Evaluate the number of empty columns in the artificial MeshMap.
-    // From this information calculate the base ID of the first cluster
-    // in the mutlicast group.
-
-    // TODO(lleone): This is a temporary solution. In a fully configurable system,
-    // the base ID doesn't match with the number of empty rows/columns. This is
-    // true only in the 7x4 mesh.
-    empty_cols  = $countones(get_empty_cols(MeshMap) + 1);
-    empty_rows  = $countones(get_empty_rows(MeshMap));
-
-    for (int rule = 0; rule < SamNumRules; rule++) begin
-      sam_multicast[rule].idx.id     = Sam[rule].idx;
-      sam_multicast[rule].start_addr = Sam[rule].start_addr;
-      sam_multicast[rule].end_addr   = Sam[rule].end_addr;
-
-      // Only Cluster tiles can be target of multicast request.
-      if (rule < NumMcastEndPoints) begin
-
-        // Fill new Sam struct with the extra multicast info
-        sam_multicast[rule].idx.mask_x = '{
-            offset: offset_id_x,
-            len: len_id_x,
-            grp_base_id: empty_cols
-        };
-        sam_multicast[rule].idx.mask_y = '{
-            offset: offset_id_y,
-            len: len_id_y,
-            grp_base_id: empty_rows
-        };
-      end else begin
-        sam_multicast[rule].idx.mask_x = '{offset: '0, len: '0, grp_base_id: 0};
-        sam_multicast[rule].idx.mask_y = '{offset: '0, len: '0, grp_base_id: 0};
-      end
-
-    end
-    return sam_multicast;
-  endfunction
-
-  localparam sam_multicast_rule_t [SamNumRules-1:0] SamMcast = get_sam_multicast();
-
   function automatic floo_pkg::route_cfg_t gen_nomcast_route_cfg();
     floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
     // Disable multicast for non-cluster tiles
@@ -352,44 +276,6 @@ package picobello_pkg;
 
   // Define no multicast RouteCfg for Memory tiles, Chehsihre and FhG
   localparam floo_pkg::route_cfg_t RouteCfgNoMcast = gen_nomcast_route_cfg();
-
-  // Print the system address map for th emulticast rules.
-  // TODO(lleone): Generalize for normal address map
-  function automatic print_sam_multicast(sam_multicast_rule_t [SamNumRules-1:0] sam_multicast);
-    $display("\n--- [SAM] System Address Map (%0d entries) ---", SamNumRules);
-    $display("[");
-    for (int i = 0; i < SamNumRules; i++) begin
-      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamMcast[i].idx.id.x,
-             SamMcast[i].idx.id.y, SamMcast[i].idx.id.port_id);
-      $write("  mask_x: {offset: %0d, len: %0d, base_id: %0d},", SamMcast[i].idx.mask_x.offset,
-             SamMcast[i].idx.mask_x.len, SamMcast[i].idx.mask_x.grp_base_id);
-      $write("  mask_y: {offset: %0d, len: %0d, base_id: %0d} },", SamMcast[i].idx.mask_y.offset,
-             SamMcast[i].idx.mask_y.len, SamMcast[i].idx.mask_y.grp_base_id);
-      $write("start: 0x%0h, end: 0x%0h }\n", SamMcast[i].start_addr, SamMcast[i].end_addr);
-    end
-    $display("]");
-    $display("----------------------------------------------------------");
-    $display("NumDummyTiles: %0d", NumDummyTiles);
-    $display("Mesh DIm X: %0d", MeshDim.x);
-    $display("Mesh DIm Y: %0d", MeshDim.y);
-    $display("MaxId: {x: %0d, y: %0d}", MaxId.x, MaxId.y);
-    $display("MinId: {x: %0d, y: %0d}", MinId.x, MinId.y);
-    for (int row = 0; row <= MaxId.y; row++) begin
-      for (int col = 0; col <= MaxId.x; col++) begin
-        $write("%0d ", MeshMap[row][col]);
-      end
-      $display("");
-    end
-    $display("\n--- Physical System Address Map (%0d entries) ---", SamNumRules);
-    $display("[");
-    for (int i = 0; i < SamNumRules; i++) begin
-      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamPhysical[i].idx.x,
-             SamPhysical[i].idx.y, SamPhysical[i].idx.port_id);
-      $write("start: 0x%0h, end: 0x%0h }\n", SamPhysical[i].start_addr, SamPhysical[i].end_addr);
-    end
-    $display("]");
-    $display("----------------------------------------------------------");
-  endfunction
 
   ////////////////
   //  Cheshire  //
