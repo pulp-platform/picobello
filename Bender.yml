@@ -13,7 +13,7 @@ dependencies:
   common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "snitch"                                   }
   cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "picobello"                                }
   snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "5d6c957c70e3824e2330d8308eb904724cd41cbe" }
-  floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            rev: "develop"                                  }
+  floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            rev: "floogen-mcast"                            }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "acfcd0f80c7539aa8da7821a66d9acf2074a5b4e" }
   redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello"                                }
   hci:                { git: "https://github.com/pulp-platform/hci.git",                rev: "06fcba671e060f2e1b03b7ebe2d3e719f1557099" }
