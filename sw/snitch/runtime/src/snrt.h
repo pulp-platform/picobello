@@ -7,6 +7,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// Additional optional configurations to change the runtime behaviour
+// #define SNRT_ENABLE_NARROW_REDUCTION
+
 // Configuration- and system-specific definitions (HAL)
 #include "pb_addrmap.h"
 #include "snitch_cluster_cfg.h"
