@@ -25,7 +25,7 @@ packages:
     - obi_peripherals
     - register_interface
   axi:
-    revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
+    revision: 8e04779f341eb2c89412aae92223a292beef487e
     version: null
     source:
       Git: https://github.com/colluca/axi.git
@@ -383,7 +383,7 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: 5d6c957c70e3824e2330d8308eb904724cd41cbe
+    revision: 4432d89076346e9bd25980e35973a9d521e94d41
     version: null
     source:
       Git: https://github.com/pulp-platform/snitch_cluster.git
