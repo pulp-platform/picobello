@@ -105,7 +105,9 @@ module cluster_tile
     .narrow_ext_req_o (cluster_narrow_ext_req),
     .narrow_ext_resp_i(cluster_narrow_ext_rsp),
     .tcdm_ext_req_i   (cluster_tcdm_ext_req_aligned),
-    .tcdm_ext_resp_o  (cluster_tcdm_ext_rsp_aligned)
+    .tcdm_ext_resp_o  (cluster_tcdm_ext_rsp_aligned),
+    .dca_req_i        ('0),
+    .dca_rsp_o        ()
   );
 
   // Convert narrow AXI's 64 bit DW down to 32
