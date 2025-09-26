@@ -69,6 +69,15 @@ int main() {
     uint32_t *buffer_dst = (uint32_t *)snrt_l1_next_v2();
     uint32_t *buffer_src = buffer_dst + LENGTH;
 
+    // Every cluster initializes its destination buffer.
+    if (snrt_is_dm_core()) {
+        snrt_dma_start_1d(buffer_dst, snrt_cluster()->zeromem.mem, LENGTH * sizeof(uint32_t));
+        snrt_dma_wait_all();
+    }
+
+    // Synchronize all clusters.
+    snrt_global_barrier();
+
     // First cluster initializes the source buffer and multicast-
     // copies it to the destination buffer in every cluster's TCDM.
     if (snrt_is_dm_core() && (snrt_cluster_idx() == 0)) {
