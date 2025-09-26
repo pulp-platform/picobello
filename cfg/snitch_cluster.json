@@ -27,7 +27,7 @@
         narrow_trans: 4,
         wide_trans: 32,
         dma_user_width: 48,
-        enable_multicast: true,
+        enable_narrow_collectives: true,
         cluster_base_expose: true,
         alias_region_enable: true,
         alias_region_base: 0x30000000,
