@@ -97,27 +97,29 @@ module picobello_top
     localparam int Y = int'(ClusterPhysicalId.y);
     localparam int unsigned HartBaseId = c * NrCores + 1;  // Cheshire is hart 0
     localparam axi_wide_in_addr_t ClusterBaseAddr = Sam[ClusterSamIdx].start_addr;
+    localparam axi_wide_in_addr_t ClusterBaseOffset = Sam[ClusterSamIdx].end_addr - ClusterBaseAddr;
 
     cluster_tile i_cluster_tile (
       .clk_i,
       .rst_ni,
-      .test_enable_i      (test_mode_i),
-      .tile_clk_en_i      (cluster_clk_en[c]),
-      .tile_rst_ni        (cluster_rst_n[c]),
-      .clk_rst_bypass_i   (clk_rst_bypass_i),
-      .debug_req_i        (debug_req[c]),
-      .meip_i             (meip[c]),
-      .mtip_i             (mtip[c]),
-      .msip_i             (msip[c]),
-      .hart_base_id_i     (HartBaseId[9:0]),
-      .cluster_base_addr_i(ClusterBaseAddr),
-      .id_i               (ClusterId),
-      .floo_req_o         (floo_req_out[X][Y]),
-      .floo_rsp_i         (floo_rsp_in[X][Y]),
-      .floo_wide_o        (floo_wide_out[X][Y]),
-      .floo_req_i         (floo_req_in[X][Y]),
-      .floo_rsp_o         (floo_rsp_out[X][Y]),
-      .floo_wide_i        (floo_wide_in[X][Y])
+      .test_enable_i        (test_mode_i),
+      .tile_clk_en_i        (cluster_clk_en[c]),
+      .tile_rst_ni          (cluster_rst_n[c]),
+      .clk_rst_bypass_i     (clk_rst_bypass_i),
+      .debug_req_i          (debug_req[c]),
+      .meip_i               (meip[c]),
+      .mtip_i               (mtip[c]),
+      .msip_i               (msip[c]),
+      .hart_base_id_i       (HartBaseId[9:0]),
+      .cluster_base_addr_i  (ClusterBaseAddr),
+      .cluster_base_offset_i(ClusterBaseOffset),
+      .id_i                 (ClusterId),
+      .floo_req_o           (floo_req_out[X][Y]),
+      .floo_rsp_i           (floo_rsp_in[X][Y]),
+      .floo_wide_o          (floo_wide_out[X][Y]),
+      .floo_req_i           (floo_req_in[X][Y]),
+      .floo_rsp_o           (floo_rsp_out[X][Y]),
+      .floo_wide_i          (floo_wide_in[X][Y])
     );
   end
 

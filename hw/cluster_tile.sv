@@ -27,6 +27,7 @@ module cluster_tile
   input  logic                      [NrCores-1:0] msip_i,
   input  logic                      [        9:0] hart_base_id_i,
   input  snitch_cluster_pkg::addr_t               cluster_base_addr_i,
+  input  snitch_cluster_pkg::addr_t               cluster_base_offset_i,
   // Chimney ports
   input  id_t                                     id_i,
   // Router ports
@@ -91,6 +92,7 @@ module cluster_tile
     .msip_i,
     .hart_base_id_i,
     .cluster_base_addr_i,
+    .cluster_base_offset_i,
     .mxip_i           (mxip),
     .clk_d2_bypass_i  ('0),
     .sram_cfgs_i      ('0),
