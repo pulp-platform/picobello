@@ -28,6 +28,7 @@
         wide_trans: 32,
         dma_user_width: 48,
         enable_narrow_collectives: true,
+        enable_wide_collectives: true,
         cluster_base_expose: true,
         alias_region_enable: true,
         alias_region_base: 0x30000000,
