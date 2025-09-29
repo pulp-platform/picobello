@@ -45,8 +45,8 @@ typedef enum {
 #endif
 
 // Transfer LENGTH in uint32_t elements
-#ifndef TRAN_LEN
-#define TRAN_LEN 1024
+#ifndef LENGTH
+#define LENGTH 1024
 #endif
 
 #define LENGTH_TO_CHECK 32
@@ -277,14 +277,14 @@ int main() {
     // First cluster initializes the source buffer and multicast-
     // copies it to the destination buffer in every cluster's TCDM.
     if (snrt_is_dm_core() && (snrt_cluster_idx() == 0)) {
-        for (uint32_t i = 0; i < TRAN_LEN; i++) {
+        for (uint32_t i = 0; i < LENGTH; i++) {
             buffer_src[i] = INITIALIZER;
         }
     }
 
     // Initiate DMA transfer (twice to preheat the cache)
     for (volatile int i = 0; i < 2; i++) {
-        broadcast_wrapper(buffer_dst, buffer_src, TRAN_LEN * sizeof(uint32_t) );
+        broadcast_wrapper(buffer_dst, buffer_src, LENGTH * sizeof(uint32_t) );
     }
 
     // All other clusters wait on a global barrier to signal the transfer
