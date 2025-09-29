@@ -39,35 +39,12 @@ SN_APPS += $(SN_ROOT)/sw/kernels/dnn/flashattention_2
 SN_APPS += $(PB_SNITCH_SW_DIR)/apps/fused_concat_linear
 SN_APPS += $(PB_SNITCH_SW_DIR)/apps/mha
 
+SN_TESTS = $(wildcard $(PB_SNITCH_SW_DIR)/tests/*.c)
+
 include $(SN_ROOT)/make/sw.mk
 
 $(PB_GEN_DIR)/pb_raw_addrmap.h: $(PB_RDL_ALL)
 	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --base_name $(notdir $(basename $@)) --format c
-
-# Collect Snitch tests which should be built
-PB_SN_TESTS_DIR      = $(PB_SNITCH_SW_DIR)/tests
-PB_SN_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
-PB_SN_TEST_NAMES = $(basename $(notdir $(wildcard $(PB_SN_TESTS_DIR)/*.c)))
-PB_SN_TEST_ELFS = $(abspath $(addprefix $(PB_SN_TESTS_BUILDDIR)/,$(addsuffix .elf,$(PB_SN_TEST_NAMES))))
-PB_SN_TEST_DUMP = $(abspath $(addprefix $(PB_SN_TESTS_BUILDDIR)/,$(addsuffix .dump,$(PB_SN_TEST_NAMES))))
-
-.PHONY: pb-sn-tests clean-pb-sn-tests
-
-pb-sn-tests: $(PB_SN_TEST_ELFS) $(PB_SN_TEST_DUMP)
-
-clean-pb-sn-tests:
-	rm -rf $(PB_SN_TEST_ELFS)
-
-$(PB_SN_TEST_ELFS): $(PB_GEN_DIR)/pb_addrmap.h
-
-$(PB_SN_TESTS_BUILDDIR)/%.d: $(PB_SN_TESTS_DIR)/%.c | $(PB_SN_TESTS_BUILDDIR)
-	$(SN_RISCV_CXX) $(SN_TESTS_RISCV_CFLAGS) -MM -MT '$(@:.d=.elf)' -x c++ $< > $@
-
-$(PB_SN_TESTS_BUILDDIR)/%.elf: $(PB_SN_TESTS_DIR)/%.c $(SN_RUNTIME_LIB) | $(PB_SN_TESTS_BUILDDIR)
-	$(SN_RISCV_CXX) $(SN_TESTS_RISCV_CFLAGS) $(SN_TESTS_RISCV_LDFLAGS) -x c++ $< -o $@
-
-$(PB_SN_TESTS_BUILDDIR)/%.dump: $(PB_SN_TESTS_BUILDDIR)/%.elf | $(PB_SN_TESTS_BUILDDIR)
-	$(SN_RISCV_OBJDUMP) $(SN_RISCV_OBJDUMP_FLAGS) $< > $@
 
 ##############
 ## Cheshire ##
@@ -108,6 +85,6 @@ sn-runtime-clean: sn-clean-runtime
 sn-apps-clean: sn-clean-apps
 
 .PHONY: sw sw-tests sw-clean sw-tests-clean
-sw sw-tests: chs-sw-tests sn-tests pb-sn-tests sn-apps
+sw sw-tests: chs-sw-tests sn-tests sn-apps
 
-sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean clean-pb-sn-tests sn-apps-clean
+sw-clean sw-tests-clean: chs-sw-tests-clean sn-tests-clean sn-runtime-clean sn-apps-clean
