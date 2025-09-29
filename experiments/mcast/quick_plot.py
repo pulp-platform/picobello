@@ -6,10 +6,10 @@
 # Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
 import os
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
-from matplotlib.patches import Patch
 from matplotlib.colors import ListedColormap
 
 PULP_COLORS = {
@@ -21,6 +21,7 @@ PULP_COLORS = {
     "PULP Purple": "#851B66",
     "PULP Grey":   "#6F6F6F"
 }
+
 
 def plot_multicast_speedup(clusters, transfer_sizes, speedups,
                            colors=None,
@@ -79,7 +80,6 @@ def plot_multicast_speedup(clusters, transfer_sizes, speedups,
     ax.set_xticklabels(clusters)
     ax.tick_params(axis='both', which='major', labelsize=14)
 
-
     # Legend customization
     ax.legend(title="Transfer Size", loc=legend_loc, ncol=legend_ncol, frameon=legend_frame, fontsize=14, title_fontsize=16)
 
@@ -104,7 +104,6 @@ def _add_gradient_legend_inset(
     inset_width=0.3, bar_height=0.04, gap=0.01, x0=0.02, y_top=0.92
 ):
     """Place two gradient bars in the top-left; bottom=SW1 (with labels), top=SW2 (no labels)."""
-    fig = ax_main.figure
 
     # Top bar = SW2 (no labels)
     ax_sw2 = ax_main.inset_axes([x0, y_top - bar_height, inset_width, bar_height],
@@ -144,6 +143,7 @@ def _add_gradient_legend_inset(
     # Draw bars
     draw_bar(ax_sw2, colors2, sw2_label, show_labels=False, lgn_title=True)
     draw_bar(ax_sw1, colors1, sw1_label, show_labels=True, lgn_title=False)
+
 
 def plot_two_software_speedup(
     clusters,
@@ -200,79 +200,74 @@ def plot_two_software_speedup(
 
     return fig, ax
 
+
 # ===== Example Usage =====
 def main():
-  clusters = [4, 8, 16]
-  transfer_sizes = ["1 KiB", "2 KiB", "4 KiB", "8 KiB", "16 KiB", "32 KiB"]
+    df = pd.read_csv('results.csv')
 
-  # Example speedups (rows = clusters, cols = transfer sizes)
-  speedups_mcast_unopt = [
-    [3.92, 3.953846154, 3.76, 3.915151515, 3.969491525, 3.992857143],  # For 4 clusters
-    [7.7, 7.738461538, 7.45, 7.848484848, 7.983050847, 7.859649123],   # For 8 clusters
-    [15.24, 15.66153846, 15.02, 15.73939394, 15.88813559, 15.67894737] # For 16 clusters
-]
+    clusters = df['n_clusters'].unique().tolist()
+    transfer_sizes = [f'{size} B' for size in df['length'].unique().tolist()]
 
-  speedups_sw1_unopt = [
-    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],                       # For 4 clusters
-    [0.891203704, 0.994071146, 1.125377644, 1.29241517,   # For 8 clusters
-     1.424682396, 1.509942703],
-    [1.448669202, 1.583203733, 1.796650718, 1.965934898,  # For 16 clusters
-     2.099910394, 2.192590775]
-  ]
+    cycles = {
+        mode: grp.drop(columns='mode')
+                 .set_index(['n_clusters', 'length'])
+                 .sort_index(level=['n_clusters', 'length'])
+        for mode, grp in df.groupby("mode", sort=False)
+    }
 
-  speedups_sw2_unopt = [
-    [1.02617801, 1.088983051, 1.153374233, 1.216572505, 1.271444083, 1.303030303],  # For 4 clusters
-    [1.370106762, 1.462209302, 1.616052061, 1.75951087, 1.875, 1.942758023],        # For 8 clusters
-    [2.01055409, 2.237362637, 2.486754967, 2.736564805, 2.931207004, 3.066918325]   # For 16 clusters
-]
+    speedups_mcast_unopt = cycles['SW_UNOPT'] / cycles['HW_MCAST']
+    speedups_sw1_unopt = cycles['SW_UNOPT'] / cycles['SW_OPT']
+    speedups_sw2_unopt = cycles['SW_UNOPT'] / cycles['SW_OPT2']
+    speedups_sw2_sw1 = cycles['SW_OPT'] / cycles['SW_OPT2']
+    speedups_mcast_sw2 = cycles['SW_OPT2'] / cycles['HW_MCAST']
 
-  speedups_sw2_sw1 = [
-    [1.02617801, 1.088983051, 1.153374233, 1.216572505, 1.271444083, 1.303030303],  # For 4 clusters
-    [1.537366548, 1.470930233, 1.436008677, 1.361413043, 1.316082803, 1.286643539], # For 8 clusters
-    [1.387862797, 1.413186813, 1.38410596, 1.39199157, 1.39587242, 1.398764585]     # For 16 clusters
-  ]
+    speedups_mcast_unopt = speedups_mcast_unopt.values.reshape((len(clusters), len(transfer_sizes))).tolist()
+    speedups_sw1_unopt = speedups_sw1_unopt.values.reshape((len(clusters), len(transfer_sizes))).tolist()
+    speedups_sw2_unopt = speedups_sw2_unopt.values.reshape((len(clusters), len(transfer_sizes))).tolist()
+    speedups_sw2_sw1 = speedups_sw2_sw1.values.reshape((len(clusters), len(transfer_sizes))).tolist()
+    speedups_mcast_sw2 = speedups_mcast_sw2.values.reshape((len(clusters), len(transfer_sizes))).tolist()
 
-  speedups_optimized = [
-      [3.82, 3.630769231, 3.26, 3.218181818, 3.122033898, 3.064285714],  # For 4 clusters
-      [5.62, 5.292307692, 4.61, 4.460606061, 4.257627119, 4.045614035],  # For 8 clusters
-      [7.58, 7.0, 6.04, 5.751515152, 5.420338983, 5.112280702]           # For 16 clusters
-  ]
+    # Select PULP colors for the 6 transfer sizes
+    custom_colors = [
+        PULP_COLORS["PULP Blue"],
+        PULP_COLORS["PULP Petrol"],
+        PULP_COLORS["PULP Green"],
+        PULP_COLORS["PULP Bronze"],
+        PULP_COLORS["PULP Red"],
+        PULP_COLORS["PULP Purple"]
+    ]
 
-  # Select PULP colors for the 6 transfer sizes
-  custom_colors = [
-    PULP_COLORS["PULP Blue"],
-    PULP_COLORS["PULP Petrol"],
-    PULP_COLORS["PULP Green"],
-    PULP_COLORS["PULP Bronze"],
-    PULP_COLORS["PULP Red"],
-    PULP_COLORS["PULP Purple"]
-  ]
+    plot_multicast_speedup(
+        clusters, transfer_sizes, speedups_mcast_unopt,
+        title="Multicast Speedup against unoptimized software version",
+        xlabel="Number of Clusters",
+        ylabel="Speedup",
+        legend_loc="upper left",
+        legend_ncol=2,
+        save_name="mcast_vs_unopt"
+    )
 
-  plot_multicast_speedup(clusters, transfer_sizes, speedups_mcast_unopt,
-                        title="Multicast Speedup against unoptimized software version",
-                        xlabel="Number of Clusters",
-                        ylabel="Speedup",
-                        legend_loc="upper left",
-                        legend_ncol=2,
-                        save_name="mcast_vs_unopt")
+    plot_multicast_speedup(
+        clusters, transfer_sizes, speedups_sw2_sw1,
+        title="Speedup of SW OPT2 implementation against SW OPT1",
+        xlabel="Number of Clusters",
+        ylabel="Speedup",
+        legend_loc="upper left",
+        legend_ncol=2,
+        save_name="sw2_vs_sw1"
+    )
 
-  plot_multicast_speedup(clusters, transfer_sizes, speedups_sw2_sw1,
-                        title="Speedup of SW OPT2 implementation against SW OPT1",
-                        xlabel="Number of Clusters",
-                        ylabel="Speedup",
-                        legend_loc="upper left",
-                        legend_ncol=2,
-                        save_name="sw2_vs_sw1")
+    plot_multicast_speedup(
+        clusters, transfer_sizes, speedups_mcast_sw2,
+        title="Multicast Speedup against best software version",
+        xlabel="Number of Clusters",
+        ylabel="Speedup",
+        legend_loc="upper left",
+        legend_ncol=2,
+        save_name="mcast_vs_optimized"
+    )
 
-  plot_multicast_speedup(clusters, transfer_sizes, speedups_optimized,
-                        title="Multicast Speedup against best software version",
-                        xlabel="Number of Clusters",
-                        ylabel="Speedup",
-                        legend_loc="upper left",
-                        legend_ncol=2,
-                        save_name="mcast_vs_optimized")
-
-  plot_two_software_speedup(
+    plot_two_software_speedup(
         clusters,
         transfer_sizes,
         speedups_sw1_unopt, speedups_sw2_unopt,
@@ -286,8 +281,8 @@ def main():
         save_name="sw_comparison"
     )
 
+    plt.show()
 
-  plt.show()
 
 if __name__ == '__main__':
     main()
