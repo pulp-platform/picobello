@@ -261,7 +261,7 @@ int main() {
     // align the src pointer to 4kiB, since whenever the src address cross the
     // 4kiB section, the DMA will issue multiple transfers.
     uintptr_t raw_buffer_src = (uintptr_t) snrt_l3_next_v2();
-    uintptr_t aligned_addr = (raw_buffer_src + 4095) & ~(uintptr_t)(4095);  // Align to 4 KiB
+    uintptr_t aligned_addr = snrt_align_up(raw_buffer_src, 4096);  // Align to 4 KiB
     uint32_t *buffer_src = (uint32_t *)aligned_addr;
 
 
