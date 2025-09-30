@@ -347,6 +347,10 @@ package picobello_pkg;
     floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
     // Disable multicast for non-cluster tiles
     ret.EnMultiCast = 1'b0;
+    ret.EnParallelReduction = 1'b0;
+    ret.EnNarrowOffloadReduction = 1'b0;
+    ret.EnWideOffloadReduction = 1'b0;
+    ret.CollectiveCfg = CollectiveDefaultCfg;
     return ret;
   endfunction
 
@@ -390,6 +394,92 @@ package picobello_pkg;
     $display("]");
     $display("----------------------------------------------------------");
   endfunction
+
+  /////////////////////
+  //   REDUCTION     //
+  /////////////////////
+
+  // Support Reduction on the Wide port
+  localparam bit EnWideOffloadReduction = 1;
+  localparam bit EnNarrowOffloadReduction = 1;
+  localparam bit EnParallelReduction = 1;
+
+  // TODO (lleone): Add generation of the follwing types ans structs into Floogen
+  typedef struct packed {
+    user_mask_t                                   collective_mask;
+    floo_pkg::collect_op_e                        collective_op;
+    logic [snitch_cluster_pkg::AtomicIdWidth-1:0] atomic;
+  } collective_narrow_user_t;
+
+  typedef struct packed {
+    user_mask_t             collective_mask;
+    floo_pkg::collect_op_e  collective_op;
+  } collective_wide_user_t;
+
+  // Configurations for the Reductions
+  // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything
+  // ATTENTION:
+  // @GENERIC Implementation: RdPartialBufferSize Needs to be bigger than the "RdPipelineDepth" otherwise we can build a deadlock
+  // @STALLING Implementation: min(ceil(log2(NumRoutes)), RdPipelineDepth+1)
+  // TODO: Add Assertion to check this
+  // raroth - overwrite benchmark autotest - start
+localparam reduction_cfg_t WideReductionCfg = '{
+    RdControllConf: ControllerGeneric,
+    RdFifoFallThrough: 1'b1,
+    RdFifoDepth: 0,
+    RdPipelineDepth: 5,
+    RdPartialBufferSize: 6,
+    RdTagBits: 5,
+    RdSupportAxi: 1'b1,
+    RdEnableBypass: 1'b1,
+    RdSupportLoopback: 1'b1
+  };
+  // raroth - overwrite benchmark autotest - end
+
+localparam reduction_cfg_t NarrowReductionCfg = '{
+    RdControllConf: ControllerGeneric,
+    RdFifoFallThrough: 1'b1,
+    RdFifoDepth: 0,
+    RdPipelineDepth: 1,
+    RdPartialBufferSize: 3,
+    RdTagBits: 5,
+    RdSupportAxi: 1'b1,
+    RdEnableBypass: 1'b1,
+    RdSupportLoopback: 1'b1
+  };
+
+  localparam reduction_cfg_t ResponseReductionCfg = '{
+    RdEnableBypass: 1'b1,
+    RdSupportLoopback: 1'b1,
+    default: '0
+  };
+
+  // TODO (lleone): Get rid of all this configuration struct, make only one to pass to the system
+  // with enough info to decide what to do with the different routers
+function automatic floo_pkg::collect_op_cfg_t gen_collect_op_cfg();
+  floo_pkg:: collect_op_cfg_t ret = floo_pkg::CollectiveOpDefaultCfg;
+  ret.EnNarrowMulticast = 1'b1;
+  ret.EnWideMulticast   = 1'b1;
+  ret.EnLSBAnd          = 1'b1;
+  return ret;
+endfunction
+
+localparam collect_op_cfg_t CollectOpCfg = gen_collect_op_cfg();
+
+localparam collective_cfg_t CollectCfgNarrow = '{
+    OpCfg: CollectOpCfg,
+    SequentialRedCfg: NarrowReductionCfg
+};
+
+localparam collective_cfg_t CollectCfgWide = '{
+    OpCfg: CollectOpCfg,
+    SequentialRedCfg: WideReductionCfg
+};
+
+localparam collective_cfg_t CollectCfgRsp = '{
+    OpCfg: CollectOpCfg,
+    SequentialRedCfg: ResponseReductionCfg
+};
 
   ////////////////
   //  Cheshire  //
