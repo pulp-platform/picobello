@@ -12,7 +12,6 @@
         addr_width: 48,
         data_width: 64,
         atomic_id_width: 5, // clog2(#clusters + 2)
-        user_width: 53, // addr_width + atomic_id_width
         tcdm: {
             size: 128,
             banks: 32,
@@ -26,7 +25,6 @@
         dma_req_fifo_depth: 8,
         narrow_trans: 4,
         wide_trans: 32,
-        dma_user_width: 48,
         enable_narrow_collectives: true,
         enable_wide_collectives: true,
         cluster_base_expose: true,
@@ -34,6 +32,7 @@
         alias_region_base: 0x30000000,
         num_exposed_wide_tcdm_ports: 1,
         narrow_axi_port_expose: true,
+        collective_width: 4,
         enable_external_interrupts: true,
         vm_support: false,
         // Timing parameters

@@ -249,11 +249,139 @@ package picobello_pkg;
     floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
     // Disable multicast for non-cluster tiles
     ret.EnMultiCast = 1'b0;
+    ret.EnParallelReduction = 1'b0;
+    ret.EnNarrowOffloadReduction = 1'b0;
+    ret.EnWideOffloadReduction = 1'b0;
+    ret.CollectiveCfg = CollectiveDefaultCfg;
     return ret;
   endfunction
 
   // Define no multicast RouteCfg for Memory tiles, Chehsihre and FhG
   localparam floo_pkg::route_cfg_t RouteCfgNoMcast = gen_nomcast_route_cfg();
+
+  // Print the system address map for th emulticast rules.
+  // TODO(lleone): Generalize for normal address map
+  function automatic print_sam_multicast(sam_multicast_rule_t [SamNumRules-1:0] sam_multicast);
+    $display("\n--- [SAM] System Address Map (%0d entries) ---", SamNumRules);
+    $display("[");
+    for (int i = 0; i < SamNumRules; i++) begin
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamMcast[i].idx.id.x,
+             SamMcast[i].idx.id.y, SamMcast[i].idx.id.port_id);
+      $write("  mask_x: {offset: %0d, len: %0d, base_id: %0d},", SamMcast[i].idx.mask_x.offset,
+             SamMcast[i].idx.mask_x.len, SamMcast[i].idx.mask_x.grp_base_id);
+      $write("  mask_y: {offset: %0d, len: %0d, base_id: %0d} },", SamMcast[i].idx.mask_y.offset,
+             SamMcast[i].idx.mask_y.len, SamMcast[i].idx.mask_y.grp_base_id);
+      $write("start: 0x%0h, end: 0x%0h }\n", SamMcast[i].start_addr, SamMcast[i].end_addr);
+    end
+    $display("]");
+    $display("----------------------------------------------------------");
+    $display("NumDummyTiles: %0d", NumDummyTiles);
+    $display("Mesh DIm X: %0d", MeshDim.x);
+    $display("Mesh DIm Y: %0d", MeshDim.y);
+    $display("MaxId: {x: %0d, y: %0d}", MaxId.x, MaxId.y);
+    $display("MinId: {x: %0d, y: %0d}", MinId.x, MinId.y);
+    for (int row = 0; row <= MaxId.y; row++) begin
+      for (int col = 0; col <= MaxId.x; col++) begin
+        $write("%0d ", MeshMap[row][col]);
+      end
+      $display("");
+    end
+    $display("\n--- Physical System Address Map (%0d entries) ---", SamNumRules);
+    $display("[");
+    for (int i = 0; i < SamNumRules; i++) begin
+      $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamPhysical[i].idx.x,
+             SamPhysical[i].idx.y, SamPhysical[i].idx.port_id);
+      $write("start: 0x%0h, end: 0x%0h }\n", SamPhysical[i].start_addr, SamPhysical[i].end_addr);
+    end
+    $display("]");
+    $display("----------------------------------------------------------");
+  endfunction
+
+  /////////////////////
+  //   REDUCTION     //
+  /////////////////////
+
+  // Support Reduction on the Wide port
+  localparam bit EnWideOffloadReduction = 1;
+  localparam bit EnNarrowOffloadReduction = 1;
+  localparam bit EnParallelReduction = 1;
+
+  // TODO (lleone): Add generation of the follwing types ans structs into Floogen
+  typedef struct packed {
+    user_mask_t                                   collective_mask;
+    floo_pkg::collect_op_e                        collective_op;
+    logic [snitch_cluster_pkg::AtomicIdWidth-1:0] atomic;
+  } collective_narrow_user_t;
+
+  typedef struct packed {
+    user_mask_t             collective_mask;
+    floo_pkg::collect_op_e  collective_op;
+  } collective_wide_user_t;
+
+  // Configurations for the Reductions
+  // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything
+  // ATTENTION:
+  // @GENERIC Implementation: RdPartialBufferSize Needs to be bigger than the "RdPipelineDepth" otherwise we can build a deadlock
+  // @STALLING Implementation: min(ceil(log2(NumRoutes)), RdPipelineDepth+1)
+  // TODO: Add Assertion to check this
+  // raroth - overwrite benchmark autotest - start
+localparam reduction_cfg_t WideReductionCfg = '{
+    RdControllConf: ControllerGeneric,
+    RdFifoFallThrough: 1'b1,
+    RdFifoDepth: 0,
+    RdPipelineDepth: 5,
+    RdPartialBufferSize: 6,
+    RdTagBits: 5,
+    RdSupportAxi: 1'b1,
+    RdEnableBypass: 1'b1,
+    RdSupportLoopback: 1'b1
+  };
+  // raroth - overwrite benchmark autotest - end
+
+localparam reduction_cfg_t NarrowReductionCfg = '{
+    RdControllConf: ControllerGeneric,
+    RdFifoFallThrough: 1'b1,
+    RdFifoDepth: 0,
+    RdPipelineDepth: 1,
+    RdPartialBufferSize: 3,
+    RdTagBits: 5,
+    RdSupportAxi: 1'b1,
+    RdEnableBypass: 1'b1,
+    RdSupportLoopback: 1'b1
+  };
+
+  localparam reduction_cfg_t ResponseReductionCfg = '{
+    RdEnableBypass: 1'b1,
+    RdSupportLoopback: 1'b1,
+    default: '0
+  };
+
+  // TODO (lleone): Get rid of all this configuration struct, make only one to pass to the system
+  // with enough info to decide what to do with the different routers
+function automatic floo_pkg::collect_op_cfg_t gen_collect_op_cfg();
+  floo_pkg:: collect_op_cfg_t ret = floo_pkg::CollectiveOpDefaultCfg;
+  ret.EnNarrowMulticast = 1'b1;
+  ret.EnWideMulticast   = 1'b1;
+  ret.EnLSBAnd          = 1'b1;
+  return ret;
+endfunction
+
+localparam collect_op_cfg_t CollectOpCfg = gen_collect_op_cfg();
+
+localparam collective_cfg_t CollectCfgNarrow = '{
+    OpCfg: CollectOpCfg,
+    SequentialRedCfg: NarrowReductionCfg
+};
+
+localparam collective_cfg_t CollectCfgWide = '{
+    OpCfg: CollectOpCfg,
+    SequentialRedCfg: WideReductionCfg
+};
+
+localparam collective_cfg_t CollectCfgRsp = '{
+    OpCfg: CollectOpCfg,
+    SequentialRedCfg: ResponseReductionCfg
+};
 
   ////////////////
   //  Cheshire  //

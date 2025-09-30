@@ -94,7 +94,11 @@ module spm_tile
     .hdr_t       (hdr_t),
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
-    .floo_wide_t (floo_wide_t)
+    .floo_wide_t (floo_wide_t),
+    .EnMultiCast (1'b0),
+    .EnParallelReduction      (1'b0),
+    .EnOffloadWideReduction   (1'b0),
+    .EnOffloadNarrowReduction (1'b0)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -106,7 +110,25 @@ module spm_tile
     .floo_req_o    (router_floo_req_out),
     .floo_rsp_i    (router_floo_rsp_in),
     .floo_wide_i   (router_floo_wide_in),
-    .floo_wide_o   (router_floo_wide_out)
+    .floo_wide_o   (router_floo_wide_out),
+     // Wide Reduction offload port
+    .offload_wide_req_op_o          (),
+    .offload_wide_req_operand1_o    (),
+    .offload_wide_req_operand2_o    (),
+    .offload_wide_req_valid_o       (),
+    .offload_wide_req_ready_i       ('0),
+    .offload_wide_resp_result_i     ('0),
+    .offload_wide_resp_valid_i      ('0),
+    .offload_wide_resp_ready_o      (),
+    // Narrow Reduction offload port
+    .offload_narrow_req_op_o        (),
+    .offload_narrow_req_operand1_o  (),
+    .offload_narrow_req_operand2_o  (),
+    .offload_narrow_req_valid_o     (),
+    .offload_narrow_req_ready_i     ('0),
+    .offload_narrow_resp_result_i   ('0),
+    .offload_narrow_resp_valid_i    ('0),
+    .offload_narrow_resp_ready_o    ()
   );
 
   assign floo_req_o                      = router_floo_req_out[West:North];
@@ -151,7 +173,9 @@ module spm_tile
     .axi_wide_out_rsp_t  (axi_wide_out_rsp_t),
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
-    .floo_wide_t         (floo_wide_t)
+    .floo_wide_t         (floo_wide_t),
+    .user_narrow_struct_t             (collective_narrow_user_t),
+    .user_wide_struct_t               (collective_wide_user_t)
   ) i_chimney (
     .clk_i,
     .rst_ni,

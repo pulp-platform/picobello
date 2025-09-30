@@ -8,6 +8,8 @@
 `include "cheshire/typedef.svh"
 `include "floo_noc/typedef.svh"
 `include "axi/assign.svh"
+`include "common_cells/assertions.svh"
+
 
 module cheshire_tile
   import cheshire_pkg::*;
@@ -117,7 +119,11 @@ module cheshire_tile
     .hdr_t       (hdr_t),
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
-    .floo_wide_t (floo_wide_t)
+    .floo_wide_t (floo_wide_t),
+    .EnMultiCast (1'b0),
+    .EnParallelReduction      (1'b0),
+    .EnOffloadWideReduction   (1'b0),
+    .EnOffloadNarrowReduction (1'b0)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -129,7 +135,25 @@ module cheshire_tile
     .floo_req_o    (router_floo_req_out),
     .floo_rsp_i    (router_floo_rsp_in),
     .floo_wide_i   (router_floo_wide_in),
-    .floo_wide_o   (router_floo_wide_out)
+    .floo_wide_o   (router_floo_wide_out),
+    // Wide Reduction offload port
+    .offload_wide_req_op_o          (),
+    .offload_wide_req_operand1_o    (),
+    .offload_wide_req_operand2_o    (),
+    .offload_wide_req_valid_o       (),
+    .offload_wide_req_ready_i       ('0),
+    .offload_wide_resp_result_i     ('0),
+    .offload_wide_resp_valid_i      ('0),
+    .offload_wide_resp_ready_o      (),
+    // Narrow Reduction offload port
+    .offload_narrow_req_op_o        (),
+    .offload_narrow_req_operand1_o  (),
+    .offload_narrow_req_operand2_o  (),
+    .offload_narrow_req_valid_o     (),
+    .offload_narrow_req_ready_i     ('0),
+    .offload_narrow_resp_result_i   ('0),
+    .offload_narrow_resp_valid_i    ('0),
+    .offload_narrow_resp_ready_o    ()
   );
 
   assign floo_req_west_o            = router_floo_req_out[West];
@@ -188,7 +212,9 @@ module cheshire_tile
     .axi_wide_out_rsp_t  (axi_wide_out_rsp_t),
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
-    .floo_wide_t         (floo_wide_t)
+    .floo_wide_t         (floo_wide_t),
+    .user_narrow_struct_t             (collective_narrow_user_t),
+    .user_wide_struct_t               (collective_wide_user_t)
   ) i_chimney (
     .clk_i,
     .rst_ni,
@@ -471,5 +497,15 @@ module cheshire_tile
   end
   assign fhg_spu_rst_no   = control_reg.fhg_spu_rsts.rst.value;
   assign fhg_spu_clk_en_o = control_reg.fhg_spu_clk_enables.clk_en.value;
+
+  // Add Assertion that no multicast / reduction can enter this tile!
+  for (genvar r = 0; r < 4; r++) begin : gen_virt
+    `ASSERT(NoCollectivOperation_NReq_In, (!router_floo_req_in[r].valid | (router_floo_req_in[r].req.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NRsp_In, (!router_floo_rsp_in[r].valid | (router_floo_rsp_in[r].rsp.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_In, (!router_floo_wide_in[r].valid | (router_floo_wide_in[r].wide.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NReq_Out, (!router_floo_req_out[r].valid | (router_floo_req_out[r].req.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NRsp_Out, (!router_floo_rsp_out[r].valid | (router_floo_rsp_out[r].rsp.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_Out, (!router_floo_wide_out[r].valid | (router_floo_wide_out[r].wide.generic.hdr.collective_op == Unicast)))
+  end
 
 endmodule
