@@ -7,6 +7,7 @@
 `include "common_cells/registers.svh"
 `include "axi/typedef.svh"
 `include "obi/typedef.svh"
+`include "common_cells/assertions.svh"
 
 module mem_tile
   import floo_pkg::*;
@@ -50,7 +51,6 @@ module mem_tile
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
-    .EnMultiCast (RouteCfgNoMcast.EnMultiCast),
     .RouteAlgo   (RouteCfgNoMcast.RouteAlgo),
     .NumRoutes   (5),
     .InFifoDepth (2),
@@ -59,7 +59,11 @@ module mem_tile
     .hdr_t       (hdr_t),
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
-    .floo_wide_t (floo_wide_t)
+    .floo_wide_t (floo_wide_t),
+    .EnMultiCast (1'b0),
+    .EnParallelReduction      (1'b0),
+    .EnOffloadWideReduction   (1'b0),
+    .EnOffloadNarrowReduction (1'b0)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -71,7 +75,25 @@ module mem_tile
     .floo_req_o    (router_floo_req_out),
     .floo_rsp_i    (router_floo_rsp_in),
     .floo_wide_i   (router_floo_wide_in),
-    .floo_wide_o   (router_floo_wide_out)
+    .floo_wide_o   (router_floo_wide_out),
+    // Wide Reduction offload port
+    .offload_wide_req_op_o          (),
+    .offload_wide_req_operand1_o    (),
+    .offload_wide_req_operand2_o    (),
+    .offload_wide_req_valid_o       (),
+    .offload_wide_req_ready_i       ('0),
+    .offload_wide_resp_result_i     ('0),
+    .offload_wide_resp_valid_i      ('0),
+    .offload_wide_resp_ready_o      (),
+    // Narrow Reduction offload port
+    .offload_narrow_req_op_o        (),
+    .offload_narrow_req_operand1_o  (),
+    .offload_narrow_req_operand2_o  (),
+    .offload_narrow_req_valid_o     (),
+    .offload_narrow_req_ready_i     ('0),
+    .offload_narrow_resp_result_i   ('0),
+    .offload_narrow_resp_valid_i    ('0),
+    .offload_narrow_resp_ready_o    ()
   );
 
   assign floo_req_o                      = router_floo_req_out[West:North];
@@ -113,7 +135,9 @@ module mem_tile
     .axi_wide_out_rsp_t  (axi_wide_out_rsp_t),
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
-    .floo_wide_t         (floo_wide_t)
+    .floo_wide_t         (floo_wide_t),
+    .user_narrow_struct_t             (collective_narrow_user_t),
+    .user_wide_struct_t               (collective_wide_user_t)
   ) i_chimney (
     .clk_i               (tile_clk),
     .rst_ni              (tile_rst_n),
@@ -473,5 +497,14 @@ module mem_tile
     .clk_o    (tile_rst_n)
   );
 `endif
+  // Add Assertion that no multicast / reduction can enter this tile!
+  for (genvar r = 0; r < 4; r++) begin : gen_virt
+    `ASSERT(NoCollectivOperation_NReq_In, (!floo_req_i[r].valid | (floo_req_i[r].req.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NRsp_In, (!floo_rsp_i[r].valid | (floo_rsp_i[r].rsp.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_In, (!floo_wide_i[r].valid | (floo_wide_i[r].wide.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NReq_Out, (!floo_req_o[r].valid | (floo_req_o[r].req.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NRsp_Out, (!floo_rsp_o[r].valid | (floo_rsp_o[r].rsp.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_Out, (!floo_wide_o[r].valid | (floo_wide_o[r].wide.generic.hdr.collective_op == Unicast)))
+  end
 
 endmodule
