@@ -98,7 +98,8 @@ module spm_tile
     .EnMultiCast (1'b0),
     .EnParallelReduction      (1'b0),
     .EnOffloadWideReduction   (1'b0),
-    .EnOffloadNarrowReduction (1'b0)
+    .EnOffloadNarrowReduction (1'b0),
+    .EnDecoupledRW (1'b1)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -157,6 +158,7 @@ module spm_tile
     .ChimneyCfgW         (set_ports(ChimneyDefaultCfg, bit'(!IsNarrow), 1'b0)),
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
+    .EnDecoupledRW       (1'b1),
     .MaxAtomicTxns       (1),
     .Sam                 (Sam),
     .id_t                (id_t),
