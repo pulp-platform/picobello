@@ -123,7 +123,8 @@ module cheshire_tile
     .EnMultiCast (1'b0),
     .EnParallelReduction      (1'b0),
     .EnOffloadWideReduction   (1'b0),
-    .EnOffloadNarrowReduction (1'b0)
+    .EnOffloadNarrowReduction (1'b0),
+    .EnDecoupledRW (1'b1)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -196,6 +197,7 @@ module cheshire_tile
     .ChimneyCfgW         (ChimneyCfgW),
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
+    .EnDecoupledRW       (1'b1),
     .MaxAtomicTxns       (AxiCfgN.OutIdWidth - 1),
     .Sam                 (Sam),
     .id_t                (id_t),
