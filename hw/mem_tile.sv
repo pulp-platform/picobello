@@ -500,13 +500,21 @@ module mem_tile
   );
 `endif
   // Add Assertion that no multicast / reduction can enter this tile!
-  for (genvar r = 0; r < 4; r++) begin : gen_virt
-    `ASSERT(NoCollectivOperation_NReq_In, (!floo_req_i[r].valid | (floo_req_i[r].req.generic.hdr.collective_op == Unicast)))
+  for (genvar r = 0; r < 4; r++) begin : gen_route_assertions
+    `ASSERT(NoCollectivOperation_NReq_In, (!floo_req_i[r].valid | (floo_req_i[r].req.generic.hdr.collective_op == Unicast)),
+            clk_i, !rst_ni,
+            $sformatf("Unsupported collective attempted with destination: %h", floo_req_i[r].req.narrow_aw.payload.addr))
     `ASSERT(NoCollectivOperation_NRsp_In, (!floo_rsp_i[r].valid | (floo_rsp_i[r].rsp.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NWide_In, (!floo_wide_i[r].valid | (floo_wide_i[r].wide.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NReq_Out, (!floo_req_o[r].valid | (floo_req_o[r].req.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_In, (!floo_wide_i[r].valid | (floo_wide_i[r].wide.generic.hdr.collective_op == Unicast)),
+            clk_i, !rst_ni,
+            $sformatf("Unsupported collective attempted with destination: %h", floo_wide_i[r].wide.wide_aw.payload.addr))
+    `ASSERT(NoCollectivOperation_NReq_Out, (!floo_req_o[r].valid | (floo_req_o[r].req.generic.hdr.collective_op == Unicast)),
+            clk_i, !rst_ni,
+            $sformatf("Unsupported collective attempted with destination: %h", floo_req_o[r].req.narrow_aw.payload.addr))
     `ASSERT(NoCollectivOperation_NRsp_Out, (!floo_rsp_o[r].valid | (floo_rsp_o[r].rsp.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NWide_Out, (!floo_wide_o[r].valid | (floo_wide_o[r].wide.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_Out, (!floo_wide_o[r].valid | (floo_wide_o[r].wide.generic.hdr.collective_op == Unicast)),
+            clk_i, !rst_ni,
+            $sformatf("Unsupported collective attempted with destination: %h", floo_wide_i[r].wide.wide_aw.payload.addr))
   end
 
 endmodule
