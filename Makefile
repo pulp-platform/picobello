@@ -195,6 +195,7 @@ include $(PB_ROOT)/sw/sw.mk
 ##############
 
 TB_DUT = tb_picobello_top
+SIM_DIR = $(PB_ROOT)
 
 include $(PB_ROOT)/target/sim/vsim/vsim.mk
 include $(PB_ROOT)/target/sim/traces.mk
@@ -224,7 +225,7 @@ python-venv: .venv
 	python -m pip install --upgrade pip setuptools && \
 	python -m pip install --cache-dir $(PIP_CACHE_DIR) -r requirements.txt && \
 	python -m pip install --cache-dir $(PIP_CACHE_DIR) $(shell $(BENDER) path floo_noc) --no-deps && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) "$(shell $(BENDER) path snitch_cluster)[kernels]"
+	python -m pip install --cache-dir $(PIP_CACHE_DIR) -e "$(shell $(BENDER) path snitch_cluster)[kernels]"
 
 python-venv-clean:
 	rm -rf .venv

@@ -9,7 +9,7 @@ export VLIB="questa-2023.4 vlib"
 export BASE_PYTHON=/usr/local/anaconda3/bin/python3.11
 export CHS_SW_GCC_BINROOT=/usr/pack/riscv-1.0-kgf/riscv64-gcc-12.2.0/bin
 export VERIBLE_FMT="oseda -2025.03 verible-verilog-format"
-export SN_LLVM_BINROOT=/usr/scratch2/vulcano/colluca/tools/riscv32-snitch-llvm-almalinux8-15.0.0-snitch-0.2.0/bin
+export SN_LLVM_BINROOT=/usr/scratch2/vulcano/colluca/tools/riscv32-snitch-llvm-almalinux8-15.0.0-snitch-0.3.0/bin
 
 # Create the python venv
 if [ ! -d ".venv" ]; then

@@ -25,7 +25,7 @@ packages:
     - obi_peripherals
     - register_interface
   axi:
-    revision: bec548fa2a9b18cbd7531105bb1fdf481ea8ad49
+    revision: 8e04779f341eb2c89412aae92223a292beef487e
     version: null
     source:
       Git: https://github.com/colluca/axi.git
@@ -207,10 +207,10 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: ea35a9909d60d552bbdafc7e898590f326b1898a
+    revision: null
     version: null
     source:
-      Git: https://github.com/pulp-platform/FlooNoC.git
+      Path: working_dir/floo_noc
     dependencies:
     - axi
     - axi_riscv_atomics
@@ -266,7 +266,7 @@ packages:
     dependencies:
     - tech_cells_generic
   idma:
-    revision: 7829f71691a62c1e2e5e3230f370f222c7a83087
+    revision: 28a36e5e07705549e59fc33db96ab681bc1ca88e
     version: null
     source:
       Git: https://github.com/pulp-platform/iDMA.git
@@ -383,10 +383,10 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: 5d6c957c70e3824e2330d8308eb904724cd41cbe
+    revision: null
     version: null
     source:
-      Git: https://github.com/pulp-platform/snitch_cluster.git
+      Path: working_dir/snitch_cluster
     dependencies:
     - apb
     - axi
