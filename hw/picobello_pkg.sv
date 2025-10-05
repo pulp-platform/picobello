@@ -400,6 +400,7 @@ package picobello_pkg;
   /////////////////////
 
   // Support Reduction on the Wide port
+  // TODO(lleone): To be removed and merged into the routecfg
   localparam bit EnWideOffloadReduction = 1;
   localparam bit EnNarrowOffloadReduction = 1;
   localparam bit EnParallelReduction = 1;
@@ -461,6 +462,10 @@ function automatic floo_pkg::collect_op_cfg_t gen_collect_op_cfg();
   ret.EnNarrowMulticast = 1'b1;
   ret.EnWideMulticast   = 1'b1;
   ret.EnLSBAnd          = 1'b1;
+  ret.EnF_Add          = 1'b1;
+  ret.EnF_Mul          = 1'b1;
+  ret.EnF_Min          = 1'b1;
+  ret.EnF_Max          = 1'b1;
   return ret;
 endfunction
 
