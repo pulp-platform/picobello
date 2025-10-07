@@ -275,7 +275,7 @@ module picobello_top
 
     mem_tile #(
 `ifndef TARGET_SYNTHESIS
-    .MemTileId(int'(m))
+      .MemTileId(int'(m))
 `endif
     ) i_mem_tile (
       .clk_i,
