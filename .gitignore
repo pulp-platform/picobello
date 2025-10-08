@@ -8,9 +8,10 @@
 .bender
 working_dir/
 
-# Python virtual environment
+# Python virtual environment and caches
 .cache/pip
 .venv
+__pycache__
 
 # Generated source files
 .generated
