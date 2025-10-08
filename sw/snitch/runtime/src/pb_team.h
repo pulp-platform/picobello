@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Lorenzo Leone <lleone@iis.ee.ethz.ch>
-
+// Luca Colagrande <colluca@iis.ee.ethz.ch>
 
 /**
  * @file
@@ -30,60 +30,123 @@ inline uintptr_t pb_l2_tile_offset(uintptr_t src_addr) {
         PICOBELLO_ADDRMAP_L2_SPM_0_SIZE;
 }
 
-
 /**
- * @brief Get the NoC row index
- * @param cidx The cluster index
- * @return The Row index
+ * @brief Get the number of clusters in a row
  */
-inline uint32_t pb_cluster_row(uint32_t cidx)
-{
-    return cidx % PB_CLUSTER_PER_ROW;
+inline constexpr uint32_t pb_cluster_num_in_row() {
+    return PB_CLUSTER_PER_ROW;
 }
 
 /**
- * @brief Get the NoC row index
- * This is a convenience orload of pb_cluster_row()
- * @return The Row index
+ * @brief Get the number of clusters in a column
  */
-inline uint32_t pb_cluster_row()
-{
-    return pb_cluster_row(snrt_cluster_idx());
-}
-
-
-/**
- * @brief Get the NoC column index
- * @param cidx The cluster index
- * @return The Column index
- */
-inline uint32_t pb_cluster_col(uint32_t cidx)
-{
-    return cidx / PB_CLUSTER_PER_COL;
+inline constexpr uint32_t pb_cluster_num_in_col() {
+    return PB_CLUSTER_PER_COL;
 }
 
 /**
- * @brief Get the NoC column index
- * This is a convenience orload of pb_cluster_row()
- * @return The Column index
+ * @brief Get the row index of a cluster
+ * @param cluster_idx The cluster index
+ * @return The row index relative to the first row of cluster tiles
  */
-inline uint32_t pb_cluster_col()
+inline uint32_t pb_cluster_row_idx(uint32_t cluster_idx)
 {
-    return pb_cluster_col(snrt_cluster_idx());
+    return cluster_idx % pb_cluster_num_in_col();
 }
 
+/**
+ * @brief Get the row index of the invoking cluster
+ * @return The row index relative to the first row of cluster tiles
+ */
+inline uint32_t pb_cluster_row_idx()
+{
+    return pb_cluster_row_idx(snrt_cluster_idx());
+}
+
+/**
+ * @brief Get the column index of a cluster
+ * @param cluster_idx The cluster index
+ * @return The column index relative to the first column of cluster tiles
+ */
+inline uint32_t pb_cluster_col_idx(uint32_t cluster_idx)
+{
+    return cluster_idx / pb_cluster_num_in_col();
+}
+
+/**
+ * @brief Get the column index of the invoking cluster
+ * @return The column index relative to the first column of cluster tiles
+ */
+inline uint32_t pb_cluster_col_idx()
+{
+    return pb_cluster_col_idx(snrt_cluster_idx());
+}
+
+/**
+ * @brief Calculate the cluster index from its (row, col) coordinates
+ * @param row Row index relative to the first row of cluster tiles
+ * @param col Column index relative to the first column of cluster tiles
+ */
+inline uint32_t pb_calculate_cluster_idx(uint32_t row, uint32_t col) {
+    return col * pb_cluster_num_in_col() + row;
+}
+
+/**
+ * @brief Test if cluster is in a given row
+ * @param row Row index relative to the first row of cluster tiles
+ */
+inline uint32_t pb_cluster_in_row(uint32_t row) {
+    return pb_cluster_row_idx() == row;
+}
+
+/**
+ * @brief Test if cluster is in a given column
+ * @param col Column index relative to the first column of cluster tiles
+ */
+inline uint32_t pb_cluster_in_col(uint32_t col) {
+    return pb_cluster_col_idx() == col;
+}
+
+/**
+ * @brief Get cluster index of north neighbour
+ */
+inline uint32_t pb_cluster_north_neighbour() {
+    return snrt_cluster_idx() + 1;
+}
+
+/**
+ * @brief Get cluster index of east neighbour
+ */
+inline uint32_t pb_cluster_east_neighbour() {
+    return snrt_cluster_idx() + pb_cluster_num_in_row();
+}
+
+/**
+ * @brief Get cluster index of south neighbour
+ */
+inline uint32_t pb_cluster_south_neighbour() {
+    return snrt_cluster_idx() - 1;
+}
+
+/**
+ * @brief Get cluster index of west neighbour
+ */
+inline uint32_t pb_cluster_west_neighbour() {
+    return snrt_cluster_idx() - pb_cluster_num_in_row();
+}
 
 /**
  * @brief Get the index of the closest memory tile
- * @param cidx The cluster index
- * @return Index of the closest memory tile to cidx
+ * @param cluster_idx The cluster index
+ * @return Index of the closest memory tile to cluster_idx
  */
-inline uint32_t pb_closest_mem_tile(uint32_t cidx) {
-    uint32_t row = pb_cluster_row(cidx);
+inline uint32_t pb_closest_mem_tile(uint32_t cluster_idx) {
+    uint32_t row = pb_cluster_row_idx(cluster_idx);
     // e.g. with 4x4 matrix
     // first 8 clusters -> left column tiles 0..3
     // clusters >= 8 -> right column tiles 4..7
-    return (cidx < (snrt_cluster_num() / 2)) ? row : (row + PB_CLUSTER_PER_COL);
+    return (cluster_idx < (snrt_cluster_num() / 2)) ?
+        row : (row + PB_CLUSTER_PER_COL);
 }
 
 /**
