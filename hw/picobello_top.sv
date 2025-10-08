@@ -274,7 +274,9 @@ module picobello_top
     localparam int MemTileY = int'(MemTilePhysicalId.y);
 
     mem_tile #(
+`ifndef TARGET_SYNTHESIS
       .MemTileId(int'(m))
+`endif
     ) i_mem_tile (
       .clk_i,
       .rst_ni,
