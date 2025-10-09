@@ -265,7 +265,7 @@ module cluster_tile
     .hdr_t               (floo_picobello_noc_pkg::hdr_t),
     .sam_rule_t          (floo_picobello_noc_pkg::mcast_sam_rule_t),
     .sam_idx_t           (floo_picobello_noc_pkg::mcast_idx_t),
-    .mask_sel_t          (floo_picobello_noc_pkg::mask_sel_t),
+    .mask_sel_t          (floo_picobello_noc_pkg::mcast_mask_sel_t),
     .axi_narrow_in_req_t (snitch_cluster_pkg::narrow_out_req_t),
     .axi_narrow_in_rsp_t (snitch_cluster_pkg::narrow_out_resp_t),
     .axi_narrow_out_req_t(snitch_cluster_pkg::narrow_in_req_t),
