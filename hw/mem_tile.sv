@@ -60,10 +60,6 @@ module mem_tile
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
-    .EnMultiCast (1'b0),
-    .EnParallelReduction      (1'b0),
-    .EnOffloadWideReduction   (1'b0),
-    .EnOffloadNarrowReduction (1'b0),
     .EnDecoupledRW (1'b1)
   ) i_router (
     .clk_i,

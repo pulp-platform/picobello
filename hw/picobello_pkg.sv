@@ -346,11 +346,8 @@ package picobello_pkg;
   function automatic floo_pkg::route_cfg_t gen_nomcast_route_cfg();
     floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
     // Disable multicast for non-cluster tiles
-    ret.EnMultiCast = 1'b0;
-    ret.EnParallelReduction = 1'b0;
-    ret.EnNarrowOffloadReduction = 1'b0;
-    ret.EnWideOffloadReduction = 1'b0;
     ret.CollectiveCfg = CollectiveDefaultCfg;
+    ret.CollectiveCfg.RedCfg.RdSupportLoopback = 1'b0;
     return ret;
   endfunction
 
@@ -398,12 +395,6 @@ package picobello_pkg;
   /////////////////////
   //   REDUCTION     //
   /////////////////////
-
-  // Support Reduction on the Wide port
-  // TODO(lleone): To be removed and merged into the routecfg
-  localparam bit EnWideOffloadReduction = 1;
-  localparam bit EnNarrowOffloadReduction = 1;
-  localparam bit EnParallelReduction = 1;
 
   // TODO (lleone): Add generation of the follwing types ans structs into Floogen
   typedef struct packed {
@@ -454,37 +445,6 @@ localparam reduction_cfg_t NarrowReductionCfg = '{
     RdSupportLoopback: 1'b1,
     default: '0
   };
-
-  // TODO (lleone): Get rid of all this configuration struct, make only one to pass to the system
-  // with enough info to decide what to do with the different routers
-function automatic floo_pkg::collect_op_cfg_t gen_collect_op_cfg();
-  floo_pkg:: collect_op_cfg_t ret = floo_pkg::CollectiveOpDefaultCfg;
-  ret.EnNarrowMulticast = 1'b1;
-  ret.EnWideMulticast   = 1'b1;
-  ret.EnLSBAnd          = 1'b1;
-  ret.EnF_Add          = 1'b1;
-  ret.EnF_Mul          = 1'b1;
-  ret.EnF_Min          = 1'b1;
-  ret.EnF_Max          = 1'b1;
-  return ret;
-endfunction
-
-localparam collect_op_cfg_t CollectOpCfg = gen_collect_op_cfg();
-
-localparam collective_cfg_t CollectCfgNarrow = '{
-    OpCfg: CollectOpCfg,
-    SequentialRedCfg: NarrowReductionCfg
-};
-
-localparam collective_cfg_t CollectCfgWide = '{
-    OpCfg: CollectOpCfg,
-    SequentialRedCfg: WideReductionCfg
-};
-
-localparam collective_cfg_t CollectCfgRsp = '{
-    OpCfg: CollectOpCfg,
-    SequentialRedCfg: ResponseReductionCfg
-};
 
   ////////////////
   //  Cheshire  //
