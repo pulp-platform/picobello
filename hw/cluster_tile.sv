@@ -111,7 +111,7 @@ module cluster_tile
   // TODO(raroth): possible to remove this decode from the picobello repo and move it inside the
   //       FlooNoC repo. Currently the Decode used for the ALU is directly inside the floo_alu.sv
   //       file. Maybe do the same for the FPU
-  if(EnWideOffloadReduction) begin : gen_wide_offload_reduction
+  if(is_en_wide_reduction(RouteCfg.CollectiveCfg.OpCfg)) begin : gen_wide_offload_reduction
     // Connect the DCA Request
     assign offload_dca_req.q_valid = offload_wide_req_valid;
     assign offload_wide_req_ready = offload_dca_rsp.q_ready;
@@ -344,10 +344,6 @@ module cluster_tile
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
     .RouteAlgo   (RouteCfg.RouteAlgo),
-    .EnMultiCast (RouteCfg.EnMultiCast),
-    .EnParallelReduction      (EnParallelReduction),
-    .EnOffloadWideReduction   (EnWideOffloadReduction),
-    .EnOffloadNarrowReduction (EnNarrowOffloadReduction),
     .EnDecoupledRW (1'b1),
     .NoLoopback  (1'b0),
     .NumRoutes   (5),
@@ -363,6 +359,7 @@ module cluster_tile
     .RdNarrowOperation_t      (floo_pkg::collect_op_e),
     .RdWideData_t             (RdDataWide_t),
     .RdNarrowData_t           (RdDataNarrow_t),
+    .CollectiveOpCfg          (RouteCfg.CollectiveCfg.OpCfg),
     .RdWideCfg                (WideReductionCfg),
     .RdNarrowCfg              (NarrowReductionCfg),
     .RdRespCfg                (ResponseReductionCfg)
