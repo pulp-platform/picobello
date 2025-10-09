@@ -263,18 +263,18 @@ package floo_picobello_noc_pkg;
       IdAddrOffset: 0,
       NumSamRules: 29,
       NumRoutes: 0,
-      EnMultiCast: 1'b1,
-      EnParallelReduction: 1'b1,
-      EnNarrowOffloadReduction: 1'b1,
-      EnWideOffloadReduction: 1'b1,
       CollectiveCfg: '{
         OpCfg: '{
             EnNarrowMulticast:  1'b1,
             EnWideMulticast:    1'b1,
             EnLSBAnd:           1'b1,
+            EnF_Add:            1'b1,
+            EnF_Mul:            1'b1,
+            EnF_Min:            1'b1,
+            EnF_Max:            1'b1,
             default:            '0
         },
-        SequentialRedCfg: ReductionDefaultCfg
+        RedCfg: ReductionDefaultCfg
       }
   };
 
