@@ -245,28 +245,6 @@ package picobello_pkg;
   //   MULTICAST     //
   /////////////////////
 
-  // Helper functions to support the multicast feature.
-  //
-  // The original System Address Map (SAM) must be modified to encode, within the `idx` field,
-  // additional information needed to translate the address base mask into an X/Y coordinate-based mask.
-  //
-  // The additional fields are:
-  // - `offset_id_x`: the offset in the tile address where the X coordinate encoding starts
-  // - `len_id_x`:    the number of bits used to encode the X coordinate
-  // - `offset_id_y`: the offset in the tile address where the Y coordinate encoding starts
-  // - `len_id_y`:    the number of bits used to encode the Y coordinate
-
-  // Support multicast only for cluster tiles.
-  // TODO(lleone): Extend multicast feature for Memory tiles as well
-  localparam int unsigned NumMcastEndPoints = NumClusters;
-
-  typedef logic [aw_bt'(AxiCfgN.AddrWidth)-1:0] user_mask_t;
-
-  typedef struct packed {
-    user_mask_t                                   mcast_mask;
-    logic [snitch_cluster_pkg::AtomicIdWidth-1:0] atomic;
-  } mcast_user_t;
-
   function automatic floo_pkg::route_cfg_t gen_nomcast_route_cfg();
     floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
     // Disable multicast for non-cluster tiles

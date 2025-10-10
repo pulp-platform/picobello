@@ -278,7 +278,7 @@ module cluster_tile
     .floo_rsp_t          (floo_picobello_noc_pkg::floo_rsp_t),
     .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t),
     .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t),
-    .user_struct_t       (picobello_pkg::mcast_user_t)
+    .user_struct_t       (floo_picobello_noc_pkg::mcast_axi_narrow_in_user_t)
   ) i_chimney (
     .clk_i               (tile_clk),
     .rst_ni              (tile_rst_n),
