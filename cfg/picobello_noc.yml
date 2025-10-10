@@ -20,7 +20,7 @@ protocols:
     id_width: 5
     user_width:
       mcast_mask: 48
-      user: 3
+      user: 5
   - name: "narrow_out"
     type: "narrow"
     protocol: "AXI4"
@@ -29,7 +29,7 @@ protocols:
     id_width: 2
     user_width:
       mcast_mask: 48
-      user: 3
+      user: 5
   - name: "wide_in"
     type: "wide"
     protocol: "AXI4"
