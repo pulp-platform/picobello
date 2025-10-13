@@ -209,25 +209,10 @@ $(call sn_include_deps)
 # Misc #
 ########
 
-BASE_PYTHON ?= python
-PIP_CACHE_DIR ?= $(PB_ROOT)/.cache/pip
-
-.PHONY: dvt-flist python-venv python-venv-clean verible-fmt
+.PHONY: dvt-flist verible-fmt
 
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
-
-python-venv: .venv
-.venv:
-	$(BASE_PYTHON) -m venv $@
-	. $@/bin/activate && \
-	python -m pip install --upgrade pip setuptools && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) -r requirements.txt && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) $(shell $(BENDER) path floo_noc) --no-deps && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) "$(shell $(BENDER) path snitch_cluster)[kernels]"
-
-python-venv-clean:
-	rm -rf .venv
 
 verible-fmt:
 	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
