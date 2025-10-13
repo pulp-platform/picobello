@@ -31,8 +31,6 @@ variables:
     - bender path snitch_cluster
     # Collect bender sourcess
     - bender checkout
-    # Install the python venv
-    - make python-venv
     # Initialize the PD repository
     - make init-pd
   cache:
