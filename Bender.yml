@@ -27,6 +27,7 @@ dependencies:
 workspace:
   package_links:
     .deps/snitch_cluster: snitch_cluster
+    .deps/floo_noc: floo_noc
 
 sources:
   # Source files grouped in levels. Files in level 0 have no dependencies on files in this
