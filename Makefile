@@ -108,6 +108,9 @@ SN_GEN_DIR = $(PB_GEN_DIR)
 include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
 
+$(SN_CFG): $(FLOO_CFG)
+	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
+
 .PHONY: sn-hw-clean sn-hw-all
 
 sn-hw-all: $(SN_CLUSTER_WRAPPER) $(SN_CLUSTER_PKG)
@@ -117,9 +120,6 @@ sn-hw-clean:
 ###########
 # FlooNoC #
 ###########
-.PHONY: update-sn-cfg
-update-sn-cfg: $(SN_CFG)
-	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
 
 .PHONY: floo-hw-all floo-clean
 
@@ -175,7 +175,7 @@ PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 PB_HW_ALL += $(PB_RDL_HW_ALL)
-PB_HW_ALL += update-sn-cfg
+PB_HW_ALL += $(SN_CFG)
 
 .PHONY: picobello-hw-all picobello-clean clean
 
