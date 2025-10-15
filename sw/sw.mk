@@ -39,6 +39,7 @@ SN_APPS += $(PB_SNITCH_SW_DIR)/apps/axpy
 SN_APPS += $(SN_ROOT)/sw/kernels/dnn/flashattention_2
 SN_APPS += $(PB_SNITCH_SW_DIR)/apps/fused_concat_linear
 SN_APPS += $(PB_SNITCH_SW_DIR)/apps/mha
+SN_APPS += $(PB_SNITCH_SW_DIR)/apps/summa_gemm
 
 SN_TESTS = $(wildcard $(PB_SNITCH_SW_DIR)/tests/*.c)
 
