@@ -27,14 +27,19 @@ def sim_and_verify_cmd(verify_script):
     ]
 
 
-def sw_callback(target=None, build_dir=None, defines=None, dry_run=False, sync=False, **kwargs):
+def sw_callback(target=None, build_dir=None, defines=None, data_cfg=None, dry_run=False,
+                sync=False, **kwargs):
     env = {
         'SN_TESTS_RISCV_CFLAGS': common.join_cdefines(defines),
+        f'{target}_RISCV_CFLAGS': common.join_cdefines(defines),
     }
     vars = {
+        f'{target}_BUILD_DIR': build_dir,
         'SN_TESTS_BUILDDIR': build_dir,
         'DEBUG': 'ON',
     }
+    if data_cfg is not None:
+        vars[f'{target}_DATA_CFG'] = data_cfg
     env = common.extend_environment(env)
     return common.make(
         target, flags=['-j'], dir=root, vars=vars, env=env, sync=sync,
