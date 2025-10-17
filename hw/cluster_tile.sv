@@ -169,11 +169,12 @@ module cluster_tile
 
     // TODO(raroth): move these spill register inside FlooNoC and make them configurable.
     // Insert a reqrsp-cut to avoid timing violations
+     //If teh CutOffloadIntf is enabled, the cut is already in the offload controller, you can bypass teh one below
     generic_reqrsp_cut #(
       .req_chan_t (snitch_cluster_pkg::dca_req_chan_t),
       .rsp_chan_t (snitch_cluster_pkg::dca_rsp_chan_t),
-      .BypassReq  (1'b0),
-      .BypassRsp  (1'b0)
+      .BypassReq  (WideReductionCfg.CutOffloadIntf),
+      .BypassRsp  (WideReductionCfg.CutOffloadIntf)
     ) i_dca_router_cut (
       .clk_i          (clk_i),
       .rst_ni         (rst_ni),
