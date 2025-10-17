@@ -81,7 +81,9 @@ module spm_tile
 
   floo_req_t [Eject:North] router_floo_req_out, router_floo_req_in;
   floo_rsp_t [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
-  floo_wide_t [Eject:North] router_floo_wide_out, router_floo_wide_in;
+  floo_wide_t [Eject:North] router_floo_wide_in;
+  floo_wide_double_t [Eject:North] router_floo_wide_out;
+
 
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
@@ -95,6 +97,7 @@ module spm_tile
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
+    .floo_wide_out_t (floo_wide_double_t),
     .EnDecoupledRW (1'b1)
   ) i_router (
     .clk_i,
@@ -132,7 +135,12 @@ module spm_tile
   assign router_floo_req_in[West:North]  = floo_req_i;
   assign floo_rsp_o                      = router_floo_rsp_out[West:North];
   assign router_floo_rsp_in[West:North]  = floo_rsp_i;
-  assign floo_wide_o                     = router_floo_wide_out[West:North];
+  // Only the local port uses both physical channels. Other outputs use only the lower.
+  for (genvar i = North; i <= West; i++) begin : gen_floo_wide_o
+    assign floo_wide_o[i].valid = router_floo_wide_out[i].valid;
+    assign floo_wide_o[i].ready = router_floo_wide_out[i].ready;
+    assign floo_wide_o[i].wide = router_floo_wide_out[i].wide[0];
+  end
   assign router_floo_wide_in[West:North] = floo_wide_i;
 
   /////////////
@@ -172,6 +180,7 @@ module spm_tile
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
     .floo_wide_t         (floo_wide_t),
+    .floo_wide_in_t (floo_wide_double_t),
     .user_narrow_struct_t             (collective_narrow_user_t),
     .user_wide_struct_t               (collective_wide_user_t)
   ) i_chimney (
