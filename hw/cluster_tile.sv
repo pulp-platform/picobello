@@ -330,18 +330,13 @@ module cluster_tile
   // Router //
   ////////////
 
-  typedef struct packed {
-    logic [1:0] valid;
-    logic [1:0] ready;
-    floo_wide_chan_t [1:0] wide;
-  } floo_wide_double_t;
-
   floo_req_t [Eject:North] router_floo_req_out, router_floo_req_in;
   floo_rsp_t [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
-  floo_wide_double_t [Eject:North] router_floo_wide_out;
   floo_wide_t [Eject:North] router_floo_wide_in;
+  floo_wide_double_t [Eject:North] router_floo_wide_out;
 
-  floo_nw_router_v2 #(
+
+  floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
     .AxiCfgW     (AxiCfgW),
     .RouteAlgo   (RouteCfg.RouteAlgo),
@@ -412,7 +407,7 @@ module cluster_tile
   // Chimney //
   /////////////
 
-  floo_nw_chimney_v2 #(
+  floo_nw_chimney #(
     .AxiCfgN             (floo_picobello_noc_pkg::AxiCfgN),
     .AxiCfgW             (floo_picobello_noc_pkg::AxiCfgW),
     .ChimneyCfgN         (floo_pkg::ChimneyDefaultCfg),
