@@ -3,8 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Chen Wu <chenwu@iis.ee.ethz.ch>
+// Raphael Roth <raroth@student.ethz.ch>
 // Luca Colagrande <colluca@iis.ee.ethz.ch>
 
+#define SNRT_ENABLE_NARROW_REDUCTION
+#define SNRT_ENABLE_NARROW_MULTICAST
 
 #include <stdint.h>
 #include "snrt.h"
@@ -86,11 +89,17 @@ static inline void dma_reduction_sequential(uintptr_t buffer_src, uintptr_t buff
     uint32_t cluster_idx = snrt_cluster_idx();
     uint32_t col_idx = pb_cluster_col_idx(cluster_idx);
 
+    uintptr_t coming[2] = {
+        buffer_coming,
+        buffer_coming + 2 * BATCH
+    };
+
     // Compute destination address of the dma transfer
-    // - TODO: clusters with col idx 0 send reduced data to buffer_coming[1] in its south neighbour
-    // - others send reduced data to buffer_coming[0] in its west neighbour
-    uintptr_t dma_dst;
-    dma_dst = (uintptr_t)snrt_remote_l1_ptr((void *)buffer_coming, cluster_idx, pb_cluster_west_neighbour());
+    // - TODO: clusters with col idx 0 send reduced data to coming[1] in its south neighbour
+    // - others send reduced data to coming[0] in its west neighbour
+    uintptr_t dma_dst_base, dma_dst;
+    dma_dst_base = (uintptr_t)snrt_remote_l1_ptr((void *)coming[0], cluster_idx, pb_cluster_west_neighbour());
+    dma_dst = dma_dst_base;
 
     // Compute source address of the dma transfer
     // - easternmost clusters send data in buffer_src to the dst
@@ -106,6 +115,12 @@ static inline void dma_reduction_sequential(uintptr_t buffer_src, uintptr_t buff
     uintptr_t compute_src = buffer_src;
     // Pointer of reduced data
     uintptr_t compute_res = buffer_res;
+    uintptr_t compute_src2_base, compute_src2;
+    uintptr_t compute_src3_base, compute_src3;
+    compute_src2_base = coming[0];
+    compute_src3_base = coming[1];
+    compute_src2 = compute_src2_base;
+    compute_src3 = compute_src3_base;
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
@@ -117,7 +132,7 @@ static inline void dma_reduction_sequential(uintptr_t buffer_src, uintptr_t buff
     asm volatile ("" : "+r"(user) ::);
 
     // Iterations to cover all reductions in a row
-    uint32_t n_iters = N_BATCHES - 1 + pb_cluster_num_in_row();
+    uint32_t n_iters = N_BATCHES + 1 + pb_cluster_num_in_row();
     for (uint32_t i = 0; i < n_iters; i++) {
         char dma_active = i >= (2 * pb_cluster_num_in_row() - 2 - 2 * col_idx);
         dma_active &= i < (2 * pb_cluster_num_in_row() - 2 - 2 * col_idx + N_BATCHES);
@@ -126,39 +141,46 @@ static inline void dma_reduction_sequential(uintptr_t buffer_src, uintptr_t buff
         char compute_active = i >= (2 * pb_cluster_num_in_row() - 3 - 2 * col_idx);
         compute_active &= i < (2 * pb_cluster_num_in_row() - 3 - 2 * col_idx + N_BATCHES);
         compute_active &= !pb_cluster_is_easternmost(cluster_idx);
-        // if(dma_active) {DUMP(cluster_idx); DUMP(1000);}
-        // if(compute_active) {DUMP(cluster_idx); DUMP(2000);}
 
         if (compute_active && snrt_is_compute_core()) {
+            // if(snrt_cluster_core_idx()==0) {DUMP(2222);DUMP(compute_src); DUMP(compute_src2); DUMP(compute_res);}
+            snrt_mcycle();
             cluster_reduce_array_slice(
                 (double *)compute_src, // source 1
-                (double *)buffer_coming, // source 2
+                (double *)compute_src2, // source 2
                 (double *)compute_res  // destination
             );
             compute_src += BATCH;
+            compute_src2 = compute_src2_base + ((i & 1) ? BATCH : 0);
             compute_res += BATCH;
-            asm volatile ("" : "+r"(compute_src), "+r"(compute_res) ::);
+            asm volatile ("" : "+r"(compute_src), "+r"(compute_src2), "+r"(compute_res) ::);
+            snrt_mcycle();
         }
 
         if (dma_active && snrt_is_dm_core()) {
             // Start DMA
+            // {DUMP(3333); DUMP(dma_src); DUMP(dma_dst);DUMP(i);}
+            snrt_mcycle();
             snrt_dma_start_1d(dma_dst, dma_src, BATCH);
 
             // Update pointers for next iteration while transfer completes,
             // preventing instructions from being reordered after the DMA wait
             dma_src += BATCH;
-            asm volatile ("" : "+r"(dma_src) ::);
+            dma_dst = dma_dst_base + ((i & 1) ? 0 : BATCH);
+            asm volatile ("" : "+r"(dma_src), "+r"(dma_dst) ::);
 
             // Wait for DMA to complete
             snrt_dma_wait_all();
+            snrt_mcycle();
         }
 
         // Perform inter-cluster barrier. Disable reduction before the fence
         // so it overlaps with the latency of the ongoing reduction operation.
-        snrt_set_awuser_low(user);
-        *barrier_ptr = 1;
-        snrt_set_awuser_low(0);
-        snrt_fence();
+        // snrt_set_awuser_low(user);
+        // *barrier_ptr = 1;
+        // snrt_set_awuser_low(0);
+        // snrt_fence();
+        snrt_global_barrier(comm);
     }
 
 }
@@ -171,8 +193,8 @@ extern const uint32_t n_clusters_per_row = pb_cluster_num_in_row();
 extern const uint32_t n_clusters_per_col = pb_cluster_num_in_col();
 
 int main() {
-    double *buffer_src = (double*) snrt_l1_alloc_cluster_local(SIZE, sizeof(double));
-    double *buffer_dst = (double*) snrt_l1_alloc_cluster_local(SIZE, sizeof(double));
+    double *buffer_src = (double*) snrt_l1_alloc_cluster_local(SIZE, 4096);
+    double *buffer_dst = (double*) snrt_l1_alloc_cluster_local(SIZE, 4096);
     // Temporary storage for reduction intermidiate result, at most 1 batch of intermediate result
     double *buffer_tmp = (double*) snrt_l1_alloc_cluster_local(BATCH, sizeof(double));
     // Buffer to receive data from other clusters, at most 2 batches coming from other clusters

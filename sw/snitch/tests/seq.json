@@ -1,0 +1,29 @@
+[
+    <% N_BATCHES = 8 %>
+    <% N_REPEATS = 2 %>
+
+    % for iter in range(0, N_REPEATS):
+        % for i in range(0, N_BATCHES):
+            // DMA core
+            % for col in range(1, 4):
+            {
+                "thread": "${f'hart_{col*36+9}'}",
+                "roi": [
+                    {"idx": ${20 * iter + 2 * i}, "label": "${f'dma_{i}'}"},
+                ]
+            },
+            % endfor
+            // Compute cores
+            % for col in range(0, 3):
+                % for core in range(0, 8):
+                {
+                    "thread": "${f'hart_{col*36+core+1}'}",
+                    "roi": [
+                        {"idx": ${20 * iter + 2 * i}, "label": "${f'compute_{i}'}"},
+                    ]
+                },
+                % endfor
+            % endfor
+        % endfor
+    % endfor
+]
