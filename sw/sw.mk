@@ -24,14 +24,18 @@ PB_GEN_DIR = $(PB_ROOT)/.generated
 
 SN_RUNTIME_SRCDIR    = $(PB_SNITCH_SW_DIR)/runtime/impl
 SN_RUNTIME_BUILDDIR  = $(PB_SNITCH_SW_DIR)/runtime/build
-SN_TESTS_BUILDDIR    = $(PB_SNITCH_SW_DIR)/tests/build
-SN_RVTESTS_BUILDDIR  = $(PB_SNITCH_SW_DIR)/riscv-tests/build
 SN_RUNTIME_INCDIRS   = $(PB_INCDIR)
 SN_RUNTIME_INCDIRS  += $(PB_GEN_DIR)
 SN_RUNTIME_INCDIRS  += $(PB_SNITCH_SW_DIR)/runtime/src
 SN_RUNTIME_HAL_HDRS  = $(PB_GEN_DIR)/pb_addrmap.h
 SN_RUNTIME_HAL_HDRS += $(PB_GEN_DIR)/pb_raw_addrmap.h
-SN_BUILD_APPS        = OFF
+
+SN_RVTESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/riscv-tests/build
+
+SN_TESTS_BUILDDIR = $(PB_SNITCH_SW_DIR)/tests/build
+SN_TESTS_INCDIRS  = $(SN_ROOT)/sw/kernels/blas
+
+SN_BUILD_APPS = OFF
 
 SN_APPS  = $(PB_SNITCH_SW_DIR)/apps/gemm_2d
 SN_APPS += $(PB_SNITCH_SW_DIR)/apps/gemm
