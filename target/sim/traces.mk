@@ -9,6 +9,10 @@ LOGS_DIR = $(SIM_DIR)/logs
 SN_SIM_DIR = $(SIM_DIR)
 include $(SN_ROOT)/make/traces.mk
 
+ifdef ROI_SPEC
+	SN_ROI_SPEC = $(ROI_SPEC)
+endif
+
 CHS_ADDR2LINE      ?= $(CHS_SW_GCC_BINROOT)/riscv64-unknown-elf-addr2line
 CHS_TXT_TRACE       = $(LOGS_DIR)/trace_hart_00000.txt
 CHS_ANNOTATED_TRACE = $(LOGS_DIR)/trace_hart_00000.s
@@ -24,6 +28,8 @@ traces: sn-traces chs-trace
 annotate: sn-annotate chs-annotate
 traces-clean: sn-clean-traces chs-trace-clean
 annotate-clean: sn-clean-annotate chs-annotate-clean
+visual-trace: sn-visual-trace
+clean-visual-trace: sn-clean-visual-trace
 
 chs-trace: $(CHS_TXT_TRACE)
 chs-annotate: $(CHS_ANNOTATED_TRACE)
