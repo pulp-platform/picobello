@@ -5,25 +5,29 @@
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
 
 from pathlib import Path
+import shutil
 import snitch.util.experiments.experiment_utils as eu
 from snitch.util.experiments import common
 
 root = Path(__file__).resolve().parents[1]
-sim_cmd = [
-    'bash', '-c',
-    f'make vsim-run-batch -C {str(root)} SIM_DIR=${{run_dir}} '
-    f'CHS_BINARY={str(root)}/sw/cheshire/tests/simple_offload.spm.elf '
-    f'SN_BINARY=${{elf}} PRELMODE=3; '
-    f'grep -q "] SUCCESS" ${{run_dir}}/transcript;'
-]
+default_work_dir = root / 'target/sim/vsim'
+
+def sim_cmd(work_dir=default_work_dir):
+    return [
+        'bash', '-c',
+        f'make vsim-run-batch -C {str(root)} SIM_DIR=${{run_dir}} '
+        f'CHS_BINARY={str(root)}/sw/cheshire/tests/simple_offload.spm.elf '
+        f'SN_BINARY=${{elf}} PRELMODE=3 VSIM_DIR={str(work_dir)}; '
+        f'grep -q "] SUCCESS" ${{run_dir}}/transcript;'
+    ]
 
 
-def sim_and_verify_cmd(verify_script):
+def sim_and_verify_cmd(verify_script, work_dir=default_work_dir):
     return [
         'bash', '-c',
         f'make vsim-run-batch-verify -C {str(root)} SIM_DIR=${{run_dir}} '
         f'CHS_BINARY={str(root)}/sw/cheshire/tests/simple_offload.spm.elf '
-        f'SN_BINARY=${{elf}} VERIFY_PY={verify_script} PRELMODE=3;'
+        f'SN_BINARY=${{elf}} VERIFY_PY={verify_script} PRELMODE=3 VSIM_DIR={str(work_dir)};'
     ]
 
 
@@ -47,8 +51,19 @@ def sw_callback(target=None, build_dir=None, defines=None, data_cfg=None, dry_ru
     )
 
 
+def hw_callback(work_dir=None, hw_cfg=None, dry_run=False,
+                sync=False, **kwargs):
+    shutil.copy2(hw_cfg, root / '.generated/floo_picobello_noc_pkg.sv')
+    work_dir.mkdir(exist_ok=True, parents=True)
+    vars = {
+        'VSIM_DIR': work_dir,
+    }
+    return common.make('vsim-compile', dir=root, vars=vars, flags=['-j'], dry_run=dry_run, sync=sync)
+
+
 callbacks = {
-    'sw': sw_callback
+    'sw': sw_callback,
+    'hw': hw_callback,
 }
 
 
