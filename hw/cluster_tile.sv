@@ -229,102 +229,109 @@ module cluster_tile
     .dca_rsp_o        (offload_dca_rsp_cut)
   );
 
-  // Convert narrow AXI's 64 bit DW down to 32
-  axi_dw_converter #(
-    .AxiMaxReads        (1),
-    .AxiSlvPortDataWidth(snitch_cluster_pkg::NarrowDataWidth),
-    .AxiMstPortDataWidth(HWPECtrlDataWidth),
-    .AxiAddrWidth       (snitch_cluster_pkg::AddrWidth),
-    .AxiIdWidth         (snitch_cluster_pkg::NarrowIdWidthOut),
-    .aw_chan_t          (snitch_cluster_pkg::narrow_out_aw_chan_t),
-    .mst_w_chan_t       (cluster_narrow_out_dw_conv_w_chan_t),
-    .slv_w_chan_t       (snitch_cluster_pkg::narrow_out_w_chan_t),
-    .b_chan_t           (snitch_cluster_pkg::narrow_out_b_chan_t),
-    .ar_chan_t          (snitch_cluster_pkg::narrow_out_ar_chan_t),
-    .mst_r_chan_t       (cluster_narrow_out_dw_conv_r_chan_t),
-    .slv_r_chan_t       (snitch_cluster_pkg::narrow_out_r_chan_t),
-    .axi_mst_req_t      (cluster_narrow_out_dw_conv_req_t),
-    .axi_mst_resp_t     (cluster_narrow_out_dw_conv_resp_t),
-    .axi_slv_req_t      (snitch_cluster_pkg::narrow_out_req_t),
-    .axi_slv_resp_t     (snitch_cluster_pkg::narrow_out_resp_t)
-  ) i_axi_dw_hwpe (
-    .clk_i     (tile_clk),
-    .rst_ni    (tile_rst_n),
-    .slv_req_i (cluster_narrow_ext_req),
-    .slv_resp_o(cluster_narrow_ext_rsp),
-    .mst_req_o (cluster_narrow_out_dw_conv_req),
-    .mst_resp_i(cluster_narrow_out_dw_conv_rsp)
-  );
+  if (UseRedMulE) begin : gen_redmul_e
 
-  axi_cut #(
-    .Bypass    (0),
-    .aw_chan_t (snitch_cluster_pkg::narrow_out_aw_chan_t),
-    .w_chan_t  (cluster_narrow_out_dw_conv_w_chan_t),
-    .b_chan_t  (snitch_cluster_pkg::narrow_out_b_chan_t),
-    .ar_chan_t (snitch_cluster_pkg::narrow_out_ar_chan_t),
-    .r_chan_t  (cluster_narrow_out_dw_conv_r_chan_t),
-    .axi_req_t (cluster_narrow_out_dw_conv_req_t),
-    .axi_resp_t(cluster_narrow_out_dw_conv_resp_t)
-  ) i_cut_ext_narrow_slv (
-    .clk_i     (tile_clk),
-    .rst_ni    (tile_rst_n),
-    .slv_req_i (cluster_narrow_out_dw_conv_req),
-    .slv_resp_o(cluster_narrow_out_dw_conv_rsp),
-    .mst_req_o (cluster_narrow_out_cut_req),
-    .mst_resp_i(cluster_narrow_out_cut_rsp)
-  );
+    // Convert narrow AXI's 64 bit DW down to 32
+    axi_dw_converter #(
+      .AxiMaxReads        (1),
+      .AxiSlvPortDataWidth(snitch_cluster_pkg::NarrowDataWidth),
+      .AxiMstPortDataWidth(HWPECtrlDataWidth),
+      .AxiAddrWidth       (snitch_cluster_pkg::AddrWidth),
+      .AxiIdWidth         (snitch_cluster_pkg::NarrowIdWidthOut),
+      .aw_chan_t          (snitch_cluster_pkg::narrow_out_aw_chan_t),
+      .mst_w_chan_t       (cluster_narrow_out_dw_conv_w_chan_t),
+      .slv_w_chan_t       (snitch_cluster_pkg::narrow_out_w_chan_t),
+      .b_chan_t           (snitch_cluster_pkg::narrow_out_b_chan_t),
+      .ar_chan_t          (snitch_cluster_pkg::narrow_out_ar_chan_t),
+      .mst_r_chan_t       (cluster_narrow_out_dw_conv_r_chan_t),
+      .slv_r_chan_t       (snitch_cluster_pkg::narrow_out_r_chan_t),
+      .axi_mst_req_t      (cluster_narrow_out_dw_conv_req_t),
+      .axi_mst_resp_t     (cluster_narrow_out_dw_conv_resp_t),
+      .axi_slv_req_t      (snitch_cluster_pkg::narrow_out_req_t),
+      .axi_slv_resp_t     (snitch_cluster_pkg::narrow_out_resp_t)
+    ) i_axi_dw_hwpe (
+      .clk_i     (tile_clk),
+      .rst_ni    (tile_rst_n),
+      .slv_req_i (cluster_narrow_ext_req),
+      .slv_resp_o(cluster_narrow_ext_rsp),
+      .mst_req_o (cluster_narrow_out_dw_conv_req),
+      .mst_resp_i(cluster_narrow_out_dw_conv_rsp)
+    );
 
-  axi_to_tcdm #(
-    .axi_req_t (cluster_narrow_out_dw_conv_req_t),
-    .axi_rsp_t (cluster_narrow_out_dw_conv_resp_t),
-    .tcdm_req_t(hwpectrl_req_t),
-    .tcdm_rsp_t(hwpectrl_rsp_t),
-    .IdWidth   (snitch_cluster_pkg::NarrowIdWidthOut),
-    .AddrWidth (HWPECtrlAddrWidth),
-    .DataWidth (HWPECtrlDataWidth)
-  ) i_axi_to_hwpe_ctrl (
-    .clk_i     (tile_clk),
-    .rst_ni    (tile_rst_n),
-    .axi_req_i (cluster_narrow_out_cut_req),
-    .axi_rsp_o (cluster_narrow_out_cut_rsp),
-    .tcdm_req_o(hwpectrl_req),
-    .tcdm_rsp_i(hwpectrl_rsp)
-  );
+    axi_cut #(
+      .Bypass    (0),
+      .aw_chan_t (snitch_cluster_pkg::narrow_out_aw_chan_t),
+      .w_chan_t  (cluster_narrow_out_dw_conv_w_chan_t),
+      .b_chan_t  (snitch_cluster_pkg::narrow_out_b_chan_t),
+      .ar_chan_t (snitch_cluster_pkg::narrow_out_ar_chan_t),
+      .r_chan_t  (cluster_narrow_out_dw_conv_r_chan_t),
+      .axi_req_t (cluster_narrow_out_dw_conv_req_t),
+      .axi_resp_t(cluster_narrow_out_dw_conv_resp_t)
+    ) i_cut_ext_narrow_slv (
+      .clk_i     (tile_clk),
+      .rst_ni    (tile_rst_n),
+      .slv_req_i (cluster_narrow_out_dw_conv_req),
+      .slv_resp_o(cluster_narrow_out_dw_conv_rsp),
+      .mst_req_o (cluster_narrow_out_cut_req),
+      .mst_resp_i(cluster_narrow_out_cut_rsp)
+    );
 
-  snitch_tcdm_aligner #(
-    .tcdm_req_t   (snitch_cluster_pkg::tcdm_dma_req_t),
-    .tcdm_rsp_t   (snitch_cluster_pkg::tcdm_dma_rsp_t),
-    .DataWidth    (snitch_cluster_pkg::WideDataWidth),
-    .TCDMDataWidth(snitch_cluster_pkg::NarrowDataWidth),
-    .AddrWidth    (snitch_cluster_pkg::TcdmAddrWidth)
-  ) i_snitch_tcdm_aligner (
-    .clk_i                (tile_clk),
-    .rst_ni               (tile_rst_n),
-    .tcdm_req_misaligned_i(cluster_tcdm_ext_req_misaligned),
-    .tcdm_req_aligned_o   (cluster_tcdm_ext_req_aligned),
-    .tcdm_rsp_aligned_i   (cluster_tcdm_ext_rsp_aligned),
-    .tcdm_rsp_misaligned_o(cluster_tcdm_ext_rsp_misaligned)
-  );
+    axi_to_tcdm #(
+      .axi_req_t (cluster_narrow_out_dw_conv_req_t),
+      .axi_rsp_t (cluster_narrow_out_dw_conv_resp_t),
+      .tcdm_req_t(hwpectrl_req_t),
+      .tcdm_rsp_t(hwpectrl_rsp_t),
+      .IdWidth   (snitch_cluster_pkg::NarrowIdWidthOut),
+      .AddrWidth (HWPECtrlAddrWidth),
+      .DataWidth (HWPECtrlDataWidth)
+    ) i_axi_to_hwpe_ctrl (
+      .clk_i     (tile_clk),
+      .rst_ni    (tile_rst_n),
+      .axi_req_i (cluster_narrow_out_cut_req),
+      .axi_rsp_o (cluster_narrow_out_cut_rsp),
+      .tcdm_req_o(hwpectrl_req),
+      .tcdm_rsp_i(hwpectrl_rsp)
+    );
 
-  snitch_hwpe_subsystem #(
-    .tcdm_req_t   (snitch_cluster_pkg::tcdm_dma_req_t),
-    .tcdm_rsp_t   (snitch_cluster_pkg::tcdm_dma_rsp_t),
-    .periph_req_t (hwpectrl_req_t),
-    .periph_rsp_t (hwpectrl_rsp_t),
-    .HwpeDataWidth(snitch_cluster_pkg::WideDataWidth),
-    .IdWidth      (snitch_cluster_pkg::NarrowIdWidthOut),
-    .NrCores      (NrCores),
-    .TCDMDataWidth(snitch_cluster_pkg::NarrowDataWidth)
-  ) i_snitch_hwpe_subsystem (
-    .clk_i          (tile_clk),
-    .rst_ni         (tile_rst_n),
-    .test_mode_i    (1'b0),
-    .tcdm_req_o     (cluster_tcdm_ext_req_misaligned),
-    .tcdm_rsp_i     (cluster_tcdm_ext_rsp_misaligned),
-    .hwpe_ctrl_req_i(hwpectrl_req),
-    .hwpe_ctrl_rsp_o(hwpectrl_rsp),
-    .hwpe_evt_o     (mxip)
-  );
+    snitch_tcdm_aligner #(
+      .tcdm_req_t   (snitch_cluster_pkg::tcdm_dma_req_t),
+      .tcdm_rsp_t   (snitch_cluster_pkg::tcdm_dma_rsp_t),
+      .DataWidth    (snitch_cluster_pkg::WideDataWidth),
+      .TCDMDataWidth(snitch_cluster_pkg::NarrowDataWidth),
+      .AddrWidth    (snitch_cluster_pkg::TcdmAddrWidth)
+    ) i_snitch_tcdm_aligner (
+      .clk_i                (tile_clk),
+      .rst_ni               (tile_rst_n),
+      .tcdm_req_misaligned_i(cluster_tcdm_ext_req_misaligned),
+      .tcdm_req_aligned_o   (cluster_tcdm_ext_req_aligned),
+      .tcdm_rsp_aligned_i   (cluster_tcdm_ext_rsp_aligned),
+      .tcdm_rsp_misaligned_o(cluster_tcdm_ext_rsp_misaligned)
+    );
+
+    snitch_hwpe_subsystem #(
+      .tcdm_req_t   (snitch_cluster_pkg::tcdm_dma_req_t),
+      .tcdm_rsp_t   (snitch_cluster_pkg::tcdm_dma_rsp_t),
+      .periph_req_t (hwpectrl_req_t),
+      .periph_rsp_t (hwpectrl_rsp_t),
+      .HwpeDataWidth(snitch_cluster_pkg::WideDataWidth),
+      .IdWidth      (snitch_cluster_pkg::NarrowIdWidthOut),
+      .NrCores      (NrCores),
+      .TCDMDataWidth(snitch_cluster_pkg::NarrowDataWidth)
+    ) i_snitch_hwpe_subsystem (
+      .clk_i          (tile_clk),
+      .rst_ni         (tile_rst_n),
+      .test_mode_i    (1'b0),
+      .tcdm_req_o     (cluster_tcdm_ext_req_misaligned),
+      .tcdm_rsp_i     (cluster_tcdm_ext_rsp_misaligned),
+      .hwpe_ctrl_req_i(hwpectrl_req),
+      .hwpe_ctrl_rsp_o(hwpectrl_rsp),
+      .hwpe_evt_o     (mxip)
+    );
+  end else begin : gen_no_redmul_e
+    assign mxip = '0;
+    assign cluster_tcdm_ext_req_misaligned = '0;
+    assign cluster_narrow_ext_rsp = '0;
+  end
 
   ////////////
   // Router //
