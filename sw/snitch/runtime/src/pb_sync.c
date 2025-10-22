@@ -3,4 +3,4 @@
 // SPDX-License-Identifier: Apache-2.0
 
 extern inline void pb_create_mesh_comm(snrt_comm_t *comm, uint32_t n_rows,
-    uint32_t n_cols);
+    uint32_t n_cols, snrt_comm_t parent_comm);

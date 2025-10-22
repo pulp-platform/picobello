@@ -5,7 +5,12 @@
 // Luca Colagrande <colluca@iis.ee.ethz.ch>
 
 inline void pb_create_mesh_comm(snrt_comm_t *comm, uint32_t n_rows,
-    uint32_t n_cols, uint32_t start_row = 0, uint32_t start_col = 0) {
+    uint32_t n_cols, uint32_t start_row = 0, uint32_t start_col = 0,
+    snrt_comm_t parent_comm = NULL) {
+
+    // If no communicator is given, world communicator is used as default.
+    if (parent_comm == NULL) parent_comm = snrt_comm_world;
+
     // Allocate communicator struct in L1 and point to it.
     *comm =
         (snrt_comm_t)snrt_l1_alloc_cluster_local(sizeof(snrt_comm_info_t));
@@ -22,7 +27,7 @@ inline void pb_create_mesh_comm(snrt_comm_t *comm, uint32_t n_rows,
         *(uint32_t *)barrier_ptr = 0;
         snrt_fence();
     }
-    snrt_global_barrier();
+    snrt_global_barrier(parent_comm);
 
     // Initialize communicator, pointing to the newly-allocated barrier
     // counter in L3.
