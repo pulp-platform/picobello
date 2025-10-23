@@ -415,7 +415,7 @@ module cluster_tile
     .RouteCfg            (floo_picobello_noc_pkg::RouteCfg),
     .AtopSupport         (1'b1),
     .EnDecoupledRW       (1'b1),
-    .MaxAtomicTxns       (1),
+    .MaxAtomicTxns       (3),
     .Sam                 (picobello_pkg::SamMcast),
     .id_t                (floo_picobello_noc_pkg::id_t),
     .rob_idx_t           (floo_picobello_noc_pkg::rob_idx_t),
