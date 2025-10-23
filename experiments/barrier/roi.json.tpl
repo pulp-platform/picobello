@@ -14,10 +14,10 @@ elif experiment['n_clusters'] == 16:
     {
         "thread": "${f'hart_{cluster * 9 + 8 + 1}'}",
         "roi": [
-    % if experiment['mode'] == 'sw':
+    % if experiment['impl'] == 'sw':
             {"idx": 1, "label": "barrier"},
             {"idx": 3, "label": "barrier"},
-    % elif experiment['mode'] == 'hw':
+    % elif experiment['impl'] == 'hw':
             {"idx": 3, "label": "barrier"},
             {"idx": 5, "label": "barrier"},
     % endif

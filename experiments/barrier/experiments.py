@@ -31,13 +31,13 @@ class ExperimentManager(pb.ExperimentManager):
 
 def gen_experiments():
     experiments = []
-    # for impl in ['sw']:
+    # for impl in ['hw']:
         # for n_clusters in [8]:
     for impl in ['sw', 'hw']:
         for n_clusters in [2, 4, 8, 16]:
             experiments.append({
                 'app': 'barrier_benchmark',
-                'cmd': pb.sim_cmd,
+                'cmd': pb.sim_cmd(),
                 'impl': impl,
                 'n_clusters': n_clusters,
                 'n_rows': int(math.ceil(n_clusters / 4)),
