@@ -48,8 +48,6 @@ variables:
     - .init-env
   script:
     - make picobello-hw-all
-    - ls -l .generated
-    - ls -l cfg
   artifacts:
     paths:
       - .bender
