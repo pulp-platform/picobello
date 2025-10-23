@@ -103,29 +103,10 @@ int main (void) {
         } else {
             hw_barrier(comm);
         }
-
-        // Wake up all cores put to sleep.
-        // Note: this is a workaround since multiple intersecting barriers are
-        // not supported yet.
-        if (snrt_cluster_idx() == 0) {
-            for (uint32_t i = 0; i < snrt_cluster_num(); i++) {
-                uint32_t is_participant = pb_cluster_col_idx(i) < N_COLS &&
-                    pb_cluster_row_idx(i) < N_ROWS;
-                if (!is_participant) snrt_int_cluster_set(
-                    1 << snrt_cluster_compute_core_num(), i);
-            }
-        }
-    }
-    // Other clusters go to sleep
-    else {
-        if (snrt_is_dm_core()) {
-            snrt_wfi();
-            snrt_int_clr_mcip();
-        }
     }
 
-    // Make compute cores wait on cluster hardware barrier
-    snrt_cluster_hw_barrier();
+    // Non-participating clusters wait on a global barrier
+    snrt_global_barrier();
 
 	return 0;
 }
