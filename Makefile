@@ -25,7 +25,6 @@ FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 PEAKRDL          ?= peakrdl
-SN_PEAKRDL       ?= $(PEAKRDL)
 
 # Tiles configuration
 SN_CLUSTERS = $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.cluster.num 2>/dev/null)
@@ -105,6 +104,7 @@ $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 ##################
 
 SN_GEN_DIR = $(PB_GEN_DIR)
+SN_UV = $(UV)
 include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
 
