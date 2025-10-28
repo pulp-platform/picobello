@@ -146,7 +146,7 @@ packages:
     dependencies:
     - common_cells
   common_cells:
-    revision: e1c09c75775c5f03eb45906d5145dbd2f5bcfb95
+    revision: bab4cea30f1cdfe303a4585db04c1a1f6882b718
     version: null
     source:
       Git: https://github.com/pulp-platform/common_cells.git
@@ -216,7 +216,15 @@ packages:
     - axi_riscv_atomics
     - common_cells
     - common_verification
+    - floo_noc_pd
+    - fpnew
     - idma
+  floo_noc_pd:
+    revision: null
+    version: null
+    source:
+      Path: working_dir/floo_noc/./pd
+    dependencies: []
   fpnew:
     revision: a8e0cba6dd50f357ece73c2c955d96efc3c6c315
     version: null
@@ -267,7 +275,7 @@ packages:
     - tech_cells_generic
   idma:
     revision: 28a36e5e07705549e59fc33db96ab681bc1ca88e
-    version: null
+    version: 0.6.5
     source:
       Git: https://github.com/pulp-platform/iDMA.git
     dependencies:
