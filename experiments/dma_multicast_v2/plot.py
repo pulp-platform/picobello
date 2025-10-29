@@ -154,7 +154,7 @@ def plot1():
     plt.show()
 
 
-def plot2(show=True):
+def plot2(ax=None, y_label=None, hide_x_axis=False, show=True):
     """Plot actual and expected runtimes."""
 
     # Load results
@@ -173,10 +173,10 @@ def plot2(show=True):
     markers = {"expected": "o", "actual": "x"}
 
     # Plot measured runtimes
-    # _, ax = plt.subplots(2, 2)
-    _, ax = plt.subplots()
+    if ax is None:
+        _, ax = plt.subplots()
 
-    def plot_runtime_vs_speedup(ax, n_rows):
+    def plot_runtime_vs_speedup(ax, n_rows, y_label=y_label):
         res = df[df['n_rows'] == n_rows]
         sizes = res['size'].unique()
         ax.scatter(
@@ -218,10 +218,24 @@ def plot2(show=True):
         x, y = hw_runtime_curve(sizes.min(), sizes.max(), n_rows)
         ax.plot(x, y, label='Model (hw)', linestyle='--', color=colors['hw'])
 
-        ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
-        ax.set_xlabel('Size [B]')
-        ax.set_ylabel('Runtime [cycles]')
-        ax.grid(True, alpha=0.4)
+        if hide_x_axis:
+            ax.set_xlabel('')
+            ax.set_xticks(sizes)
+            ax.tick_params(
+                axis='x',
+                which='both',
+                bottom=False, top=False,  # hide tick marks
+                labelbottom=False         # hide labels
+            )
+        else:
+            ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
+            ax.set_xlabel('Size [B]')
+        ax.set_xlim(0, sizes.max() * 1.08)
+        if y_label is None:
+            y_label = 'Runtime [cycles]'
+        ax.set_ylabel(y_label)
+        ax.set_axisbelow(True)
+        ax.grid(True, linestyle='-', color='gainsboro')
         ax.legend()
 
     plot_runtime_vs_speedup(ax, n_rows=1)
@@ -235,7 +249,7 @@ def plot2(show=True):
     return df
 
 
-def plot3(show=True):
+def plot3(ax=None, y_label=None, hide_x_axis=False, show=True):
     """Plot runtime dependency with delta."""
 
     # Load results
@@ -255,7 +269,8 @@ def plot3(show=True):
     colors = {"seq": "C1", "hw": "C2"}
 
     # Plot measured runtimes
-    _, ax = plt.subplots()
+    if ax is None:
+        _, ax = plt.subplots()
 
     # Plot model lines for sequential runtime (varying delta).
     x = np.arange(df['size'].min(), df['size'].max(), 64)
@@ -288,10 +303,26 @@ def plot3(show=True):
     y = [model.hw_runtime(4, n_rows, e // 64) for e in x]
     ax.plot(x, y, label='hw', linestyle='--', color=colors['hw'])
 
-    ax.set_xticks(df['size'], [str(size) if size != 2048 else "" for size in df['size']])
-    ax.set_xlabel('Size [B]')
-    ax.set_ylabel('Runtime [cycles]')
-    ax.grid(True, linestyle='-', alpha=0.4)
+    # Configure plot
+    sizes = df['size']
+    if hide_x_axis:
+        ax.set_xlabel('')
+        ax.set_xticks(sizes)
+        ax.tick_params(
+            axis='x',
+            which='both',
+            bottom=False, top=False,  # hide tick marks
+            labelbottom=False         # hide labels
+        )
+    else:
+        ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
+        ax.set_xlabel('Size [B]')
+    ax.set_xlim(0, sizes.max() * 1.08)
+    if y_label is None:
+        y_label = 'Runtime [cycles]'
+    ax.set_ylabel(y_label)
+    ax.set_axisbelow(True)
+    ax.grid(True, linestyle='-', color='gainsboro')
     ax.legend()
 
     plt.tight_layout()
@@ -299,7 +330,7 @@ def plot3(show=True):
         plt.show()
 
 
-def plot4(show=True):
+def plot4(ax=None, y_label=None, show=True):
     """Plot actual and expected runtimes, for multiple number of rows."""
 
     # Load results
@@ -317,7 +348,8 @@ def plot4(show=True):
     colors = {"sw": "C0", "hw": "C2"}
 
     # Plot measured runtimes
-    _, ax = plt.subplots()
+    if ax is None:
+        _, ax = plt.subplots()
     sizes = df['size'].unique()
 
     def plot_runtime_vs_speedup(ax, n_rows, show_label=False):
@@ -353,11 +385,16 @@ def plot4(show=True):
     for i, n_rows in enumerate(df['n_rows'].unique()):
         plot_runtime_vs_speedup(ax, n_rows=n_rows, show_label=(i == 0))
 
+    # Configure plot
+    sizes = df['size'].unique()
+    ax.set_xlim(0, sizes.max() * 1.08)
     ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
-    ax.set_xlim(0, sizes.max() * 1.1)
     ax.set_xlabel('Size [B]')
-    ax.set_ylabel('Runtime [cycles]')
-    ax.grid(True, alpha=0.4)
+    if y_label is None:
+        y_label = 'Runtime [cycles]'
+    ax.set_ylabel(y_label)
+    ax.set_axisbelow(True)
+    ax.grid(True, linestyle='-', color='gainsboro')
     ax.legend()
 
     plt.tight_layout()
