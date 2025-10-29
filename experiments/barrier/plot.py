@@ -20,12 +20,12 @@ def plot1(show=True):
     df['cycles'] = df['results'].apply(experiments.get_total_cycles)
 
     # Plot
-    ax = df.pivot(index="n_clusters", columns="impl", values="cycles").plot(kind="bar")
+    ax = df.pivot(index="n_clusters", columns="impl", values="cycles").plot(kind="bar", width=0.65)
     ax.set_xlabel("Nr. clusters")
     ax.set_ylabel("Runtime [cycles]")
     ax.tick_params(axis='x', labelrotation=0)
     ax.grid(axis="y", alpha=0.4)
-    ax.legend()
+    ax.legend(handlelength=1, ncol=2, columnspacing=0.5, handletextpad=0.3)
     plt.tight_layout()
     if show:
         plt.show()

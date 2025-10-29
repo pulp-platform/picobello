@@ -115,7 +115,7 @@ def hw_simple_runtime_curve(xmin, xmax, c, r):
 #     return x, y_min
 
 
-def plot1(show=True):
+def plot1(y_label=None, hide_x_axis=False, show=True):
     """Plot actual and expected runtimes."""
 
     # Load single-row results
@@ -190,10 +190,24 @@ def plot1(show=True):
     ax.plot(x, y, label='Model (hw_simple)', linestyle='--', color=colors['hw_simple'])
 
     # Plot formatting
-    ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
-    ax.set_xlabel('Size [B]')
-    ax.set_ylabel('Runtime [cycles]')
-    ax.grid(True, alpha=0.4)
+    if hide_x_axis:
+        ax.set_xlabel('')
+        ax.set_xticks(sizes)
+        ax.tick_params(
+            axis='x',
+            which='both',
+            bottom=False, top=False,  # hide tick marks
+            labelbottom=False         # hide labels
+        )
+    else:
+        ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
+        ax.set_xlabel('Size [B]')
+    if y_label is None:
+        y_label = 'Runtime [cycles]'
+    ax.set_ylabel(y_label)
+    ax.set_xlim(0, sizes.max() * 1.1)
+    ax.set_axisbelow(True)
+    ax.grid(True, color='gainsboro')
     ax.legend()
     plt.tight_layout()
     if show:
@@ -202,7 +216,7 @@ def plot1(show=True):
     return df
 
 
-def plot2(show=True):
+def plot2(y_label=None, show=True):
     """Plot actual and expected runtimes, for multiple number of rows."""
 
     # Load results
@@ -272,8 +286,11 @@ def plot2(show=True):
     ax.set_xticks(sizes, [str(size) if size != 2048 else "" for size in sizes])
     ax.set_xlim(0, sizes.max() * 1.1)
     ax.set_xlabel('Size [B]')
-    ax.set_ylabel('Runtime [cycles]')
-    ax.grid(True, alpha=0.4)
+    if y_label is None:
+        y_label = 'Runtime [cycles]'
+    ax.set_ylabel(y_label)
+    ax.set_axisbelow(True)
+    ax.grid(True, color='gainsboro')
     ax.legend()
 
     plt.tight_layout()
@@ -339,7 +356,8 @@ def plot3(show=True):
     ax.set_xticks(df['size'], [str(size) if size != 2048 else "" for size in df['size']])
     ax.set_xlabel('Size [B]')
     ax.set_ylabel('Runtime [cycles]')
-    ax.grid(True, linestyle='-', alpha=0.4)
+    ax.set_axisbelow(True)
+    ax.grid(True, linestyle='-', color='gainsboro')
     ax.legend()
 
     plt.tight_layout()

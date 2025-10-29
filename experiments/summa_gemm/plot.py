@@ -8,11 +8,12 @@
 import argparse
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import numpy as np
 import pandas as pd
 from summa_gemm import model
 
 
-def plot1(show=True):
+def plot1(y_label=None, hide_x_axis=False, show=True):
     # Get data
     mesh_sizes = [4, 8, 16, 32, 64, 128, 256]
     t_comm_sw = []
@@ -42,12 +43,25 @@ def plot1(show=True):
     ax.plot(mesh_sizes, t_comm_sw, marker='o', label='$T_{comm}$ (sw)')
     ax.plot(mesh_sizes, t_comm_hw, marker='s', label='$T_{comm}$ (hw)')
     ax.plot(mesh_sizes, t_compute, marker='^', label='$T_{comp}$')
-    ax.set_xticks(mesh_sizes)
     ax.set_xscale('log', base=2)
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
-    ax.set_xlabel('Mesh size')
-    ax.set_ylabel('Runtime [cycles]')
-    ax.grid(True, which="both", alpha=0.5)
+    ax.set_xticks(mesh_sizes)
+    ax.set_xlim(2.8, 370)
+    if hide_x_axis:
+        ax.set_xlabel('')
+        ax.tick_params(
+            axis='x',
+            which='both',
+            bottom=False, top=False,  # hide tick marks
+            labelbottom=False         # hide labels
+        )
+    else:
+        ax.set_xlabel('Mesh size')
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
+    if y_label is None:
+        y_label = 'Runtime [cycles]'
+    ax.set_ylabel(y_label)
+    ax.set_axisbelow(True)
+    ax.grid(True, which="both", color='gainsboro')
     ax.legend()
     fig.tight_layout()
 
@@ -94,7 +108,7 @@ def plot1(show=True):
     return df
 
 
-def plot2(show=True):
+def plot2(y_label=None, show=True):
     # Get data
     mesh_sizes = [4, 8, 16, 32, 64, 128, 256]
     Mt = model.max_square_problem_size()
@@ -112,12 +126,32 @@ def plot2(show=True):
     # Calculate speedup
     df['speedup'] = df['t_sw'] / df['t_hw']
 
+    # Bar widths (to make them of equal width on a log scale)
+    logx = np.log2(df['size'].to_numpy(dtype=float))
+    mid = 0.5 * (logx[:-1] + logx[1:])                 # midpoints between neighbors
+    log_left_edges  = np.r_[logx[0] - (mid[0] - logx[0]), mid]   # extrapolate first
+    log_right_edges = np.r_[mid, logx[-1] + (logx[-1] - mid[-1])]# extrapolate last
+    fill = 0.6
+    log_span = (log_right_edges - log_left_edges) * fill
+    logL = logx - 0.5 * log_span
+    logR = logx + 0.5 * log_span
+    left  = 2.0**logL
+    right = 2.0**logR
+    width = right - left
+
     # Plot
     fig, ax = plt.subplots()
-    ax.bar(df['size'].astype(str), df['speedup'])
+    ax.bar(left, df['speedup'], width=width, align='edge')
+    ax.set_xscale('log', base=2)
+    ax.set_xlim(2.8, 370)
+    ax.set_xticks(mesh_sizes)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
     ax.set_xlabel('Mesh size')
-    ax.set_ylabel('Speedup')
-    ax.grid(axis='y', alpha=0.5)
+    if y_label is None:
+        y_label = 'Runtime [cycles]'
+    ax.set_ylabel(y_label)
+    ax.set_axisbelow(True)
+    ax.grid(axis='both', color='gainsboro')
     fig.tight_layout()
 
     if show:
