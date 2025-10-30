@@ -49,6 +49,8 @@ def seq_runtime(c, r, n, k, delta=DELTA):
     t_max = max(t_comp, t_dma)
     # print(t_dma * 5, t_comp * 5, t_max * 5)
     n_iters = 1 + 2 * (c - 2) + k
+    if r > 1:
+        n_iters += 2 * (r - 2) + k
     # First approximation model assumes compute and dma take roughly the same time
     return n_iters * (t_max + delta) - delta
 
