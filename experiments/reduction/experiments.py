@@ -51,8 +51,8 @@ class ExperimentManager(pb.ExperimentManager):
 def gen_experiments():
     experiments = []
     # for impl in ['seq']:
-    # for impl in ['tree', 'hw_simple', 'hw_generic']:
-    for impl in ['seq', 'tree', 'hw_simple', 'hw_generic']:
+    # for impl in ['tree', 'hw']:
+    for impl in ['seq', 'tree', 'hw']:
         # for n_rows in [1]:
         for n_rows in [1, 2, 4]:
             # for size in [4096]:
@@ -77,7 +77,7 @@ def gen_experiments():
                             'size': size,
                             'batch': batch_size,
                             'app': 'reduction_benchmark',
-                            'hw': 'simple' if impl == 'hw_simple' else 'generic',
+                            'hw': 'simple',
                             'roi': Path.cwd() / f'roi/{impl}.json.tpl',
                         }
                         work_dir = DIR / 'hw' / experiment['hw']
@@ -140,17 +140,12 @@ def tree_cycles(sim_results, c, r, n_batches):
     return sim_results.get_timespan(start, end) // TCK
 
 
-def hw_generic_cycles(sim_results):
-    roi = SimRegion(dma_core(0), 'reduction', 1)
-    return sim_results.get_timespan(roi) // TCK
-
-
-def hw_simple_dma_cycles(sim_results):
+def hw_dma_cycles(sim_results):
     roi = SimRegion(dma_core(0), 'row reduction', 1)
     return sim_results.get_timespan(roi) // TCK
 
 
-def hw_simple_cycles(sim_results):
+def hw_cycles(sim_results):
     start = SimRegion(dma_core(0), 'row reduction', 1)
     end = SimRegion(dma_core(0), 'column reduction', 1)
     return sim_results.get_timespan(start, end) // TCK
