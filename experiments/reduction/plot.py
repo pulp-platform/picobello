@@ -244,7 +244,7 @@ def plot2(y_label=None, show=True):
         res = df[df['n_rows'] == n_rows]
         best_sw_cycles = res[res['impl'].isin(['seq', 'tree'])].groupby('size')['cycles'].min()
         ax.scatter(
-            sizes, best_sw_cycles, label='Actual (min(seq, tree))' if show_label else None,
+            sizes, best_sw_cycles, label='Actual (sw)' if show_label else None,
             marker='x', color=colors['sw']
         )
         ax.scatter(
@@ -257,10 +257,9 @@ def plot2(y_label=None, show=True):
         # )
 
         # Plot model line for best software implementation
-        # TODO(colluca): use sw_runtime_curve once sequential implementation is integrated
         x, y = monotone_tree_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
         ax.plot(
-            x, y, label='Model (min(seq, tree))' if show_label else None,
+            x, y, label='Model (sw)' if show_label else None,
             linestyle='--', color=colors['sw'])
 
         # Annotate sw model lines with number of rows, in correspondence with actual runtime

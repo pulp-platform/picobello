@@ -24,7 +24,8 @@ def plot1(show=True):
     ax.set_xlabel("Nr. clusters")
     ax.set_ylabel("Runtime [cycles]")
     ax.tick_params(axis='x', labelrotation=0)
-    ax.grid(axis="y", alpha=0.4)
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", color="gainsboro")
     ax.legend(handlelength=1, ncol=2, columnspacing=0.5, handletextpad=0.3)
     plt.tight_layout()
     if show:

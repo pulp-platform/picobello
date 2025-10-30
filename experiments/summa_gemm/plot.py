@@ -141,9 +141,11 @@ def plot2(y_label=None, show=True):
 
     # Plot
     fig, ax = plt.subplots()
-    ax.bar(left, df['speedup'], width=width, align='edge')
+    ax.axhline(y=1, color='black', linewidth=1, zorder=5)
+    ax.bar(left, df['speedup'], width=width, align='edge', zorder=10)
     ax.set_xscale('log', base=2)
     ax.set_xlim(2.8, 370)
+    ax.set_ylim(0.5, None)
     ax.set_xticks(mesh_sizes)
     ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
     ax.set_xlabel('Mesh size')
