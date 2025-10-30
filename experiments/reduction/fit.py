@@ -133,36 +133,17 @@ def fit_tree_compute(df=None, quiet=True):
 
 
 @cache
-def fit_hw_generic(df=None, quiet=True):
+def fit_hw(df=None, quiet=True):
     # Get experiment data
     if df is None:
         df = experiments.results()
-        df = df[df['impl'] == 'hw_generic']
+        df = df[df['impl'] == 'hw']
 
     # Retrieve only single-row experiments (fitted model should generalize to multi-row)
     df = df[df['n_rows'] == 1]
 
     # Fit data
-    df['cycles'] = df['results'].apply(experiments.hw_generic_cycles)
-    x = df['size'].to_numpy() / BEAT_BYTES
-    y = df['cycles'].to_numpy()
-    if not quiet:
-        print("Fit runtime for hw generic reduction:")
-    return fit(x, y, quiet=quiet)
-
-
-@cache
-def fit_hw_simple(df=None, quiet=True):
-    # Get experiment data
-    if df is None:
-        df = experiments.results()
-        df = df[df['impl'] == 'hw_simple']
-
-    # Retrieve only single-row experiments (fitted model should generalize to multi-row)
-    df = df[df['n_rows'] == 1]
-
-    # Fit data
-    df['cycles'] = df['results'].apply(experiments.hw_simple_dma_cycles)
+    df['cycles'] = df['results'].apply(experiments.hw_dma_cycles)
     x = df['size'].to_numpy() / BEAT_BYTES
     y = df['cycles'].to_numpy()
     if not quiet:
@@ -177,6 +158,8 @@ def main():
 
     fit_seq_dma(quiet=False)
     fit_seq_compute(quiet=False)
+
+    fit_hw(quiet=False)
 
 
 if __name__ == '__main__':

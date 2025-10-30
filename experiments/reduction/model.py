@@ -33,27 +33,18 @@ def nearest_divisors(divisor, dividend):
     return lower, upper
 
 
-def hw_generic_runtime(c, r, n):
-    hw_alpha, _ = fit.fit_hw_generic()
-    beta = 1
+def hw_runtime(c, r, n):
+    hw_alpha, hw_beta = fit.fit_hw()
     if r > 1:
-        beta = 2
-    return hw_alpha + n * beta
-
-
-def hw_simple_runtime(c, r, n):
-    hw_alpha, _ = fit.fit_hw_simple()
-    beta = 1
-    if r > 1:
-        beta = 2
-    return hw_alpha + n * beta
+        hw_beta = 2
+    return hw_alpha + n * hw_beta
 
 
 def seq_runtime(c, r, n, k, delta=DELTA):
     batch = int(n // k)
     dma_alpha, _ = fit.fit_seq_dma()
     comp_alpha, _ = fit.fit_seq_compute()
-    t_comp = comp_alpha + batch * 1
+    t_comp = comp_alpha + batch * 1.16
     t_dma = dma_alpha + batch * 1
     t_max = max(t_comp, t_dma)
     # print(t_dma * 5, t_comp * 5, t_max * 5)
@@ -64,7 +55,7 @@ def seq_runtime(c, r, n, k, delta=DELTA):
 
 def optimal_seq_k(c, r, n, delta=DELTA):
     comp_alpha, _ = fit.fit_seq_compute()
-    real_k = sqrt(n / (delta + comp_alpha))
+    real_k = sqrt(n * (2 * c - 3) / (delta + comp_alpha))
     lower_k, upper_k = nearest_divisors(real_k, n)
     assert (lower_k is None) or (lower_k > 0)
     assert (upper_k is None) or (upper_k <= n)
@@ -90,7 +81,7 @@ def tree_runtime(c, r, n, k, delta=DELTA):
     batch = int(n // k)
     dma_alpha, _ = fit.fit_tree_dma()
     comp_alpha, _ = fit.fit_tree_compute()
-    t_comp = comp_alpha + batch * 1
+    t_comp = comp_alpha + batch * 1.16
     t_dma = dma_alpha + batch * 1
     t_max = max(t_comp, t_dma)
     # print(t_dma * 5, t_comp * 5, t_max * 5)

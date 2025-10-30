@@ -38,10 +38,8 @@ def get_actual_cycles(row):
     elif row['impl'] == 'tree':
         n_batches = int(row['size'] // row['batch'])
         return experiments.tree_cycles(row['results'], 4, row['n_rows'], n_batches)
-    elif row['impl'] == 'hw_simple':
-        return experiments.hw_simple_cycles(row['results'])
-    elif row['impl'] == 'hw_generic':
-        return experiments.hw_generic_cycles(row['results'])
+    elif row['impl'] == 'hw':
+        return experiments.hw_cycles(row['results'])
 
 
 def get_expected_cycles(row):
@@ -49,10 +47,8 @@ def get_expected_cycles(row):
         cycles = model.optimal_seq_runtime(4, row['n_rows'], row['size'] // BEAT_BYTES)
     elif row['impl'] == 'tree':
         cycles = model.optimal_tree_runtime(4, row['n_rows'], row['size'] // BEAT_BYTES)
-    elif row['impl'] == 'hw_generic':
-        cycles = model.hw_generic_runtime(4, row['n_rows'], row['size'] // BEAT_BYTES)
-    elif row['impl'] == 'hw_simple':
-        cycles = model.hw_simple_runtime(4, row['n_rows'], row['size'] // BEAT_BYTES)
+    elif row['impl'] == 'hw':
+        cycles = model.hw_runtime(4, row['n_rows'], row['size'] // BEAT_BYTES)
     return int(cycles)
 
 
@@ -72,7 +68,7 @@ def select_best_configs(df):
 
 
 def seq_runtime_curve(xmin, xmax, c, r):
-    x = np.arange(xmin, xmax, 64)
+    x = np.arange(xmin, xmax + 64, 64)
     y = [model.optimal_seq_runtime(c, r, e // BEAT_BYTES) for e in x]
     return x, y
 
@@ -84,7 +80,7 @@ def monotone_seq_runtime_curve(xmin, xmax, c, r):
 
 
 def tree_runtime_curve(xmin, xmax, c, r):
-    x = np.arange(xmin, xmax, 64)
+    x = np.arange(xmin, xmax + 64, 64)
     y = [model.optimal_tree_runtime(c, r, e // BEAT_BYTES) for e in x]
     return x, y
 
@@ -95,15 +91,9 @@ def monotone_tree_runtime_curve(xmin, xmax, c, r):
     return find_monotone_lower_fit(x, y)
 
 
-def hw_generic_runtime_curve(xmin, xmax, c, r):
-    x = np.arange(xmin, xmax, 64)
-    y = [model.hw_generic_runtime(c, r, e // BEAT_BYTES) for e in x]
-    return x, y
-
-
-def hw_simple_runtime_curve(xmin, xmax, c, r):
-    x = np.arange(xmin, xmax, 64)
-    y = [model.hw_simple_runtime(c, r, e // BEAT_BYTES) for e in x]
+def hw_runtime_curve(xmin, xmax, c, r):
+    x = np.arange(xmin, xmax + 64, 64)
+    y = [model.hw_runtime(c, r, e // BEAT_BYTES) for e in x]
     return x, y
 
 
@@ -134,7 +124,7 @@ def plot1(y_label=None, hide_x_axis=False, show=True):
     df = df.drop(columns=['results'])
 
     # Choose consistent colors and markers for the plots
-    colors = {"seq": "C0", "tree": "C1", "hw_simple": "C2", "hw_generic": "C3"}
+    colors = {"seq": "C0", "tree": "C1", "hw": "C2"}
     markers = {"expected": "o", "actual": "x"}
 
     # Create plot
@@ -151,13 +141,9 @@ def plot1(y_label=None, hide_x_axis=False, show=True):
         marker=markers['actual'], color=colors['tree']
     )
     ax.scatter(
-        sizes, df[df['impl'] == 'hw_simple']['cycles'], label='Actual (hw_simple)',
-        marker=markers['actual'], color=colors['hw_simple']
+        sizes, df[df['impl'] == 'hw']['cycles'], label='Actual (hw)',
+        marker=markers['actual'], color=colors['hw']
     )
-    # ax.scatter(
-    #     sizes, df[df['impl'] == 'hw_generic']['cycles'], label='Actual (hw_generic)',
-    #     marker=markers['actual'], color=colors['hw_generic']
-    # )
 
     # # Plot expected runtimes
     # ax.scatter(
@@ -165,12 +151,8 @@ def plot1(y_label=None, hide_x_axis=False, show=True):
     #     marker=markers['expected'], color=colors['tree']
     # )
     # ax.scatter(
-    #     sizes, df[df['impl'] == 'hw_simple']['exp_cycles'], label='Expected (hw_simple)',
-    #     marker=markers['expected'], color=colors['hw_simple']
-    # )
-    # ax.scatter(
-    #     sizes, df[df['impl'] == 'hw_generic']['exp_cycles'], label='Expected (hw_generic)',
-    #     marker=markers['expected'], color=colors['hw_generic']
+    #     sizes, df[df['impl'] == 'hw']['exp_cycles'], label='Expected (hw)',
+    #     marker=markers['expected'], color=colors['hw']
     # )
 
     # Plot model line for seq runtime
@@ -181,13 +163,9 @@ def plot1(y_label=None, hide_x_axis=False, show=True):
     x, y = monotone_tree_runtime_curve(sizes.min(), sizes.max(), c, r)
     ax.plot(x, y, label='Model (tree)', linestyle='--', color=colors['tree'])
 
-    # # Plot model line for hw generic runtime
-    # x, y = hw_generic_runtime_curve(sizes.min(), sizes.max(), c, r)
-    # ax.plot(x, y, label='Model (hw_generic)', linestyle='--', color=colors['hw_generic'])
-
     # Plot model line for hw simple runtime
-    x, y = hw_simple_runtime_curve(sizes.min(), sizes.max(), c, r)
-    ax.plot(x, y, label='Model (hw_simple)', linestyle='--', color=colors['hw_simple'])
+    x, y = hw_runtime_curve(sizes.min(), sizes.max(), c, r)
+    ax.plot(x, y, label='Model (hw)', linestyle='--', color=colors['hw'])
 
     # Plot formatting
     if hide_x_axis:
@@ -233,7 +211,7 @@ def plot2(y_label=None, show=True):
     df = df.drop(columns=['results'])
 
     # Choose consistent colors for the plots
-    colors = {"sw": "C0", "hw_generic": "C1", "hw_simple": "C2"}
+    colors = {"sw": "C0", "hw": "C1"}
 
     # Create plot
     _, ax = plt.subplots()
@@ -248,13 +226,9 @@ def plot2(y_label=None, show=True):
             marker='x', color=colors['sw']
         )
         ax.scatter(
-            sizes, res[res['impl'] == 'hw_simple']['cycles'], label='Actual (hw_simple)' if show_label else None,
-            marker='x', color=colors['hw_simple']
+            sizes, res[res['impl'] == 'hw']['cycles'], label='Actual (hw)' if show_label else None,
+            marker='x', color=colors['hw']
         )
-        # ax.scatter(
-        #     sizes, res[res['impl'] == 'hw_generic']['cycles'], label='Actual (hw_generic)' if show_label else None,
-        #     marker='x', color=colors['hw_generic']
-        # )
 
         # Plot model line for best software implementation
         x, y = monotone_tree_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
@@ -270,14 +244,9 @@ def plot2(y_label=None, show=True):
             ha='left', va='center', clip_on=False)
 
         # Plot model line for hardware simple runtime
-        x, y = hw_simple_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
+        x, y = hw_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
         ax.plot(
-            x, y, label='Model (hw_simple)' if show_label else None, linestyle='--', color=colors['hw_simple'])
-
-        # # Plot model line for hardware generic runtime
-        # x, y = hw_generic_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
-        # ax.plot(
-        #     x, y, label='Model (hw_generic)' if show_label else None, linestyle='--', color=colors['hw_generic'])
+            x, y, label='Model (hw)' if show_label else None, linestyle='--', color=colors['hw'])
 
     for i, n_rows in enumerate(df['n_rows'].unique()):
         plot_runtime_vs_speedup(ax, n_rows=n_rows, show_label=(i == 0))

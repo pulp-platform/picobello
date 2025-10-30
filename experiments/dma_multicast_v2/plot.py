@@ -47,7 +47,7 @@ def select_best_sequential_configuration(df):
 
 
 def seq_runtime_curve(xmin, xmax, n_rows):
-    x = np.arange(xmin, xmax, 64)
+    x = np.arange(xmin, xmax + 64, 64)
     y = [model.optimal_seq_runtime(4, n_rows, e // 64) for e in x]
     return x, y
 
@@ -75,7 +75,7 @@ def find_monotone_lower_fit(x, y):
 
 
 def tree_runtime_curve(xmin, xmax, n_rows):
-    x = np.arange(xmin, xmax, 64)
+    x = np.arange(xmin, xmax + 64, 64)
     y = [model.tree_runtime(4, n_rows, e // 64) for e in x]
     return x, y
 
@@ -87,7 +87,7 @@ def hw_runtime_curve(xmin, xmax, n_rows):
 
 
 def sw_runtime_curve(xmin, xmax, n_rows):
-    x = np.arange(xmin, xmax, 64)
+    x = np.arange(xmin, xmax + 64, 64)
     x, y_seq = seq_runtime_curve(xmin, xmax, n_rows)
     _, y_tree = tree_runtime_curve(xmin, xmax, n_rows)
     x, y_min = find_monotone_lower_fit(x, [min(a, b) for a, b in zip(y_seq, y_tree)])
@@ -273,7 +273,7 @@ def plot3(ax=None, y_label=None, hide_x_axis=False, show=True):
         _, ax = plt.subplots()
 
     # Plot model lines for sequential runtime (varying delta).
-    x = np.arange(df['size'].min(), df['size'].max(), 64)
+    x = np.arange(df['size'].min(), df['size'].max() + 64, 64)
     for k, alpha_delta in enumerate([*range(model.DELTA + model.SEQ_ALPHA, -1, -14), 0]):
         alpha = alpha_delta // 2
         delta = alpha_delta - alpha

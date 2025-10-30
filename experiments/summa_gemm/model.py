@@ -65,7 +65,7 @@ def t_reduction(r, c, bytes, impl='sw'):
     if impl == 'sw':
         return reduction.model.optimal_sw_runtime(c, r, n)
     elif impl == 'hw':
-        return reduction.model.hw_simple_runtime(c, r, n)
+        return reduction.model.hw_runtime(c, r, n)
     else:
         raise ValueError(f"Unknown reduction implementation: {impl}")
 
