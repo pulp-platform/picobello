@@ -97,12 +97,12 @@ def hw_runtime_curve(xmin, xmax, c, r):
     return x, y
 
 
-# def sw_runtime_curve(xmin, xmax, n_rows):
-#     x = np.arange(xmin, xmax, 64)
-#     x, y_seq = seq_runtime_curve(xmin, xmax, n_rows)
-#     _, y_tree = tree_runtime_curve(xmin, xmax, n_rows)
-#     x, y_min = find_monotone_lower_fit(x, [min(a, b) for a, b in zip(y_seq, y_tree)])
-#     return x, y_min
+def sw_runtime_curve(xmin, xmax, c, n_rows):
+    x = np.arange(xmin, xmax, 64)
+    x, y_seq = seq_runtime_curve(xmin, xmax, c, n_rows)
+    _, y_tree = tree_runtime_curve(xmin, xmax, c, n_rows)
+    x, y_min = find_monotone_lower_fit(x, [min(a, b) for a, b in zip(y_seq, y_tree)])
+    return x, y_min
 
 
 def plot1(y_label=None, hide_x_axis=False, show=True):
@@ -231,7 +231,7 @@ def plot2(y_label=None, show=True):
         )
 
         # Plot model line for best software implementation
-        x, y = monotone_tree_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
+        x, y = sw_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
         ax.plot(
             x, y, label='Model (sw)' if show_label else None,
             linestyle='--', color=colors['sw'])
