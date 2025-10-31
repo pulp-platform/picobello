@@ -207,9 +207,9 @@ module cluster_tile
       .hwpe_evt_o     (mxip)
     );
   end else begin : gen_no_redmul_e
-    assign mxip = '0;
+    assign mxip                            = '0;
     assign cluster_tcdm_ext_req_misaligned = '0;
-    assign cluster_narrow_ext_rsp = '0;
+    assign cluster_narrow_ext_rsp          = '0;
   end
 
   ////////////
