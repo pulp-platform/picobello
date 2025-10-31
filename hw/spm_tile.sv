@@ -231,8 +231,8 @@ module spm_tile
   typedef logic [SpmDataWidth/8-1:0] mem_strb_t;
 
   logic [SpmNumBanksPerWord-1:0] mem_req_d, mem_req_q;
-  logic        [SpmNumBanksPerWord-1:0]                        mem_we;
-  mem_addr_t [                         SpmNumBanksPerWord-1:0] mem_addr;
+  logic      [SpmNumBanksPerWord-1:0] mem_we;
+  mem_addr_t [SpmNumBanksPerWord-1:0] mem_addr;
   mem_data_t [SpmNumBanksPerWord-1:0] mem_wdata, mem_rdata;
   mem_strb_t [SpmNumBanksPerWord-1:0] mem_strb;
 
@@ -270,12 +270,12 @@ module spm_tile
   ///////////////
   typedef logic [SpmNumBanksPerWord-1:0][(SpmRowSelWidth > 0) ? SpmRowSelWidth-1 : 0:0] row_sel_t;
 
-  logic [SpmNumBanksPerWord-1:0] spm_req;
-  logic [SpmNumBanksPerWord-1:0] spm_we;
-  mem_data_t [SpmNumBanksPerWord-1:0] spm_wdata;
-  mem_strb_t [SpmNumBanksPerWord-1:0] spm_strb;
-  mem_data_t [SpmNumBankRows-1:0][SpmNumBanksPerWord-1:0] spm_rdata;
-  logic [SpmNumBanksPerWord-1:0][SpmAddrWidth-1:0] spm_addr;
+  logic      [SpmNumBanksPerWord-1:0]                         spm_req;
+  logic      [SpmNumBanksPerWord-1:0]                         spm_we;
+  mem_data_t [SpmNumBanksPerWord-1:0]                         spm_wdata;
+  mem_strb_t [SpmNumBanksPerWord-1:0]                         spm_strb;
+  mem_data_t [    SpmNumBankRows-1:0][SpmNumBanksPerWord-1:0] spm_rdata;
+  logic      [SpmNumBanksPerWord-1:0][      SpmAddrWidth-1:0] spm_addr;
 
   row_sel_t spm_bank_row_sel_q, spm_bank_row_sel_d;
 
