@@ -456,7 +456,7 @@ package picobello_pkg;
   //  Cluster Tile  //
   ////////////////////
 
-  localparam bit UseRedMulE = 1'b1;
+  localparam bit UseHWPE = 1'b1;
 
   ////////////////
   //  Mem Tile  //

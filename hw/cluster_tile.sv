@@ -108,7 +108,7 @@ module cluster_tile
     .tcdm_ext_resp_o  (cluster_tcdm_ext_rsp_aligned)
   );
 
-  if (UseRedMulE) begin : gen_redmul_e
+  if (UseHWPE) begin : gen_hwpe
 
     // Convert narrow AXI's 64 bit DW down to 32
     axi_dw_converter #(
