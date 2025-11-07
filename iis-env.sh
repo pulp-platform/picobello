@@ -6,7 +6,7 @@
 export VSIM="questa-2023.4 vsim"
 export VOPT="questa-2023.4 vopt"
 export VLIB="questa-2023.4 vlib"
-export BEDNER="/home/fischeti/.cargo/bin/bender -d ${CI_PROJECT_DIR} --suppress W22"
+export BENDER="/home/fischeti/.cargo/bin/bender -d ${CI_PROJECT_DIR} --suppress W22"
 export BASE_PYTHON=/usr/local/anaconda3/bin/python3.11
 export CHS_SW_GCC_BINROOT=/usr/pack/riscv-1.0-kgf/riscv64-gcc-12.2.0/bin
 export VERIBLE_FMT="oseda -2025.03 verible-verilog-format"
