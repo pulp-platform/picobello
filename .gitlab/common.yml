@@ -22,10 +22,8 @@ variables:
 # Update the cache with bender and python dependencies
 .init-deps-tpl:
   script:
-    # Collect bender sourcess
-    - bender checkout
-    # Install the python venv
-    - make python-venv
+    # Source the IIS environment which will setup bender and python
+    - source iis-env.sh
     # Initialize the PD repository
     - make init-pd
   cache:
