@@ -452,6 +452,12 @@ package picobello_pkg;
 
   `CHESHIRE_TYPEDEF_ALL(csh_, CheshireCfg)
 
+  ////////////////////
+  //  Cluster Tile  //
+  ////////////////////
+
+  localparam bit UseHWPE = 1'b1;
+
   ////////////////
   //  Mem Tile  //
   ////////////////
