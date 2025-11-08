@@ -35,7 +35,7 @@ variables:
     # Collect bender sourcess
     - bender checkout
     # Install the python venv
-    - make python-venv
+    - source iis-env.sh
     # Initialize the PD repository
     - make init-pd
   cache:
