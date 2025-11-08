@@ -104,8 +104,12 @@ $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 ##################
 
 SN_GEN_DIR = $(PB_GEN_DIR)
+SN_UV = $(UV)
 include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
+
+$(SN_CFG): $(FLOO_CFG)
+	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
 
 .PHONY: sn-hw-clean sn-hw-all
 
@@ -116,9 +120,6 @@ sn-hw-clean:
 ###########
 # FlooNoC #
 ###########
-.PHONY: update-sn-cfg
-update-sn-cfg: $(SN_CFG)
-	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
 
 .PHONY: floo-hw-all floo-clean
 
@@ -174,7 +175,7 @@ PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
 PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 PB_HW_ALL += $(PB_RDL_HW_ALL)
-PB_HW_ALL += update-sn-cfg
+PB_HW_ALL += $(SN_CFG)
 
 .PHONY: picobello-hw-all picobello-clean clean
 
@@ -209,25 +210,10 @@ $(call sn_include_deps)
 # Misc #
 ########
 
-BASE_PYTHON ?= python
-PIP_CACHE_DIR ?= $(PB_ROOT)/.cache/pip
-
-.PHONY: dvt-flist python-venv python-venv-clean verible-fmt
+.PHONY: dvt-flist verible-fmt
 
 dvt-flist:
 	$(BENDER) script flist-plus $(COMMON_TARGS) $(SIM_TARGS) > .dvt/default.build
-
-python-venv: .venv
-.venv:
-	$(BASE_PYTHON) -m venv $@
-	. $@/bin/activate && \
-	python -m pip install --upgrade pip setuptools && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) -r requirements.txt && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) $(shell $(BENDER) path floo_noc) --no-deps && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) "$(shell $(BENDER) path snitch_cluster)[kernels]"
-
-python-venv-clean:
-	rm -rf .venv
 
 verible-fmt:
 	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)

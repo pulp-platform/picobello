@@ -1,0 +1,30 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+[project]
+name = "picobello"
+version = "0.1.0"
+description = "whatever it means"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    "flatdict>=4.0.1",
+    "floogen",
+    "hjson>=3.1.0",
+    "peakrdl>=1.5.0",
+    "peakrdl-rawheader",
+    "snitch[kernels]",
+]
+
+[tool.uv.workspace]
+members = [
+    ".deps/floo_noc",
+    ".deps/snitch_cluster",
+]
+
+[tool.uv.sources]
+floogen = { workspace = true, editable = true }
+snitch = { workspace = true, editable = true }
+peakrdl-rawheader = { git = "https://github.com/colluca/PeakRDL-rawheader.git", rev = "7b8dbc9ad5854dc1cdaf36d4ea024c29ffb00a4ca" }

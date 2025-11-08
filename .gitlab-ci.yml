@@ -59,8 +59,6 @@ vsim-compile:
   stage: build
   needs:
     - generate-rtl
-  variables:
-    FLOO_GEN_ARGS: --no-format
   script:
     - make vsim-compile | tee compile.log 2>&1
     - '! grep "\*\* Error" compile.log'
