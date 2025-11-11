@@ -5,7 +5,7 @@
 #
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
 
-from math import isqrt, sqrt, log2
+from math import isqrt, sqrt, log2, ceil
 
 # N: num clusters
 # L: num beats in transfer
@@ -14,7 +14,6 @@ from math import isqrt, sqrt, log2
 
 BEAT_BYTES = 64
 SEQ_ALPHA = 30
-# TODO(colluca): in reality delta depends on n_rows, and the arrival times of all clusters
 DELTA = 36
 HW_ALPHA = 30
 TREE_M2C_ALPHA = 30
@@ -86,7 +85,17 @@ def hw_runtime(N1, N2, L):
 
 def tree_runtime(N1, N2, L, delta=DELTA):
     m2c_transfer_cycles = TREE_M2C_ALPHA + L
-    c2c_transfer_cycles = (TREE_C2C_ALPHA + L) * log2(N1 * N2)
+
+    # C2C alpha depends on the distance between the clusters.
+    # On our system we have two cycles latency per hop.
+    c2c_transfer_cycles = 0
+    for i in range(ceil(log2(N1))):
+        dist = N1 / (2 ** (i + 1))
+        c2c_transfer_cycles += TREE_C2C_ALPHA + 2 * dist + L
+    for i in range(ceil(log2(N2))):
+        dist = N2 / (2 ** (i + 1))
+        c2c_transfer_cycles += TREE_C2C_ALPHA + 2 * dist + L
+
     delta_cycles = delta * (log2(N1 * N2) - 1)
     return m2c_transfer_cycles + c2c_transfer_cycles + delta_cycles
 
