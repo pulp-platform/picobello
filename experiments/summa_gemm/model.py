@@ -28,6 +28,10 @@ def t_mcast(dim, bytes, impl='sw'):
     n = beats(bytes)
     if impl == 'sw':
         return multicast.model.optimal_sw_runtime(dim, 1, n)
+    elif impl == 'seq':
+        return multicast.model.optimal_seq_runtime(dim, 1, n)
+    elif impl == 'tree':
+        return multicast.model.tree_runtime(dim, 1, n)
     elif impl == 'hw':
         return multicast.model.hw_runtime(dim, 1, n)
     else:
