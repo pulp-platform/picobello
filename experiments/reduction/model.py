@@ -35,9 +35,11 @@ def nearest_divisors(divisor, dividend):
 
 def hw_runtime(c, r, n):
     hw_alpha, hw_beta = fit.fit_hw()
+    t_hw = hw_alpha + n * hw_beta
     if r > 1:
-        hw_beta = 2
-    return hw_alpha + n * hw_beta
+        return 2 * t_hw
+    else:
+        return t_hw
 
 
 def seq_runtime(c, r, n, k, delta=DELTA):
@@ -50,14 +52,18 @@ def seq_runtime(c, r, n, k, delta=DELTA):
     # print(t_dma * 5, t_comp * 5, t_max * 5)
     n_iters = 1 + 2 * (c - 2) + k
     if r > 1:
-        n_iters += 2 * (r - 2) + k
+        n_iters += 1 + 2 * (r - 2) + k
     # First approximation model assumes compute and dma take roughly the same time
+    delta = 4 * r + 28
     return n_iters * (t_max + delta) - delta
 
 
 def optimal_seq_k(c, r, n, delta=DELTA):
     comp_alpha, _ = fit.fit_seq_compute()
-    real_k = sqrt(n * (2 * c - 3) / (delta + comp_alpha))
+    if r > 1:
+        real_k = sqrt(n * (2 * (c + r) - 7) / (2 * (delta + comp_alpha)))
+    else:
+        real_k = sqrt(n * (2 * c - 3) / (delta + comp_alpha))
     lower_k, upper_k = nearest_divisors(real_k, n)
     assert (lower_k is None) or (lower_k > 0)
     assert (upper_k is None) or (upper_k <= n)
