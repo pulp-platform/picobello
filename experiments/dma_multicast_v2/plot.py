@@ -180,15 +180,15 @@ def plot2(ax=None, y_label=None, hide_x_axis=False, show=True):
         res = df[df['n_rows'] == n_rows]
         sizes = res['size'].unique()
         ax.scatter(
-            sizes, res[res['impl'] == 'seq']['cycles'], label='Actual (seq)',
+            sizes, res[res['impl'] == 'seq']['cycles'], label='Actual',
             marker=markers['actual'], color=colors['seq']
         )
         ax.scatter(
-            sizes, res[res['impl'] == 'tree']['cycles'], label='Actual (tree)',
+            sizes, res[res['impl'] == 'tree']['cycles'], label='Actual',
             marker=markers['actual'], color=colors['tree']
         )
         ax.scatter(
-            sizes, res[res['impl'] == 'hw']['cycles'], label='Actual (hw)',
+            sizes, res[res['impl'] == 'hw']['cycles'], label='Actual',
             marker=markers['actual'], color=colors['hw']
         )
 
@@ -208,15 +208,15 @@ def plot2(ax=None, y_label=None, hide_x_axis=False, show=True):
 
         # Plot model line for sequential runtime. Find monotone non-decreasing lower fit.
         x, y = monotone_seq_runtime_curve(sizes.min(), sizes.max(), n_rows)
-        ax.plot(x, y, label='Model (seq)', linestyle='--', color=colors['seq'])
+        ax.plot(x, y, label='Model  (seq)', linestyle='--', color=colors['seq'])
 
         # Plot model line for tree runtime
         x, y = tree_runtime_curve(sizes.min(), sizes.max(), n_rows)
-        ax.plot(x, y, label='Model (tree)', linestyle='--', color=colors['tree'])
+        ax.plot(x, y, label='Model  (tree)', linestyle='--', color=colors['tree'])
 
         # Plot model line for hardware runtime
         x, y = hw_runtime_curve(sizes.min(), sizes.max(), n_rows)
-        ax.plot(x, y, label='Model (hw)', linestyle='--', color=colors['hw'])
+        ax.plot(x, y, label='Model  (hw)', linestyle='--', color=colors['hw'])
 
         if hide_x_axis:
             ax.set_xlabel('')
@@ -236,7 +236,7 @@ def plot2(ax=None, y_label=None, hide_x_axis=False, show=True):
         ax.set_ylabel(y_label)
         ax.set_axisbelow(True)
         ax.grid(True, linestyle='-', color='gainsboro')
-        ax.legend()
+        ax.legend(ncol=2, handlelength=1.2, columnspacing=0.5, handletextpad=0.3)
 
     plot_runtime_vs_speedup(ax, n_rows=1)
     # plot_runtime_vs_speedup(ax[0][0], n_rows=1)
@@ -356,18 +356,18 @@ def plot4(ax=None, y_label=None, show=True):
         res = df[df['n_rows'] == n_rows]
         best_sw_cycles = res[res['impl'].isin(['seq', 'tree'])].groupby('size')['cycles'].min()
         ax.scatter(
-            sizes, best_sw_cycles, label='Actual (sw)' if show_label else None,
+            sizes, best_sw_cycles, label='Actual' if show_label else None,
             marker='x', color=colors['sw']
         )
         ax.scatter(
-            sizes, res[res['impl'] == 'hw']['cycles'], label='Actual (hw)' if show_label else None,
+            sizes, res[res['impl'] == 'hw']['cycles'], label='Actual' if show_label else None,
             marker='x', color=colors['hw']
         )
 
         # Plot model line for best software implementation
         x, y = sw_runtime_curve(sizes.min(), sizes.max(), n_rows)
         ax.plot(
-            x, y, label='Model (sw)' if show_label else None,
+            x, y, label='Model  (sw)' if show_label else None,
             linestyle='--', color=colors['sw'])
 
         # Annotate sw model lines with number of rows, in correspondence with actual runtime
@@ -380,7 +380,13 @@ def plot4(ax=None, y_label=None, show=True):
         # Plot model line for hardware runtime
         x, y = hw_runtime_curve(sizes.min(), sizes.max(), n_rows)
         ax.plot(
-            x, y, label='Model (hw)' if show_label else None, linestyle='--', color=colors['hw'])
+            x, y, label='Model  (hw)' if show_label else None, linestyle='--', color=colors['hw'])
+        if n_rows == 1:
+            ax.annotate(
+                'r=1,2,4',
+                xy=(x[-1], res[(res['impl'] == 'hw') & (res['size'] == sizes.max())]['cycles']),
+                xytext=(0, 5), textcoords='offset points',  # nudge right
+                ha='center', va='center', clip_on=False)
 
     for i, n_rows in enumerate(df['n_rows'].unique()):
         plot_runtime_vs_speedup(ax, n_rows=n_rows, show_label=(i == 0))
@@ -395,7 +401,7 @@ def plot4(ax=None, y_label=None, show=True):
     ax.set_ylabel(y_label)
     ax.set_axisbelow(True)
     ax.grid(True, linestyle='-', color='gainsboro')
-    ax.legend()
+    ax.legend(ncol=2, handlelength=1.2, columnspacing=0.5, handletextpad=0.3)
 
     plt.tight_layout()
     if show:
