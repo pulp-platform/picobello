@@ -20,7 +20,7 @@ SN_ROOT   = $(shell $(BENDER) path snitch_cluster)
 FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 
 # Executables
-BENDER           ?= bender -d $(PB_ROOT)
+BENDER           ?= bender --suppress W22 -d $(PB_ROOT)
 FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
