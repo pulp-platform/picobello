@@ -47,7 +47,7 @@ module mem_tile
   floo_req_t [Eject:North] router_floo_req_out, router_floo_req_in;
   floo_rsp_t [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
   floo_wide_t [Eject:North] router_floo_wide_in;
-  floo_wide_double_t [Eject:North] router_floo_wide_out;
+  floo_wide_t [Eject:North] router_floo_wide_out;
 
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
@@ -61,8 +61,9 @@ module mem_tile
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
-    .floo_wide_out_t (floo_wide_double_t),
-    .EnDecoupledRW (1'b1)
+    // .floo_wide_out_t (floo_wide_double_t),
+    .NumWideVirtChannels (2),
+    .NumWidePhysChannels (2)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -100,12 +101,13 @@ module mem_tile
   assign floo_rsp_o                      = router_floo_rsp_out[West:North];
   assign router_floo_rsp_in[West:North]  = floo_rsp_i;
   // Only the local port uses both physical channels. Other outputs use only the lower.
-  for (genvar i = North; i <= West; i++) begin : gen_floo_wide_o
-    assign floo_wide_o[i].valid = router_floo_wide_out[i].valid;
-    assign floo_wide_o[i].ready = router_floo_wide_out[i].ready;
-    assign floo_wide_o[i].wide = router_floo_wide_out[i].wide[0];
-  end
+  // for (genvar i = North; i <= West; i++) begin : gen_floo_wide_o
+  //   assign floo_wide_o[i].valid = router_floo_wide_out[i].valid;
+  //   assign floo_wide_o[i].ready = router_floo_wide_out[i].ready;
+  //   assign floo_wide_o[i].wide = router_floo_wide_out[i].wide[0];
+  // end
   assign router_floo_wide_in[West:North] = floo_wide_i;
+  assign floo_wide_o[West:North] =router_floo_wide_out[West:North];
 
   /////////////
   // Chimney //
@@ -124,6 +126,7 @@ module mem_tile
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
     .EnDecoupledRW       (1'b1),
+    .NumWidePhysChannels (2),
     .MaxAtomicTxns       (1),
     .Sam                 (Sam),
     .id_t                (id_t),
@@ -141,7 +144,7 @@ module mem_tile
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
     .floo_wide_t         (floo_wide_t),
-    .floo_wide_in_t     (floo_wide_double_t),
+    // .floo_wide_in_t     (floo_wide_double_t),
     .user_narrow_struct_t             (collective_narrow_user_t),
     .user_wide_struct_t               (collective_wide_user_t)
   ) i_chimney (
@@ -505,20 +508,20 @@ module mem_tile
 `endif
   // Add Assertion that no multicast / reduction can enter this tile!
   for (genvar r = 0; r < 4; r++) begin : gen_route_assertions
-    `ASSERT(NoCollectivOperation_NReq_In, (!floo_req_i[r].valid | (floo_req_i[r].req.generic.hdr.collective_op == Unicast)),
+    `ASSERT(NoCollectivOperation_NReq_In, (!floo_req_i[r].valid | (floo_req_i[r].req[0].generic.hdr.collective_op == Unicast)),
             clk_i, !rst_ni,
-            $sformatf("Unsupported collective attempted with destination: %h", floo_req_i[r].req.narrow_aw.payload.addr))
-    `ASSERT(NoCollectivOperation_NRsp_In, (!floo_rsp_i[r].valid | (floo_rsp_i[r].rsp.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NWide_In, (!floo_wide_i[r].valid | (floo_wide_i[r].wide.generic.hdr.collective_op == Unicast)),
+            $sformatf("Unsupported collective attempted with destination: %h", floo_req_i[r].req[0].narrow_aw.payload.addr))
+    `ASSERT(NoCollectivOperation_NRsp_In, (!floo_rsp_i[r].valid | (floo_rsp_i[r].rsp[0].generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_In, (!floo_wide_i[r].valid | (floo_wide_i[r].wide[0].generic.hdr.collective_op == Unicast)),
             clk_i, !rst_ni,
-            $sformatf("Unsupported collective attempted with destination: %h", floo_wide_i[r].wide.wide_aw.payload.addr))
-    `ASSERT(NoCollectivOperation_NReq_Out, (!floo_req_o[r].valid | (floo_req_o[r].req.generic.hdr.collective_op == Unicast)),
+            $sformatf("Unsupported collective attempted with destination: %h", floo_wide_i[r].wide[0].wide_aw.payload.addr))
+    `ASSERT(NoCollectivOperation_NReq_Out, (!floo_req_o[r].valid | (floo_req_o[r].req[0].generic.hdr.collective_op == Unicast)),
             clk_i, !rst_ni,
-            $sformatf("Unsupported collective attempted with destination: %h", floo_req_o[r].req.narrow_aw.payload.addr))
-    `ASSERT(NoCollectivOperation_NRsp_Out, (!floo_rsp_o[r].valid | (floo_rsp_o[r].rsp.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NWide_Out, (!floo_wide_o[r].valid | (floo_wide_o[r].wide.generic.hdr.collective_op == Unicast)),
+            $sformatf("Unsupported collective attempted with destination: %h", floo_req_o[r].req[0].narrow_aw.payload.addr))
+    `ASSERT(NoCollectivOperation_NRsp_Out, (!floo_rsp_o[r].valid | (floo_rsp_o[r].rsp[0].generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_Out, (!floo_wide_o[r].valid | (floo_wide_o[r].wide[0].generic.hdr.collective_op == Unicast)),
             clk_i, !rst_ni,
-            $sformatf("Unsupported collective attempted with destination: %h", floo_wide_i[r].wide.wide_aw.payload.addr))
+            $sformatf("Unsupported collective attempted with destination: %h", floo_wide_i[r].wide[0].wide_aw.payload.addr))
   end
 
 endmodule

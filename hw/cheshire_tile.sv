@@ -107,7 +107,7 @@ module cheshire_tile
   floo_req_t [Eject:North] router_floo_req_out, router_floo_req_in;
   floo_rsp_t [Eject:North] router_floo_rsp_out, router_floo_rsp_in;
   floo_wide_t [Eject:North] router_floo_wide_in;
-  floo_wide_double_t [Eject:North] router_floo_wide_out;
+  floo_wide_t [Eject:North] router_floo_wide_out;
 
   floo_nw_router #(
     .AxiCfgN     (AxiCfgN),
@@ -121,8 +121,9 @@ module cheshire_tile
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
-    .floo_wide_out_t (floo_wide_double_t),
-    .EnDecoupledRW (1'b1)
+    // .floo_wide_out_t (floo_wide_double_t),
+    .NumWideVirtChannels (2),
+    .NumWidePhysChannels (2)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -168,12 +169,14 @@ module cheshire_tile
   assign router_floo_rsp_in[East]   = '0;  // No East port in this tile
   assign router_floo_rsp_in[South]  = floo_rsp_south_i;
   //TODO(colluca): Merge with floo_wide
-  assign floo_wide_west_o.valid           = router_floo_wide_out[West].valid;
-  assign floo_wide_west_o.ready           = router_floo_wide_out[West].ready;
-  assign floo_wide_west_o.wide           = router_floo_wide_out[West].wide[0];
-  assign floo_wide_south_o.valid          = router_floo_wide_out[South].valid;
-  assign floo_wide_south_o.ready          = router_floo_wide_out[South].ready;
-  assign floo_wide_south_o.wide           = router_floo_wide_out[South].wide[0];
+  // assign floo_wide_west_o.valid           = router_floo_wide_out[West].valid;
+  // assign floo_wide_west_o.ready           = router_floo_wide_out[West].ready;
+  // assign floo_wide_west_o.wide           = router_floo_wide_out[West].wide[0];
+  // assign floo_wide_south_o.valid          = router_floo_wide_out[South].valid;
+  // assign floo_wide_south_o.ready          = router_floo_wide_out[South].ready;
+  // assign floo_wide_south_o.wide           = router_floo_wide_out[South].wide[0];
+  assign floo_wide_west_o           = router_floo_wide_out[West];
+  assign floo_wide_south_o          = router_floo_wide_out[South];
   assign router_floo_wide_in[West]  = floo_wide_west_i;
   assign router_floo_wide_in[North] = '0;  // No North port in this tile
   assign router_floo_wide_in[East]  = '0;  // No East port in this tile
@@ -201,6 +204,7 @@ module cheshire_tile
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
     .EnDecoupledRW       (1'b1),
+    .NumWidePhysChannels (2),
     .MaxAtomicTxns       (AxiCfgN.OutIdWidth - 1),
     .Sam                 (Sam),
     .id_t                (id_t),
@@ -218,7 +222,7 @@ module cheshire_tile
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
     .floo_wide_t         (floo_wide_t),
-    .floo_wide_in_t         (floo_wide_double_t),
+    // .floo_wide_in_t         (floo_wide_double_t),
     .user_narrow_struct_t             (collective_narrow_user_t),
     .user_wide_struct_t               (collective_wide_user_t)
   ) i_chimney (
@@ -506,11 +510,11 @@ module cheshire_tile
 
   // Add Assertion that no multicast / reduction can enter this tile!
   for (genvar r = 0; r < 4; r++) begin : gen_virt
-    `ASSERT(NoCollectivOperation_NReq_In, (!router_floo_req_in[r].valid | (router_floo_req_in[r].req.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NRsp_In, (!router_floo_rsp_in[r].valid | (router_floo_rsp_in[r].rsp.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NWide_In, (!router_floo_wide_in[r].valid | (router_floo_wide_in[r].wide.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NReq_Out, (!router_floo_req_out[r].valid | (router_floo_req_out[r].req.generic.hdr.collective_op == Unicast)))
-    `ASSERT(NoCollectivOperation_NRsp_Out, (!router_floo_rsp_out[r].valid | (router_floo_rsp_out[r].rsp.generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NReq_In, (!router_floo_req_in[r].valid | (router_floo_req_in[r].req[0].generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NRsp_In, (!router_floo_rsp_in[r].valid | (router_floo_rsp_in[r].rsp[0].generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NWide_In, (!router_floo_wide_in[r].valid | (router_floo_wide_in[r].wide[0].generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NReq_Out, (!router_floo_req_out[r].valid | (router_floo_req_out[r].req[0].generic.hdr.collective_op == Unicast)))
+    `ASSERT(NoCollectivOperation_NRsp_Out, (!router_floo_rsp_out[r].valid | (router_floo_rsp_out[r].rsp[0].generic.hdr.collective_op == Unicast)))
     `ASSERT(NoCollectivOperation_NWide_Out, (!router_floo_wide_out[r].valid | (router_floo_wide_out[r].wide[0].generic.hdr.collective_op == Unicast)))
   end
 

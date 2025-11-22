@@ -409,12 +409,12 @@ package picobello_pkg;
     floo_pkg::collect_op_e  collective_op;
   } collective_wide_user_t;
 
-   // TODO (colluca): Merge with floo_wide
-  typedef struct packed {
-    logic [1:0] valid;
-    logic [1:0] ready;
-    floo_wide_chan_t [1:0] wide;
-  } floo_wide_double_t;
+  //  // TODO (colluca): Merge with floo_wide
+  // typedef struct packed {
+  //   logic [1:0] valid;
+  //   logic [1:0] ready;
+  //   floo_wide_chan_t [1:0] wide;
+  // } floo_wide_double_t;
 
   // Configurations for the Reductions
   // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything

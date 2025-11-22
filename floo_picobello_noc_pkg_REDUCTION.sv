@@ -283,7 +283,7 @@ package floo_picobello_noc_pkg;
   typedef logic [63:0] axi_narrow_in_data_t;
   typedef logic [7:0] axi_narrow_in_strb_t;
   typedef logic [4:0] axi_narrow_in_id_t;
-  typedef logic [4:0] axi_narrow_in_user_t;
+  typedef logic [2:0] axi_narrow_in_user_t;
   `AXI_TYPEDEF_ALL_CT(axi_narrow_in, axi_narrow_in_req_t, axi_narrow_in_rsp_t, axi_narrow_in_addr_t,
                       axi_narrow_in_id_t, axi_narrow_in_data_t, axi_narrow_in_strb_t,
                       axi_narrow_in_user_t)
@@ -293,7 +293,7 @@ package floo_picobello_noc_pkg;
   typedef logic [63:0] axi_narrow_out_data_t;
   typedef logic [7:0] axi_narrow_out_strb_t;
   typedef logic [1:0] axi_narrow_out_id_t;
-  typedef logic [4:0] axi_narrow_out_user_t;
+  typedef logic [2:0] axi_narrow_out_user_t;
   `AXI_TYPEDEF_ALL_CT(axi_narrow_out, axi_narrow_out_req_t, axi_narrow_out_rsp_t,
                       axi_narrow_out_addr_t, axi_narrow_out_id_t, axi_narrow_out_data_t,
                       axi_narrow_out_strb_t, axi_narrow_out_user_t)
@@ -323,7 +323,7 @@ package floo_picobello_noc_pkg;
   localparam axi_cfg_t AxiCfgN = '{
       AddrWidth: 48,
       DataWidth: 64,
-      UserWidth: 5,
+      UserWidth: 3,
       InIdWidth: 5,
       OutIdWidth: 2
   };
@@ -337,7 +337,7 @@ package floo_picobello_noc_pkg;
   `FLOO_TYPEDEF_NW_CHAN_ALL(axi, req, rsp, wide, axi_narrow_in, axi_wide_in, AxiCfgN, AxiCfgW,
                             hdr_t)
 
-  `FLOO_TYPEDEF_NW_VIRT_CHAN_LINK_ALL(req, rsp, wide, req, rsp, wide, 1, 2)
+  `FLOO_TYPEDEF_NW_VIRT_CHAN_LINK_ALL(req, rsp, wide, req, rsp, wide, 1, 2, 2)
 
 
 endpackage

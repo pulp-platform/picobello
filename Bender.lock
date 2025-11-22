@@ -391,10 +391,10 @@ packages:
     - common_cells
     - register_interface
   snitch_cluster:
-    revision: null
+    revision: 07280a02b0db20107d3671727217e955fd2e89fc
     version: null
     source:
-      Path: working_dir/snitch_cluster
+      Git: https://github.com/pulp-platform/snitch_cluster.git
     dependencies:
     - apb
     - axi
