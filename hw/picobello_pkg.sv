@@ -416,6 +416,10 @@ package picobello_pkg;
   //   floo_wide_chan_t [1:0] wide;
   // } floo_wide_double_t;
 
+  localparam int unsigned NumWideVirtChannels = 2;
+  localparam int unsigned NumWidePhysChannels = 1;
+  localparam bit EnWideCreditSupport = 0;
+
   // Configurations for the Reductions
   // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything
   // ATTENTION:
