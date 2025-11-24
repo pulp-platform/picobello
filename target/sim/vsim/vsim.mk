@@ -45,7 +45,7 @@ vsim-compile: $(VSIM_DIR)/compile.tcl $(PB_HW_ALL)
 	$(VSIM) -c $(VSIM_FLAGS) -do "source $<; quit"
 
 $(VSIM_DIR)/compile.tcl: $(BENDER_YML) $(BENDER_LOCK)
-	bender script vsim --compilation-mode common $(COMMON_TARGS) $(SIM_TARGS) --vlog-arg="$(VLOG_ARGS)"> $@
+	$(BENDER) script vsim --compilation-mode common $(COMMON_TARGS) $(SIM_TARGS) --vlog-arg="$(VLOG_ARGS)"> $@
 	echo 'vlog -work $(VSIM_WORK) "$(realpath $(CHS_ROOT))/target/sim/src/elfloader.cpp" -ccflags "-std=c++11"' >> $@
 
 vsim-run:
