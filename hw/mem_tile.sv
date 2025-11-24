@@ -62,8 +62,9 @@ module mem_tile
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
     // .floo_wide_out_t (floo_wide_double_t),
-    .NumWideVirtChannels (2),
-    .NumWidePhysChannels (2)
+    .NumWideVirtChannels (NumWideVirtChannels),
+    .NumWidePhysChannels (NumWidePhysChannels),
+    .EnWideCreditSupport  (EnWideCreditSupport)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -126,7 +127,8 @@ module mem_tile
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
     .EnDecoupledRW       (1'b1),
-    .NumWidePhysChannels (2),
+    .EnWideCreditSupport (EnWideCreditSupport),
+    .NumWidePhysChannels (NumWidePhysChannels),
     .MaxAtomicTxns       (1),
     .Sam                 (Sam),
     .id_t                (id_t),
