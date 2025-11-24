@@ -207,8 +207,8 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: c49e3ef59f338b78fd3629c9e707db46c3f1c688
-    version: null
+    revision: eac16b63a27a4ae7a0782fe0de2e20b5dcab0454
+    version: 0.7.0
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
