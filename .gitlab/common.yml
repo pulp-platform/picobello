@@ -5,7 +5,6 @@
 variables:
   PD_COMMIT: "uv" # TODO: Use actual commit
   SPU_COMMIT: "c2e8815487bd713624d74ef3e3e0465196b6d67f"
-  UV_CACHE_DIR: $CI_BUILDS_DIR/../cache/uv
 
 # Check the cache for bender and python dependencies
 .cache-deps:
