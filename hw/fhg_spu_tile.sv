@@ -65,7 +65,7 @@ module fhg_spu_tile
     // .floo_wide_out_t (floo_wide_double_t),
     .NumWideVirtChannels (NumWideVirtChannels),
     .NumWidePhysChannels (NumWidePhysChannels),
-    .EnWideCreditSupport  (EnWideCreditSupport)
+    .VcImplementation    (VcImplementation)
   ) i_router (
     .clk_i,
     .rst_ni,
