@@ -107,7 +107,7 @@ $(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 ##################
 
 SN_GEN_DIR = $(PB_GEN_DIR)
-SN_UV = $(UV)
+SN_UV = $(PYTHON)
 include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
 
