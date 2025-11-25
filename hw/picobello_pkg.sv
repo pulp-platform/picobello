@@ -320,7 +320,7 @@ package picobello_pkg;
 
   localparam int unsigned NumWideVirtChannels = 2;
   localparam int unsigned NumWidePhysChannels = 1;
-  localparam bit EnWideCreditSupport = 0;
+  localparam floo_pkg::vc_impl_e VcImplementation = floo_pkg::VcUnstableValid;
 
   // Configurations for the Reductions
   // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything

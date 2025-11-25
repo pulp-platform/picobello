@@ -124,7 +124,7 @@ module cheshire_tile
     // .floo_wide_out_t (floo_wide_double_t),
     .NumWideVirtChannels (NumWideVirtChannels),
     .NumWidePhysChannels (NumWidePhysChannels),
-    .EnWideCreditSupport  (EnWideCreditSupport)
+    .VcImplementation    (VcImplementation)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -206,7 +206,7 @@ module cheshire_tile
     .AtopSupport         (1'b1),
     .EnDecoupledRW       (1'b1),
     .NumWidePhysChannels (NumWidePhysChannels),
-    .EnWideCreditSupport  (EnWideCreditSupport),
+    .VcImplementation    (VcImplementation),
     .MaxAtomicTxns       (AxiCfgN.OutIdWidth - 1),
     .Sam                 (Sam),
     .id_t                (id_t),
