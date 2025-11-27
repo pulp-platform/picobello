@@ -20,11 +20,13 @@ SN_ROOT   = $(shell $(BENDER) path snitch_cluster)
 FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 
 # Executables
+UV               ?= uv run
+PYTHON           ?= $(UV)
 BENDER           ?= bender -d $(PB_ROOT)
-FLOO_GEN         ?= floogen
+FLOO_GEN         ?= $(UV) floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
-PEAKRDL          ?= peakrdl
+PEAKRDL          ?= $(UV) peakrdl
 
 # Get rid of non-existing PD path dependency warnings
 BENDER += --suppress W22
