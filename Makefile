@@ -27,6 +27,7 @@ FLOO_GEN         ?= $(UV) floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 PEAKRDL          ?= $(UV) peakrdl
+REGTOOL          ?= $(UV) $(shell $(BENDER) path register_interface)/vendor/lowrisc_opentitan/util/regtool.py
 
 # Get rid of non-existing PD path dependency warnings
 BENDER += --suppress W22
