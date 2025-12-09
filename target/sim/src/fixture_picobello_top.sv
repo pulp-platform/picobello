@@ -138,21 +138,17 @@ module fixture_picobello_top;
   assign axi_slink_mst_req = '0;
 
   // Mirror instance of serial link, reflecting DRAM on FPGA
-  serial_link #(
+  slink #(
     .axi_req_t  (axi_llc_req_t),
     .axi_rsp_t  (axi_llc_rsp_t),
-    .cfg_req_t  (reg_req_t),
-    .cfg_rsp_t  (reg_rsp_t),
+    .apb_req_t  (csh_apb_req_t),
+    .apb_rsp_t  (csh_apb_resp_t),
     .aw_chan_t  (axi_llc_aw_chan_t),
     .ar_chan_t  (axi_llc_ar_chan_t),
     .r_chan_t   (axi_llc_r_chan_t),
     .w_chan_t   (axi_llc_w_chan_t),
     .b_chan_t   (axi_llc_b_chan_t),
-    .hw2reg_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_hw2reg_t),
-    .reg2hw_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_reg2hw_t),
-    .NumChannels(SlinkNumChan),
-    .NumLanes   (SlinkNumLanes),
-    .MaxClkDiv  (SlinkMaxClkDiv)
+    .NoRegCdc   (1'b1)
   ) i_dram_serial_link (
     .clk_i        (clk),
     .rst_ni       (rst_n),
@@ -165,8 +161,8 @@ module fixture_picobello_top;
     .axi_in_rsp_o (),
     .axi_out_req_o(axi_llc_mst_req),
     .axi_out_rsp_i(axi_llc_mst_rsp),
-    .cfg_req_i    ('0),
-    .cfg_rsp_o    (),
+    .apb_req_i    ('0),
+    .apb_rsp_o    (),
     .ddr_rcv_clk_i(dram_slink_rcv_clk_o),
     .ddr_rcv_clk_o(dram_slink_rcv_clk_i),
     .ddr_i        (dram_slink_o),

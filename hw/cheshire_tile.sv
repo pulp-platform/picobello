@@ -366,21 +366,34 @@ module cheshire_tile
   csh_axi_llc_req_t dram_slink_err_req;
   csh_axi_llc_rsp_t dram_slink_err_rsp;
 
-  serial_link #(
+  csh_apb_req_t  dram_link_apb_req;
+  csh_apb_resp_t dram_link_apb_rsp;
+
+  reg_to_apb #(
+    .reg_req_t(csh_reg_req_t),
+    .reg_rsp_t(csh_reg_rsp_t),
+    .apb_req_t(csh_apb_req_t),
+    .apb_rsp_t(csh_apb_resp_t)
+  ) i_dram_slink_reg_to_apb (
+    .clk_i    (clk_i),
+    .rst_ni   (rst_ni),
+    .reg_req_i(reg_ext_req[CshRegExtDramSerialLink]),
+    .reg_rsp_o(reg_ext_rsp[CshRegExtDramSerialLink]),
+    .apb_req_o(dram_link_apb_req),
+    .apb_rsp_i(dram_link_apb_rsp)
+  );
+
+  slink #(
     .axi_req_t  (csh_axi_llc_req_t),
     .axi_rsp_t  (csh_axi_llc_rsp_t),
-    .cfg_req_t  (csh_reg_req_t),
-    .cfg_rsp_t  (csh_reg_rsp_t),
+    .apb_req_t  (csh_apb_req_t),
+    .apb_rsp_t  (csh_apb_resp_t),
     .aw_chan_t  (csh_axi_llc_aw_chan_t),
     .ar_chan_t  (csh_axi_llc_ar_chan_t),
     .r_chan_t   (csh_axi_llc_r_chan_t),
     .w_chan_t   (csh_axi_llc_w_chan_t),
     .b_chan_t   (csh_axi_llc_b_chan_t),
-    .hw2reg_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_hw2reg_t),
-    .reg2hw_t   (serial_link_single_channel_reg_pkg::serial_link_single_channel_reg2hw_t),
-    .NumChannels(SlinkNumChan),
-    .NumLanes   (SlinkNumLanes),
-    .MaxClkDiv  (SlinkMaxClkDiv)
+    .NoRegCdc    (1'b1)
   ) i_dram_serial_link (
     .clk_i,
     .rst_ni,
@@ -393,8 +406,8 @@ module cheshire_tile
     .axi_in_rsp_o (axi_llc_rsp),
     .axi_out_req_o(dram_slink_err_req),
     .axi_out_rsp_i(dram_slink_err_rsp),
-    .cfg_req_i    (reg_ext_req[CshRegExtDramSerialLink]),
-    .cfg_rsp_o    (reg_ext_rsp[CshRegExtDramSerialLink]),
+    .apb_req_i    (dram_link_apb_req),
+    .apb_rsp_o    (dram_link_apb_rsp),
     .ddr_rcv_clk_i(dram_slink_rcv_clk_i),
     .ddr_rcv_clk_o(dram_slink_rcv_clk_o),
     .ddr_i        (dram_slink_i),
@@ -424,18 +437,15 @@ module cheshire_tile
     .slv_resp_o(dram_slink_err_rsp)
   );
 
-  // to apb bus (declare type for req and resp)
-  `APB_TYPEDEF_ALL(apb, logic[CheshireCfg.AddrWidth-1:0], logic[31:0], logic[3:0])
-
-  apb_req_t                           csh_apb_req;
-  apb_resp_t                          csh_apb_rsp;
+  csh_apb_req_t                           csh_apb_req;
+  csh_apb_resp_t                          csh_apb_rsp;
   pb_soc_regs_pkg::pb_soc_regs__out_t control_reg;
 
   reg_to_apb #(
     .reg_req_t(csh_reg_req_t),
     .reg_rsp_t(csh_reg_rsp_t),
-    .apb_req_t(apb_req_t),
-    .apb_rsp_t(apb_resp_t)
+    .apb_req_t(csh_apb_req_t),
+    .apb_rsp_t(csh_apb_resp_t)
   ) i_reg_to_apb (
     .clk_i,
     .rst_ni,

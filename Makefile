@@ -12,7 +12,6 @@ BENDER_ROOT ?= $(PB_ROOT)/.bender
 FLOO_CFG  ?= $(PB_ROOT)/cfg/picobello_noc.yml
 SN_CFG	  ?= $(PB_ROOT)/cfg/snitch_cluster.json
 PLIC_CFG  ?= $(PB_ROOT)/cfg/rv_plic.cfg.hjson
-SLINK_CFG ?= $(PB_ROOT)/cfg/serial_link.hjson
 
 # Root directories of dependencies
 CHS_ROOT  = $(shell $(BENDER) path cheshire)
@@ -94,14 +93,12 @@ pb-addrmap: $(PB_GEN_DIR)/pb_addrmap.h $(PB_GEN_DIR)/pb_addrmap.svh
 ############
 
 CLINTCORES ?= 17
+SLINK_NUM_LANES ?= 8
+
 include $(CHS_ROOT)/cheshire.mk
 
 $(CHS_ROOT)/hw/rv_plic.cfg.hjson: $(OTPROOT)/.generated2
 $(OTPROOT)/.generated2: $(PLIC_CFG)
-	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
-
-$(CHS_ROOT)/hw/serial_link.hjson: $(CHS_SLINK_DIR)/.generated2
-$(CHS_SLINK_DIR)/.generated2:	$(SLINK_CFG)
 	flock -x $@ sh -c "cp $< $(CHS_ROOT)/hw/" && touch $@
 
 ##################
