@@ -132,7 +132,7 @@ ifeq ($(shell $(VERIBLE_FMT) --version >/dev/null 2>&1 && echo OK),OK)
 endif
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
-$(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
+$(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
 
 
