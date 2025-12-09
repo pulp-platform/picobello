@@ -150,7 +150,7 @@ packages:
     revision: bab4cea30f1cdfe303a4585db04c1a1f6882b718
     version: null
     source:
-      Git: https://github.com/pulp-platform/common_cells
+      Git: https://github.com/pulp-platform/common_cells.git
     dependencies:
     - common_verification
     - tech_cells_generic
@@ -161,7 +161,7 @@ packages:
       Git: https://github.com/pulp-platform/common_verification.git
     dependencies: []
   cv32e40p:
-    revision: 800a09d97a1e9418e127e8bbf1763c1d1097c92f
+    revision: 1a93f340e9dadb9f7c8c471f27a40932c8b1c62e
     version: null
     source:
       Git: https://github.com/pulp-platform/cv32e40p.git
@@ -189,7 +189,7 @@ packages:
     revision: 5df9c9bd9e10ad020763c4291c571adf35ef4ae2
     version: null
     source:
-      Git: https://github.com/pulp-platform/datamover
+      Git: https://github.com/pulp-platform/datamover.git
     dependencies:
     - hci
     - hwpe-ctrl
@@ -226,7 +226,7 @@ packages:
       Path: .bender/git/checkouts/floo_noc-051cdbf4a4876727/./pd
     dependencies: []
   fpnew:
-    revision: a8e0cba6dd50f357ece73c2c955d96efc3c6c315
+    revision: e5aa6a01b5bbe1675c3aa8872e1203413ded83d1
     version: null
     source:
       Git: https://github.com/pulp-platform/cvfpu.git
@@ -244,7 +244,7 @@ packages:
     revision: fa625bdb824209bc2c0faaa6d99ec15ff981473f
     version: null
     source:
-      Git: https://github.com/pulp-platform/hci
+      Git: https://github.com/pulp-platform/hci.git
     dependencies:
     - cluster_interconnect
     - common_cells
@@ -253,8 +253,8 @@ packages:
     - redundancy_cells
     - register_interface
   hwpe-ctrl:
-    revision: 3690a3c648f120546d8de2bc583d5170c36d2f20
-    version: 2.0.0
+    revision: 2e7f41c55284b502e5deb019ceae904702d06494
+    version: 2.1.0
     source:
       Git: https://github.com/pulp-platform/hwpe-ctrl.git
     dependencies:
@@ -332,10 +332,10 @@ packages:
       Path: pd
     dependencies: []
   redmule:
-    revision: 6fb7c175a784e1161a6762ab91d9b296697a66f1
+    revision: b0fb7149fdff4d43362fb5964203689268d55deb
     version: null
     source:
-      Git: https://github.com/pulp-platform/redmule
+      Git: https://github.com/pulp-platform/redmule.git
     dependencies:
     - common_cells
     - cv32e40p
@@ -370,7 +370,7 @@ packages:
     revision: 358f90110220adf7a083f8b65d157e836d706236
     version: 0.8.1
     source:
-      Git: https://github.com/pulp-platform/riscv-dbg
+      Git: https://github.com/pulp-platform/riscv-dbg.git
     dependencies:
     - common_cells
     - tech_cells_generic
@@ -410,7 +410,7 @@ packages:
     revision: 7968dd6e6180df2c644636bc6d2908a49f2190cf
     version: 0.2.13
     source:
-      Git: https://github.com/pulp-platform/tech_cells_generic
+      Git: https://github.com/pulp-platform/tech_cells_generic.git
     dependencies:
     - common_verification
   unbent:
