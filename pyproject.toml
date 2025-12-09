@@ -14,7 +14,7 @@ dependencies = [
     "floogen",
     "hjson>=3.1.0",
     "peakrdl>=1.5.0",
-    "peakrdl-rawheader",
+    "peakrdl-rawheader>=0.1.3",
     "snitch[kernels]",
 ]
 
@@ -27,4 +27,3 @@ members = [
 [tool.uv.sources]
 floogen = { workspace = true, editable = true }
 snitch = { workspace = true, editable = true }
-peakrdl-rawheader = { git = "https://github.com/colluca/PeakRDL-rawheader.git", rev = "7b8dbc9ad5854dc1cdaf36d4ea024c29ffb00a4ca" }
