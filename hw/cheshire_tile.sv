@@ -366,8 +366,8 @@ module cheshire_tile
   csh_axi_llc_req_t dram_slink_err_req;
   csh_axi_llc_rsp_t dram_slink_err_rsp;
 
-  csh_apb_req_t  dram_link_apb_req;
-  csh_apb_resp_t dram_link_apb_rsp;
+  csh_apb_req_t     dram_link_apb_req;
+  csh_apb_resp_t    dram_link_apb_rsp;
 
   reg_to_apb #(
     .reg_req_t(csh_reg_req_t),
@@ -384,16 +384,16 @@ module cheshire_tile
   );
 
   slink #(
-    .axi_req_t  (csh_axi_llc_req_t),
-    .axi_rsp_t  (csh_axi_llc_rsp_t),
-    .apb_req_t  (csh_apb_req_t),
-    .apb_rsp_t  (csh_apb_resp_t),
-    .aw_chan_t  (csh_axi_llc_aw_chan_t),
-    .ar_chan_t  (csh_axi_llc_ar_chan_t),
-    .r_chan_t   (csh_axi_llc_r_chan_t),
-    .w_chan_t   (csh_axi_llc_w_chan_t),
-    .b_chan_t   (csh_axi_llc_b_chan_t),
-    .NoRegCdc    (1'b1)
+    .axi_req_t(csh_axi_llc_req_t),
+    .axi_rsp_t(csh_axi_llc_rsp_t),
+    .apb_req_t(csh_apb_req_t),
+    .apb_rsp_t(csh_apb_resp_t),
+    .aw_chan_t(csh_axi_llc_aw_chan_t),
+    .ar_chan_t(csh_axi_llc_ar_chan_t),
+    .r_chan_t (csh_axi_llc_r_chan_t),
+    .w_chan_t (csh_axi_llc_w_chan_t),
+    .b_chan_t (csh_axi_llc_b_chan_t),
+    .NoRegCdc (1'b1)
   ) i_dram_serial_link (
     .clk_i,
     .rst_ni,
@@ -437,8 +437,8 @@ module cheshire_tile
     .slv_resp_o(dram_slink_err_rsp)
   );
 
-  csh_apb_req_t                           csh_apb_req;
-  csh_apb_resp_t                          csh_apb_rsp;
+  csh_apb_req_t                       csh_apb_req;
+  csh_apb_resp_t                      csh_apb_rsp;
   pb_soc_regs_pkg::pb_soc_regs__out_t control_reg;
 
   reg_to_apb #(

@@ -139,16 +139,16 @@ module fixture_picobello_top;
 
   // Mirror instance of serial link, reflecting DRAM on FPGA
   slink #(
-    .axi_req_t  (axi_llc_req_t),
-    .axi_rsp_t  (axi_llc_rsp_t),
-    .apb_req_t  (csh_apb_req_t),
-    .apb_rsp_t  (csh_apb_resp_t),
-    .aw_chan_t  (axi_llc_aw_chan_t),
-    .ar_chan_t  (axi_llc_ar_chan_t),
-    .r_chan_t   (axi_llc_r_chan_t),
-    .w_chan_t   (axi_llc_w_chan_t),
-    .b_chan_t   (axi_llc_b_chan_t),
-    .NoRegCdc   (1'b1)
+    .axi_req_t(axi_llc_req_t),
+    .axi_rsp_t(axi_llc_rsp_t),
+    .apb_req_t(csh_apb_req_t),
+    .apb_rsp_t(csh_apb_resp_t),
+    .aw_chan_t(axi_llc_aw_chan_t),
+    .ar_chan_t(axi_llc_ar_chan_t),
+    .r_chan_t (axi_llc_r_chan_t),
+    .w_chan_t (axi_llc_w_chan_t),
+    .b_chan_t (axi_llc_b_chan_t),
+    .NoRegCdc (1'b1)
   ) i_dram_serial_link (
     .clk_i        (clk),
     .rst_ni       (rst_n),
