@@ -21,8 +21,7 @@
 typedef enum {
     SEQ,
     TREE,
-    HW_GENERIC,
-    HW_SIMPLE,
+    HW
 } impl_t;
 
 #ifndef IMPL
@@ -62,18 +61,7 @@ static inline void swap_buffers(uintptr_t *a, uintptr_t *b) {
     *b = temp;
 }
 
-static inline void dma_reduction_hw_generic(uintptr_t src, uintptr_t dst,
-    snrt_comm_t comm) {
-    if (snrt_is_dm_core() && comm->is_participant) {
-        uintptr_t remote_dst = (uintptr_t)snrt_remote_l1_ptr(
-            (void *)dst, snrt_cluster_idx(), 0);
-        snrt_collective_opcode_t op = SNRT_REDUCTION_FADD;
-        snrt_dma_start_1d_reduction(remote_dst, src, SIZE, comm, op);
-        snrt_dma_wait_all();
-    }
-}
-
-static inline void dma_reduction_hw_simple(uintptr_t src, uintptr_t dst,
+static inline void dma_reduction_hw(uintptr_t src, uintptr_t dst,
     snrt_comm_t comm) {
 
     // Create a communicator per row
@@ -463,10 +451,8 @@ static inline void dma_reduction(uintptr_t a, uintptr_t b, uintptr_t c,
         dma_reduction_seq(a, b, c, d, comm);
     else if (IMPL == TREE)
         dma_reduction_tree(a, b, c, d, comm);
-    else if (IMPL == HW_GENERIC)
-        dma_reduction_hw_generic(a, c, comm);
-    else if (IMPL == HW_SIMPLE)
-        dma_reduction_hw_simple(a, c, comm);
+    else if (IMPL == HW)
+        dma_reduction_hw(a, c, comm);
 }
 
 // Global variables for verification script
@@ -512,7 +498,7 @@ int main (void){
     // Writeback to L3
     uintptr_t result_buffer = c_buffer;
     uint32_t total_tree_levels = pb_log2_cluster_num_in_row() + LOG2_N_ROWS;
-    if ((IMPL == HW_SIMPLE && N_ROWS > 1) ||
+    if ((IMPL == HW && N_ROWS > 1) ||
         (IMPL == SEQ && N_ROWS > 1) ||
         (IMPL == TREE && (total_tree_levels % 2) == 0))
         result_buffer = a_buffer;
