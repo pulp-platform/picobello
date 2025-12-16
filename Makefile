@@ -111,7 +111,7 @@ include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
 
 $(SN_CFG): $(FLOO_CFG)
-	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
+	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $@
 
 .PHONY: sn-hw-clean sn-hw-all
 
