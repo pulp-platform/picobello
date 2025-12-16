@@ -105,8 +105,20 @@ module cluster_tile
     .narrow_ext_req_o (cluster_narrow_ext_req),
     .narrow_ext_resp_i(cluster_narrow_ext_rsp),
     .tcdm_ext_req_i   (cluster_tcdm_ext_req_aligned),
-    .tcdm_ext_resp_o  (cluster_tcdm_ext_rsp_aligned)
-  );
+    .tcdm_ext_resp_o  (cluster_tcdm_ext_rsp_aligned),
+    .x_issue_req_o(),
+    .x_issue_resp_i('0),
+    .x_issue_valid_o(),
+    .x_issue_ready_i('0),
+    .x_register_o(),
+    .x_register_valid_o(),
+    .x_register_ready_i('0),
+    .x_commit_o(),
+    .x_commit_valid_o(),
+    .x_result_i('0),
+    .x_result_valid_i('0),
+    .x_result_ready_o()
+    );
 
   if (UseHWPE) begin : gen_hwpe
 
