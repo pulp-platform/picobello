@@ -2,7 +2,7 @@ All commands are assumed to be run from this folder.
 
 To run the experiments:
 ```shell
-./sw_experiments.py --actions sw run visual-trace -j
+./experiments.py --actions sw run visual-trace -j
 ```
 
 To manually verify a simulation:
