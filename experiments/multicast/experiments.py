@@ -66,7 +66,7 @@ def gen_experiments():
                             'n_rows': n_rows,
                             'size': size,
                             'batch': batch_size,
-                            'app': 'dma_multicast_v2',
+                            'app': 'multicast_benchmark',
                             'cmd': pb.sim_and_verify_cmd(Path.cwd() / 'verify.py'),
                             'roi': Path.cwd() / f'roi/{impl}.json.tpl',
                         })

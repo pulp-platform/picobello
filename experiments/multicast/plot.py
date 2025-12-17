@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from dma_multicast_v2 import model
-from dma_multicast_v2 import experiments
+from multicast import model
+from multicast import experiments
 
 pd.options.mode.copy_on_write = True
 

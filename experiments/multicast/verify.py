@@ -5,7 +5,7 @@
 #
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
 # 
-# Verification script for `dma_multicast_v2.c`
+# Verification script for `multicast_benchmark.c`
 
 import sys
 import snitch.util.sim.verif_utils as vu

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
-from dma_multicast_v2 import experiments
+from multicast import experiments
 
 pd.options.mode.copy_on_write = True
 BEAT_BYTES = 64

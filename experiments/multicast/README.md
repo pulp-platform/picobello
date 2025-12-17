@@ -7,7 +7,7 @@ To run the experiments:
 
 To manually verify a simulation:
 ```shell
-./verify.py placeholder <build_dir>/dma_multicast_v2.elf --no-ipc --memdump <sim_dir>/l2mem.bin --memaddr 0x70000000
+./verify.py placeholder <build_dir>/multicast_benchmark.elf --no-ipc --memdump <sim_dir>/l2mem.bin --memaddr 0x70000000
 ```
 
 To manually generate the traces for a simulation:
