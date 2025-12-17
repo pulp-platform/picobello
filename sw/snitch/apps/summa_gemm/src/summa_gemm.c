@@ -34,8 +34,8 @@ static inline void snrt_dma_load_2d_tile_mcast_sw(
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;

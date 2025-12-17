@@ -129,13 +129,6 @@ static inline void dma_reduction_seq_normal(uintptr_t a, uintptr_t b, uintptr_t 
     // Group to simplify rotating buffers
     uintptr_t dst[2] = {b, d};
 
-    if (snrt_cluster_idx() == 0 && snrt_cluster_core_idx() == 0) {
-        DUMP(a);
-        DUMP(b);
-        DUMP(c);
-        DUMP(d);
-    }
-
     // Compute addresses of source and destination data for DMA cores.
     // All clusters in col > 0 participate in the row reduction. For this
     // reduction the source is in `a` and the result in `c`.
@@ -169,8 +162,8 @@ static inline void dma_reduction_seq_normal(uintptr_t a, uintptr_t b, uintptr_t 
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;
@@ -308,13 +301,6 @@ static inline void dma_reduction_seq_hyperbank(uintptr_t a0, uintptr_t a1,
     uintptr_t a_ptr[2] = {a0, a1};
     uintptr_t c_ptr[2] = {c0, c1};
 
-    if (snrt_cluster_idx() == 0 && snrt_cluster_core_idx() == 0) {
-        DUMP(a0); DUMP(a1);
-        DUMP(b);
-        DUMP(c0); DUMP(c1);
-        DUMP(d);
-    }
-
     // Compute addresses of source and destination data for DMA cores.
     // All clusters in col > 0 participate in the row reduction. For this
     // reduction the source is in `a` and the result in `c`.
@@ -348,8 +334,8 @@ static inline void dma_reduction_seq_hyperbank(uintptr_t a0, uintptr_t a1,
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;
@@ -399,7 +385,6 @@ static inline void dma_reduction_seq_hyperbank(uintptr_t a0, uintptr_t a1,
             // Start DMA
             snrt_mcycle();
             snrt_dma_start_1d(dma_dst, dma_src, BATCH);
-            // DUMP(dma_src);DUMP(*((double *)dma_src));
 
             // Update pointers for next iteration while transfer completes,
             // preventing instructions from being reordered after the DMA wait
@@ -581,8 +566,8 @@ static inline void dma_reduction_tree(uintptr_t a, uintptr_t b, uintptr_t c,
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;

@@ -62,8 +62,8 @@ static inline void dma_multicast_sequential(uintptr_t l1_buffer,
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;
@@ -150,8 +150,8 @@ static inline void dma_multicast_tree(uintptr_t l1_buffer,
 
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;
@@ -311,7 +311,6 @@ int main() {
         uint32_t submask = 0;
         do {
             uint32_t i = fixed | submask;
-            DUMP(i);
             submask = (submask - 1) & mask;
         } while (submask != 0);
     }

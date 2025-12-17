@@ -26,8 +26,8 @@ typedef enum {
 static inline void sw_barrier(snrt_comm_t comm) {
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_COLLECTIVE_MULTICAST;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_COLLECTIVE_MULTICAST;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     volatile uint32_t *mcip_set = (uint32_t *)&(snrt_cluster()->peripheral_reg.cl_clint_set.w);
@@ -69,8 +69,8 @@ static inline void sw_barrier(snrt_comm_t comm) {
 static inline void hw_barrier(snrt_comm_t comm) {
     // Prepare for inter-cluster barrier in advance, preventing instruction
     // reordering using the volatile block.
-    snrt_collective_op_t op;
-    op.f.collective_op = SNRT_REDUCTION_BARRIER;
+    snrt_collective_t op;
+    op.f.opcode = SNRT_REDUCTION_BARRIER;
     op.f.mask = snrt_get_collective_mask(comm);
     volatile uint32_t *barrier_ptr = comm->barrier_ptr;
     uint32_t user = (uint32_t)op.w;
