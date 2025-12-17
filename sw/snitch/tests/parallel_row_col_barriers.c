@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Luca Colagrande <colluca@iis.ee.ethz.ch>
+//
+// Stress test row, column and global barriers happening in rapid succession.
 
 #include "snrt.h"
 

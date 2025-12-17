@@ -3,6 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Luca Colagrande <colluca@iis.ee.ethz.ch>
+//
+// Test that multiple outstanding barriers with intersecting (or overlapping)
+// participant sets do not deadlock the system. The "participant set" is
+// defined as the set of clusters that participate in the barrier.
 
 #include "snrt.h"
 
@@ -16,7 +20,8 @@ int main (void) {
 	// other clusters have arrived on the global barrier. This ensures that
 	// the global barrier, arriving first, takes ownership of the router,
 	// preventing the row-0 clusters from ever reaching the global barrier
-	// and consequently deadlocking the system.
+	// and consequently deadlocking the system, if multiple outstanding
+	// reductions are not properly supported.
 	if (pb_cluster_row_idx() == 0) {
 		for (int j = 0; j < 100; j++) snrt_nop();
 		snrt_global_barrier(comm);
