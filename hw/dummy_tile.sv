@@ -45,8 +45,7 @@ module dummy_tile
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
     // .floo_wide_out_t (floo_wide_double_t),
-    .NumWideVirtChannels (NumWideVirtChannels),
-    .NumWidePhysChannels (NumWidePhysChannels),
+    .WideRwDecouple      (WideRwDecouple),
     .VcImplementation    (VcImplementation)
   ) i_router (
     .clk_i,

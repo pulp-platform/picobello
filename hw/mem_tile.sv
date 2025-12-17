@@ -62,9 +62,8 @@ module mem_tile
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
     // .floo_wide_out_t (floo_wide_double_t),
-    .NumWideVirtChannels (NumWideVirtChannels),
-    .NumWidePhysChannels (NumWidePhysChannels),
-    .VcImplementation    (VcImplementation)
+    .WideRwDecouple  (WideRwDecouple),
+    .VcImpl    (VcImplementation)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -126,9 +125,8 @@ module mem_tile
     .ChimneyCfgW         (set_ports(ChimneyDefaultCfg, 1'b1, 1'b0)),
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
-    .EnDecoupledRW       (1'b1),
-    .VcImplementation    (VcImplementation),
-    .NumWidePhysChannels (NumWidePhysChannels),
+    .WideRwDecouple      (WideRwDecouple),
+    .VcImpl              (VcImplementation),
     .MaxAtomicTxns       (1),
     .Sam                 (Sam),
     .id_t                (id_t),
