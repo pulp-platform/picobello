@@ -304,17 +304,6 @@ int main() {
     // Only DMA cores of clusters in the first N rows continue from here
     if (!snrt_is_dm_core() || !comm->is_participant) return 0;
 
-    // Print participating clusters
-    if (snrt_is_dm_core() && snrt_cluster_idx() == 0) {
-        uint32_t mask = comm->mask;
-        uint32_t fixed = comm->base & ~mask;
-        uint32_t submask = 0;
-        do {
-            uint32_t i = fixed | submask;
-            submask = (submask - 1) & mask;
-        } while (submask != 0);
-    }
-
     // Synchronize all clusters.
     snrt_inter_cluster_barrier(comm);
 
