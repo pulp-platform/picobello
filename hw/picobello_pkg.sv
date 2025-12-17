@@ -270,7 +270,7 @@ package picobello_pkg;
   typedef struct packed {
     logic [5:0] offset;
     logic [2:0] len;
-    logic [2:0] grp_base_id;
+    logic [2:0] base_id;
   } mask_sel_t;
 
   typedef struct packed {
@@ -325,16 +325,16 @@ package picobello_pkg;
         sam_multicast[rule].idx.mask_x = '{
             offset: offset_id_x,
             len: len_id_x,
-            grp_base_id: empty_cols
+            base_id: empty_cols
         };
         sam_multicast[rule].idx.mask_y = '{
             offset: offset_id_y,
             len: len_id_y,
-            grp_base_id: empty_rows
+            base_id: empty_rows
         };
       end else begin
-        sam_multicast[rule].idx.mask_x = '{offset: '0, len: '0, grp_base_id: 0};
-        sam_multicast[rule].idx.mask_y = '{offset: '0, len: '0, grp_base_id: 0};
+        sam_multicast[rule].idx.mask_x = '{offset: '0, len: '0, base_id: 0};
+        sam_multicast[rule].idx.mask_y = '{offset: '0, len: '0, base_id: 0};
       end
 
     end
@@ -364,9 +364,9 @@ package picobello_pkg;
       $write("  { idx: { id: {x: %0d, y: %0d, port: %0d},", SamMcast[i].idx.id.x,
              SamMcast[i].idx.id.y, SamMcast[i].idx.id.port_id);
       $write("  mask_x: {offset: %0d, len: %0d, base_id: %0d},", SamMcast[i].idx.mask_x.offset,
-             SamMcast[i].idx.mask_x.len, SamMcast[i].idx.mask_x.grp_base_id);
+             SamMcast[i].idx.mask_x.len, SamMcast[i].idx.mask_x.base_id);
       $write("  mask_y: {offset: %0d, len: %0d, base_id: %0d} },", SamMcast[i].idx.mask_y.offset,
-             SamMcast[i].idx.mask_y.len, SamMcast[i].idx.mask_y.grp_base_id);
+             SamMcast[i].idx.mask_y.len, SamMcast[i].idx.mask_y.base_id);
       $write("start: 0x%0h, end: 0x%0h }\n", SamMcast[i].start_addr, SamMcast[i].end_addr);
     end
     $display("]");
@@ -418,7 +418,8 @@ package picobello_pkg;
 
   localparam int unsigned NumWideVirtChannels = 2;
   localparam int unsigned NumWidePhysChannels = 1;
-  localparam floo_pkg::vc_impl_e VcImplementation = floo_pkg::VcUnstableValid;
+  localparam floo_pkg::vc_impl_e VcImplementation = floo_pkg::VcPreemptValid;
+  localparam floo_pkg::wide_rw_decouple_e WideRwDecouple = floo_pkg::Vc;
 
   // Configurations for the Reductions
   // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything
