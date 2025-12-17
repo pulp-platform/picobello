@@ -12,6 +12,7 @@ from snitch.util.experiments import common
 root = Path(__file__).resolve().parents[1]
 default_work_dir = root / 'target/sim/vsim'
 
+
 def sim_cmd(work_dir=default_work_dir):
     return [
         'bash', '-c',
