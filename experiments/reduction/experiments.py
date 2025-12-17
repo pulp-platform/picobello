@@ -40,13 +40,6 @@ class ExperimentManager(pb.ExperimentManager):
             cdefs['BATCH'] = experiment['batch']
         return cdefs
 
-    # def derive_hw_cfg(self, experiment):
-    #     hw = experiment['hw']
-    #     return DIR / 'cfg' / f'floo_picobello_noc_pkg_{hw}.sv'
-
-    def derive_vsim_builddir(self, experiment):
-        return self.dir / 'hw' / experiment['hw']
-
 
 def gen_experiments():
     experiments = []
@@ -77,12 +70,9 @@ def gen_experiments():
                             'size': size,
                             'batch': batch_size,
                             'app': 'reduction_benchmark',
-                            'hw': 'simple',
                             'roi': Path.cwd() / f'roi/{impl}.json.tpl',
                         }
-                        work_dir = DIR / 'hw' / experiment['hw']
-                        experiment['cmd'] = pb.sim_and_verify_cmd(Path.cwd() / 'verify.py',
-                                                                  work_dir)
+                        experiment['cmd'] = pb.sim_and_verify_cmd(Path.cwd() / 'verify.py')
                         experiments.append(experiment)
     return experiments
 

@@ -147,7 +147,7 @@ def fit_hw(df=None, quiet=True):
     x = df['size'].to_numpy() / BEAT_BYTES
     y = df['cycles'].to_numpy()
     if not quiet:
-        print("Fit runtime for hw simple reduction:")
+        print("Fit runtime for hw reduction:")
     return fit(x, y, quiet=quiet)
 
 

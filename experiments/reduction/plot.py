@@ -166,7 +166,7 @@ def plot1(y_label=None, hide_x_axis=False, show=True):
     x, y = monotone_tree_runtime_curve(sizes.min(), sizes.max(), c, r)
     ax.plot(x, y, label='Model  (tree)', linestyle='--', color=colors['tree'])
 
-    # Plot model line for hw simple runtime
+    # Plot model line for hw runtime
     x, y = hw_runtime_curve(sizes.min(), sizes.max(), c, r)
     ax.plot(x, y, label='Model  (hw)', linestyle='--', color=colors['hw'])
 
@@ -248,7 +248,7 @@ def plot2(y_label=None, show=True):
             xytext=(sizes.max() * 0.0001, 0), textcoords='offset points',  # nudge right
             ha='left', va='center', clip_on=False)
 
-        # Plot model line for hardware simple runtime
+        # Plot model line for hardware runtime
         x, y = hw_runtime_curve(sizes.min(), sizes.max(), c, n_rows)
         ax.plot(
             x, y, label='Model  (hw)' if show_label else None, linestyle='--', color=colors['hw'])
