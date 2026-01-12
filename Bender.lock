@@ -298,7 +298,7 @@ packages:
       Git: https://github.com/pulp-platform/L2_tcdm_hybrid_interco.git
     dependencies: []
   obi:
-    revision: acfcd0f80c7539aa8da7821a66d9acf2074a5b4e
+    revision: 6a724da5c8d6412b88b6948746e04c1adf39d017
     version: null
     source:
       Git: https://github.com/pulp-platform/obi.git
