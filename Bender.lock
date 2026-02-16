@@ -332,7 +332,7 @@ packages:
       Path: pd
     dependencies: []
   redmule:
-    revision: b0fb7149fdff4d43362fb5964203689268d55deb
+    revision: 6fb7c175a784e1161a6762ab91d9b296697a66f1
     version: null
     source:
       Git: https://github.com/pulp-platform/redmule.git

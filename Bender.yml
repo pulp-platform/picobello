@@ -15,7 +15,7 @@ dependencies:
   snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "main"                                  }
   floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            version: "0.7.0"                                }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "main"                                     }
-  redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello"                                }
+  redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello_tapeout"                        }
   hci:                { git: "https://github.com/pulp-platform/hci.git",                rev: "fa625bdb824209bc2c0faaa6d99ec15ff981473f" } # branch: ab/fifo_options
   datamover:          { git: "https://github.com/pulp-platform/datamover.git",          rev: "876679af2d1eaa801853b946f43107671f86685f" } # branch: master
   apb:                { git: "https://github.com/pulp-platform/apb.git",                version: "0.2.4"                                }
