@@ -16,7 +16,7 @@ dependencies:
   floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            version: "0.7.0"                                }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "main"                                     }
   redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello"                                }
-  hci:                { git: "https://github.com/pulp-platform/hci.git",                rev: "06fcba671e060f2e1b03b7ebe2d3e719f1557099" }
+  hci:                { git: "https://github.com/pulp-platform/hci.git",                rev: "06fcba671e060f2e1b03b7ebe2d3e719f1557099" } # branch: master
   datamover:          { git: "https://github.com/pulp-platform/datamover.git",          rev: "main"                                     }
   apb:                { git: "https://github.com/pulp-platform/apb.git",                version: "0.2.4"                                }
   apb_fll_if:         { git: "https://github.com/pulp-platform/apb_fll_if.git",         rev: "structs"                                  }
