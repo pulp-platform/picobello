@@ -88,11 +88,12 @@ packages:
     - common_cells
     - register_interface
   cheshire:
-    revision: 5752880791a2beabc75a5e39387ffdd2c3ce4230
+    revision: f6359f4929b4644b9bdbddf7a5ff38f6058d84ab
     version: null
     source:
       Git: https://github.com/pulp-platform/cheshire.git
     dependencies:
+    - apb
     - apb_uart
     - axi
     - axi_llc
@@ -121,13 +122,13 @@ packages:
     - common_cells
     - register_interface
   clint:
-    revision: d5390a805c20f9226758a152ba1645f61da73349
-    version: 0.2.0
+    revision: a78b47c8ce91f6ff08f786ce1b6cb15877982d2f
+    version: null
     source:
       Git: https://github.com/pulp-platform/clint.git
     dependencies:
+    - apb
     - common_cells
-    - register_interface
   cluster_icache:
     revision: 1642961b9561513f283674efc2c90f24855e8d39
     version: 0.3.1
@@ -381,14 +382,15 @@ packages:
     dependencies:
     - tech_cells_generic
   serial_link:
-    revision: c55df03a1da06b00e567cf968b1b1a5f40c9f802
-    version: 1.1.2
+    revision: 291ec6f7bab04581317aa4584ce42f2b35e28c2f
+    version: null
     source:
       Git: https://github.com/pulp-platform/serial_link.git
     dependencies:
+    - apb
     - axi
+    - axi_stream
     - common_cells
-    - register_interface
   snitch_cluster:
     revision: 6248ae825d821dca81c7b9c0f3cf3fd59c0ecdaa
     version: null
