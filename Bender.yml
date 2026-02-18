@@ -7,18 +7,21 @@ package:
   authors:
     - "Tim Fischer <fischeti@iis.ee.ethz.ch>"
 
+remotes:
+  pulp: https://github.com/pulp-platform
+
 dependencies:
-  register_interface: { git: "https://github.com/pulp-platform/register_interface.git", version: "0.4.5"                                }
-  axi:                { git: "https://github.com/pulp-platform/axi.git",                version: "0.39.6"                               }
-  common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "snitch"                                   }
+  register_interface: "0.4.5"
+  axi: "0.39.6"
+  common_cells: "1.39.0"
+  apb: "0.2.4"
+  floo_noc:           { version: "0.7.0", upstream_name: FlooNoC }
   cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "picobello-but-with-more-rdl"              }
-  snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "main"                                  }
-  floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            version: "0.7.0"                                }
+  snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "main"                                     }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "main"                                     }
   redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello_tapeout"                        }
   hci:                { git: "https://github.com/pulp-platform/hci.git",                rev: "fa625bdb824209bc2c0faaa6d99ec15ff981473f" } # branch: ab/fifo_options
   datamover:          { git: "https://github.com/pulp-platform/datamover.git",          rev: "876679af2d1eaa801853b946f43107671f86685f" } # branch: master
-  apb:                { git: "https://github.com/pulp-platform/apb.git",                version: "0.2.4"                                }
   apb_fll_if:         { git: "https://github.com/pulp-platform/apb_fll_if.git",         rev: "structs"                                  }
   FPnew:              { git: "https://github.com/pulp-platform/cvfpu.git",              rev: "pulp-v0.2.3"                              }
   axi_obi:            { path: "hw/axi_obi"                                                                                              }
