@@ -56,5 +56,5 @@ vsim-run-batch:
 
 vsim-run-batch-verify: vsim-run-batch
 ifdef VERIFY_PY
-	$(SN_UV) $(VERIFY_PY) placeholder $(SN_BINARY) --no-ipc --memdump l2mem.bin --memaddr 0x70000000
+	$(VERIFY_PY) placeholder $(SN_BINARY) --no-ipc --memdump l2mem.bin --memaddr 0x70000000
 endif

@@ -19,13 +19,12 @@ SN_ROOT   = $(shell $(BENDER) path snitch_cluster)
 FLOO_ROOT = $(shell $(BENDER) path floo_noc)
 
 # Executables
-UV               ?= uv run
-PYTHON           ?= $(UV)
+PYTHON           ?= python
 BENDER           ?= bender -d $(PB_ROOT)
-FLOO_GEN         ?= $(UV) floogen
+FLOO_GEN         ?= floogen
 VERIBLE_FMT      ?= verible-verilog-format
 VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
-PEAKRDL          ?= $(UV) peakrdl
+PEAKRDL          ?= peakrdl
 
 # Get rid of non-existing PD path dependency warnings
 BENDER += --suppress W22
@@ -106,7 +105,6 @@ $(OTPROOT)/.generated2: $(PLIC_CFG)
 ##################
 
 SN_GEN_DIR = $(PB_GEN_DIR)
-SN_UV = $(PYTHON)
 include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
 

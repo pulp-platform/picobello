@@ -26,7 +26,12 @@ The first requirement you need to install is `bender`. Check the [installation p
 
 #### Python environment
 
-To generate certain source files with python you need to have [uv](https://docs.astral.sh/uv/) installed, which will create the virtual environment automatically for you, as long as you have `uv` in your path.
+To generate certain source files with python you need to have [uv](https://docs.astral.sh/uv/) installed, which will create the virtual environment and install the required dependencies. To set up the environment, run:
+
+```bash
+uv sync --locked
+source .venv/bin/activate
+```
 
 #### Toolchains
 
