@@ -44,6 +44,9 @@ $(PB_GEN_DIR):
 COMMON_TARGS += -t rtl -t cva6 -t cv64a6_imafdchsclic_sv39_wb -t snitch_cluster -t pb_gen_rtl
 SIM_TARGS += -t simulation -t test -t idma_test
 
+# Get rid of non-existing PD path dependency warnings
+BENDER += --suppress W22
+
 #############
 # systemRDL #
 #############
@@ -111,7 +114,7 @@ include $(SN_ROOT)/make/common.mk
 include $(SN_ROOT)/make/rtl.mk
 
 $(SN_CFG): $(FLOO_CFG)
-	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $<
+	@sed -i 's/nr_clusters: .*/nr_clusters: $(SN_CLUSTERS),/' $@
 
 .PHONY: sn-hw-clean sn-hw-all
 
@@ -132,7 +135,7 @@ ifeq ($(shell $(VERIBLE_FMT) --version >/dev/null 2>&1 && echo OK),OK)
 endif
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
-$(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
+$(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG)
 	$(FLOO_GEN) pkg -c $(FLOO_CFG) -o $(PB_GEN_DIR) $(FLOO_GEN_FLAGS)
 
 
