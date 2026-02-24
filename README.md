@@ -4,7 +4,7 @@
 
 *picobello* is developed as part of the [PULP (Parallel Ultra-Low Power) project](https://pulp-platform.org/), a joint effort between ETH Zurich and the University of Bologna. *picobello* is also supported by the [EUPilot project](https://eupilot.eu), under the name MLS.
 
-## 🚧 Getting started (currently in early development)
+## ⚡ Getting started
 
 ### Environment setup for IIS-members
 
@@ -24,16 +24,14 @@ For non-IIS members, there is some additional setup required to get the environm
 
 The first requirement you need to install is `bender`. Check the [installation page](https://github.com/pulp-platform/bender/tree/master?tab=readme-ov-file#installation) on how to set it up.
 
-#### Virtual Python environment
+#### Python environment
 
-You need to have a python>=3.11 installed, in order to create the virtual python environment:
+To generate certain source files with python you need to have [uv](https://docs.astral.sh/uv/) installed, which will create the virtual environment and install the required dependencies. To set up the environment, run:
 
 ```bash
-make python-venv
+uv sync --locked
 source .venv/bin/activate
 ```
-
-By default, it will use the `python` in your `$PATH`. If you want to use a specific python version, you can set the `BASE_PYTHON` environment variable accordingly.
 
 #### Toolchains
 
