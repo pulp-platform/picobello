@@ -28,3 +28,9 @@ members = [
 [tool.uv.sources]
 floogen = { workspace = true, editable = true }
 snitch = { workspace = true, editable = true }
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
