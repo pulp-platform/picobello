@@ -181,7 +181,9 @@ PB_HW_ALL += $(SN_CFG)
 picobello-hw-all all: $(PB_HW_ALL) sn-hw-all
 	$(MAKE) $(PB_HW_ALL)
 
-picobello-hw-clean clean: sn-hw-clean floo-clean
+picobello-hw-clean: sn-hw-clean floo-clean
+
+clean: picobello-hw-clean
 	rm -rf $(BENDER_ROOT)
 
 ############
@@ -222,13 +224,14 @@ python-venv: .venv
 .venv:
 	$(BASE_PYTHON) -m venv $@
 	. $@/bin/activate && \
-	python -m pip install --upgrade pip setuptools && \
-	python -m pip install --cache-dir $(PIP_CACHE_DIR) -r requirements.txt && \
+	python -m pip install --upgrade pip "setuptools<81" && \
+	python -m pip install --no-build-isolation --cache-dir $(PIP_CACHE_DIR) -r requirements.txt && \
 	python -m pip install --cache-dir $(PIP_CACHE_DIR) $(shell $(BENDER) path floo_noc) --no-deps && \
 	python -m pip install --cache-dir $(PIP_CACHE_DIR) -e "$(shell $(BENDER) path snitch_cluster)[kernels]"
 
 python-venv-clean:
 	rm -rf .venv
+	rm -rf $(PIP_CACHE_DIR)
 
 verible-fmt:
 	$(VERIBLE_FMT) $(VERIBLE_FMT_ARGS) $(shell $(BENDER) script flist $(SIM_TARGS) --no-deps)
