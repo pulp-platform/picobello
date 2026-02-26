@@ -207,10 +207,10 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: null
+    revision: 1c7f10686271c1d30b421b8f73a095304e8b61ec
     version: null
     source:
-      Path: working_dir/floo_noc
+      Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
     - axi
     - axi_riscv_atomics
