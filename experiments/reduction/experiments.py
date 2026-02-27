@@ -41,17 +41,26 @@ class ExperimentManager(pb.ExperimentManager):
         return cdefs
 
 
-def gen_experiments():
+def gen_experiments(ci=False):
     experiments = []
+    impls = ['seq', 'tree', 'hw']
+    n_rows_list = [1, 2, 4]
+    sizes = [1024, 2048, 4096, 8192, 16384, 32768]
+    n_batches_list = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+    if ci:
+        impls = ['hw']
+        n_rows_list = [4]
+        sizes = [32768]
+        n_batches_list = [1024, 2048]
     # for impl in ['seq']:
     # for impl in ['tree', 'hw']:
-    for impl in ['seq', 'tree', 'hw']:
+    for impl in impls:
         # for n_rows in [1]:
-        for n_rows in [1, 2, 4]:
+        for n_rows in n_rows_list:
             # for size in [4096]:
-            for size in [1024, 2048, 4096, 8192, 16384, 32768]:
+            for size in sizes:
                 # for n_batches in [4]:
-                for n_batches in [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]:
+                for n_batches in n_batches_list:
 
                     # Only sequential and tree implementations supports batching, for all other
                     # implementations we only accept n_batches = 1
@@ -60,7 +69,7 @@ def gen_experiments():
                     if impl in ['seq', 'tree']:
                         valid_n_batches = batch_beats > 8 and batch_beats < 256
                     else:
-                        valid_n_batches = n_batches == 1
+                        valid_n_batches = n_batches == 1 if not ci else n_batches in n_batches_list
 
                     # If the current setting for n_batches is valid, add the experiment
                     if valid_n_batches:
@@ -154,7 +163,11 @@ def results(manager=None):
 
 def main():
 
-    manager = ExperimentManager(gen_experiments(), dir=DIR)
+    parser = ExperimentManager.parser()
+    parser.add_argument('--ci', action='store_true',
+                        help='Reduce experiment space for CI runs')
+    args = parser.parse_args()
+    manager = ExperimentManager(gen_experiments(ci=args.ci), dir=DIR, args=args, parse_args=False)
     manager.run()
     df = results(manager)
     print(df)

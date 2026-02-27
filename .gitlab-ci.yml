@@ -123,7 +123,7 @@ sim-exps:
       - EXPERIMENT: reduction
       - EXPERIMENT: barrier
   script:
-    - cd experiments/$EXPERIMENT && ./experiments.py --actions sw run -j
+    - cd experiments/$EXPERIMENT && ./experiments.py --ci --actions sw run -j
   artifacts:
     expire_in: 7 days
 

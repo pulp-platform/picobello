@@ -29,12 +29,17 @@ class ExperimentManager(pb.ExperimentManager):
         return cdefs
 
 
-def gen_experiments():
+def gen_experiments(ci=False):
     experiments = []
     # for impl in ['hw']:
         # for n_clusters in [8]:
-    for impl in ['sw', 'hw']:
-        for n_clusters in [2, 4, 8, 16]:
+    impls = ['sw', 'hw']
+    n_clusters_list = [2, 4, 8, 16]
+    if ci:
+        impls = ['hw']
+        n_clusters_list = [16]
+    for impl in impls:
+        for n_clusters in n_clusters_list:
             experiments.append({
                 'app': 'barrier_benchmark',
                 'cmd': pb.sim_cmd(),
@@ -63,7 +68,11 @@ def results(manager=None):
 
 
 def main():
-    manager = ExperimentManager(gen_experiments(), dir=DIR)
+    parser = ExperimentManager.parser()
+    parser.add_argument('--ci', action='store_true',
+                        help='Reduce experiment space for CI runs')
+    args = parser.parse_args()
+    manager = ExperimentManager(gen_experiments(ci=args.ci), dir=DIR, args=args, parse_args=False)
     manager.run()
     df = results(manager)
     print(df)
