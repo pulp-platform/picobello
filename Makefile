@@ -34,6 +34,9 @@ L2_TILES = $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.l2_spm.num 2>/de
 BENDER_YML = $(PB_ROOT)/Bender.yml
 BENDER_LOCK = $(PB_ROOT)/Bender.lock
 
+$(PB_GEN_DIR):
+	mkdir -p $@
+
 ################
 # Bender flags #
 ################
@@ -62,7 +65,7 @@ $(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
 	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem --rdl-memwidth=32
 
 # Those are dummy RDL files, for generation without access to the PD repository.
-$(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl:
+$(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl: | $(PB_GEN_DIR)
 	@touch $@
 
 $(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello.rdl $(PB_RDL_ALL)
@@ -172,16 +175,14 @@ clean-pd:
 
 PB_HW_ALL += $(CHS_HW_ALL)
 PB_HW_ALL += $(CHS_SIM_ALL)
-PB_HW_ALL += $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 PB_HW_ALL += $(PB_RDL_HW_ALL)
-PB_HW_ALL += $(SN_CFG)
 
-.PHONY: picobello-hw-all picobello-clean clean
+.PHONY: picobello-hw-all picobello-hw-clean clean
 
-picobello-hw-all all: $(PB_HW_ALL) sn-hw-all
-	$(MAKE) $(PB_HW_ALL)
+picobello-hw-all all: $(PB_HW_ALL) update-sn-cfg sn-hw-all floo-hw-all
 
 picobello-hw-clean: sn-hw-clean floo-clean
+	rm -rf $(PB_HW_ALL)
 
 clean: picobello-hw-clean
 	rm -rf $(BENDER_ROOT)
