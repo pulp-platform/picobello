@@ -27,8 +27,8 @@ VERIBLE_FMT_ARGS ?= --flagfile .verilog_format --inplace --verbose
 PEAKRDL          ?= peakrdl
 
 # Tiles configuration
-SN_CLUSTERS = $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.cluster.num 2>/dev/null)
-L2_TILES = $(shell $(FLOO_GEN) -c $(FLOO_CFG) --query endpoints.l2_spm.num 2>/dev/null)
+SN_CLUSTERS = $(shell $(FLOO_GEN) query -c $(FLOO_CFG) endpoints.cluster.num 2>/dev/null)
+L2_TILES = $(shell $(FLOO_GEN) query -c $(FLOO_CFG) endpoints.l2_spm.num 2>/dev/null)
 
 # Bender prerequisites
 BENDER_YML = $(PB_ROOT)/Bender.yml
@@ -48,7 +48,7 @@ SIM_TARGS += -t simulation -t test -t idma_test
 # systemRDL #
 #############
 
-PB_RDL_ALL += $(PB_GEN_DIR)/picobello.rdl
+PB_RDL_ALL += $(PB_GEN_DIR)/picobello_addrmap.rdl
 PB_RDL_ALL += $(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl
 PB_RDL_ALL += $(PB_GEN_DIR)/snitch_cluster.rdl
 PB_RDL_ALL += $(wildcard $(PB_ROOT)/cfg/rdl/*.rdl)
@@ -61,14 +61,14 @@ $(PB_GEN_DIR)/pb_soc_regs.sv: $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
 $(PB_GEN_DIR)/pb_soc_regs_pkg.sv: $(PB_ROOT)/cfg/rdl/pb_soc_regs.rdl
 	$(PEAKRDL) regblock $< -o $(PB_GEN_DIR) --cpuif apb4-flat --default-reset arst_n -P Num_Clusters=$(SN_CLUSTERS) -P Num_Mem_Tiles=$(L2_TILES)
 
-$(PB_GEN_DIR)/picobello.rdl: $(FLOO_CFG)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --rdl --rdl-as-mem --rdl-memwidth=32
+$(PB_GEN_DIR)/picobello_addrmap.rdl: $(FLOO_CFG)
+	$(FLOO_GEN) rdl -c $(FLOO_CFG) -o $(PB_GEN_DIR) --as-mem --memwidth=32
 
 # Those are dummy RDL files, for generation without access to the PD repository.
 $(PB_GEN_DIR)/fll.rdl $(PB_GEN_DIR)/pb_chip_regs.rdl: | $(PB_GEN_DIR)
 	@touch $@
 
-$(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello.rdl $(PB_RDL_ALL)
+$(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello_addrmap.rdl $(PB_RDL_ALL)
 	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) -o $@ -i -b ltoh
 
 $(PB_GEN_DIR)/pb_addrmap.svh: $(PB_RDL_ALL)
@@ -133,12 +133,12 @@ endif
 
 floo-hw-all: $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
 $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv: $(FLOO_CFG) | $(PB_GEN_DIR)
-	$(FLOO_GEN) -c $(FLOO_CFG) -o $(PB_GEN_DIR) --only-pkg $(FLOO_GEN_FLAGS)
+	$(FLOO_GEN) pkg -c $(FLOO_CFG) -o $(PB_GEN_DIR) $(FLOO_GEN_FLAGS)
 
 
 floo-clean:
 	rm -f $(PB_GEN_DIR)/floo_picobello_noc_pkg.sv
-	rm -f $(PB_GEN_DIR)/picobello.rdl
+	rm -f $(PB_GEN_DIR)/picobello_addrmap.rdl
 
 ###################
 # Physical Design #
