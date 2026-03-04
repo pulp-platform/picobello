@@ -257,9 +257,11 @@ def plot2(y_label=None, show=True):
         else:
             label = 'r=2,4'
         if n_rows != 4:
+            xcoord = x[-1]
+            ycoord = res[(res['impl'] == 'hw') & (res['size'] == sizes.max())]['cycles'].iloc[0]
             ax.annotate(
                 label,
-                xy=(x[-1], res[(res['impl'] == 'hw') & (res['size'] == sizes.max())]['cycles']),
+                xy=(xcoord, ycoord),
                 xytext=(sizes.max() * 0.0001, 0), textcoords='offset points',  # nudge right
                 ha='left', va='center', clip_on=False)
 

@@ -22,6 +22,7 @@ tabulate
 
 # Miscellaneous requirements
 hjson  # for reggen
+seaborn  # for experiments
 
 # For peakrdl
 peakrdl

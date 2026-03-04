@@ -6,7 +6,7 @@
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
 
 import math
-import dma_multicast_v2 as multicast
+import multicast
 import reduction
 
 PREC = 8  # in bytes

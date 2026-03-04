@@ -28,16 +28,20 @@ class ExperimentManager(pb.ExperimentManager):
         }
         return cdefs
 
+    def derive_hw_cfg(self, experiment):
+        return pb.hw_cfg
+
 
 def gen_experiments(ci=False):
-    experiments = []
-    # for impl in ['hw']:
-        # for n_clusters in [8]:
+    # Define axes
     impls = ['sw', 'hw']
     n_clusters_list = [2, 4, 8, 16]
     if ci:
         impls = ['hw']
         n_clusters_list = [16]
+
+    # Generate experiments list
+    experiments = []
     for impl in impls:
         for n_clusters in n_clusters_list:
             experiments.append({

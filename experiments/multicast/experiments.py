@@ -39,9 +39,12 @@ class ExperimentManager(pb.ExperimentManager):
         }
         return cdefs
 
+    def derive_hw_cfg(self, experiment):
+        return pb.hw_cfg
+
 
 def gen_experiments(ci=False):
-    experiments = []
+    # Define axes
     impls = ['seq', 'tree', 'hw']
     n_rows_list = [1, 2, 4]
     sizes = [1024, 2048, 4096, 8192, 16384, 32768]
@@ -51,12 +54,12 @@ def gen_experiments(ci=False):
         n_rows_list = [4]
         sizes = [32768]
         n_batches_list = [1024, 2048]
+
+    # Generate experiments list
+    experiments = []
     for impl in impls:
-        # for n_rows in [1]:
         for n_rows in n_rows_list:
-            # for size in [1024]:
             for size in sizes:
-                # for n_batches in [1]:
                 for n_batches in n_batches_list:
 
                     # Only sequential implementation supports batching, for all other

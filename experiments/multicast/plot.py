@@ -382,9 +382,11 @@ def plot4(ax=None, y_label=None, show=True):
         ax.plot(
             x, y, label='Model  (hw)' if show_label else None, linestyle='--', color=colors['hw'])
         if n_rows == 1:
+            xcoord = x[-1]
+            ycoord = res[(res['impl'] == 'hw') & (res['size'] == sizes.max())]['cycles'].iloc[0]
             ax.annotate(
                 'r=1,2,4',
-                xy=(x[-1], res[(res['impl'] == 'hw') & (res['size'] == sizes.max())]['cycles']),
+                xy=(xcoord, ycoord),
                 xytext=(0, 5), textcoords='offset points',  # nudge right
                 ha='center', va='center', clip_on=False)
 

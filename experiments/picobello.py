@@ -11,6 +11,7 @@ from snitch.util.experiments import common
 
 root = Path(__file__).resolve().parents[1]
 default_work_dir = root / 'target/sim/vsim'
+hw_cfg = root / 'cfg/snitch_cluster.json'
 
 
 def sim_cmd(work_dir=default_work_dir):
@@ -39,15 +40,15 @@ def sw_callback(target=None, build_dir=None, defines=None, data_cfg=None, dry_ru
         f'{target}_RISCV_CFLAGS': common.join_cdefines(defines),
     }
     vars = {
-        f'{target}_BUILD_DIR': build_dir,
-        'SN_TESTS_BUILDDIR': build_dir,
+        f'{target}_BUILD_DIR': str(build_dir),
+        'SN_TESTS_BUILDDIR': str(build_dir),
         'DEBUG': 'ON',
     }
     if data_cfg is not None:
         vars[f'{target}_DATA_CFG'] = data_cfg
     env = common.extend_environment(env)
     return common.make(
-        target, flags=['-j'], dir=root, vars=vars, env=env, sync=sync,
+        target, flags=['-j'], dir=str(root), vars=vars, env=env, sync=sync,
         dry_run=dry_run
     )
 
@@ -59,7 +60,7 @@ def hw_callback(work_dir=None, hw_cfg=None, dry_run=False,
     vars = {
         'VSIM_DIR': work_dir,
     }
-    return common.make('vsim-compile', dir=root, vars=vars, flags=['-j'], dry_run=dry_run, sync=sync)
+    return common.make('vsim-compile', dir=str(root), vars=vars, flags=['-j'], dry_run=dry_run, sync=sync)
 
 
 callbacks = {
