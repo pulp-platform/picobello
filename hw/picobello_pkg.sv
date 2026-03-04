@@ -422,41 +422,21 @@ package picobello_pkg;
   localparam floo_pkg::wide_rw_decouple_e WideRwDecouple = floo_pkg::Vc;
 
   // Configurations for the Reductions
-  // Stupid asolution which allows me to overwrite the Reduction confiuration without endagering everything
-  // ATTENTION:
-  // @GENERIC Implementation: RdPartialBufferSize Needs to be bigger than the "RdPipelineDepth" otherwise we can build a deadlock
-  // @STALLING Implementation: min(ceil(log2(NumRoutes)), RdPipelineDepth+1)
-  // TODO: Add Assertion to check this
-  // raroth - overwrite benchmark autotest - start
 localparam reduction_cfg_t WideReductionCfg = '{
-    RdControllConf: ControllerGeneric,
-    RdFifoFallThrough: 1'b1,
-    RdFifoDepth: 0,
     RdPipelineDepth: 5,
-    RdPartialBufferSize: 6,
-    RdTagBits: 5,
     RdSupportAxi: 1'b1,
-    RdEnableBypass: 1'b1,
     RdSupportLoopback: 1'b1,
     CutOffloadIntf: 1'b1
   };
-  // raroth - overwrite benchmark autotest - end
 
 localparam reduction_cfg_t NarrowReductionCfg = '{
-    RdControllConf: ControllerGeneric,
-    RdFifoFallThrough: 1'b1,
-    RdFifoDepth: 0,
     RdPipelineDepth: 1,
-    RdPartialBufferSize: 3,
-    RdTagBits: 5,
     RdSupportAxi: 1'b1,
-    RdEnableBypass: 1'b1,
     RdSupportLoopback: 1'b1,
     CutOffloadIntf: 1'b0
   };
 
   localparam reduction_cfg_t ResponseReductionCfg = '{
-    RdEnableBypass: 1'b1,
     RdSupportLoopback: 1'b1,
     default: '0
   };
