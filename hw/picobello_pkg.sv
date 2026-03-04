@@ -495,7 +495,7 @@ localparam reduction_cfg_t NarrowReductionCfg = '{
   //  Cluster Tile  //
   ////////////////////
 
-  localparam bit UseHWPE = 1'b1;
+  localparam bit UseHWPE = 1'b0;
 
   ////////////////
   //  Mem Tile  //
