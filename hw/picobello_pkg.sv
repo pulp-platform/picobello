@@ -347,8 +347,6 @@ package picobello_pkg;
     floo_pkg::route_cfg_t ret = floo_picobello_noc_pkg::RouteCfg;
     // Disable multicast for non-cluster tiles
     ret.CollectiveCfg = CollectiveDefaultCfg;
-    // DIsbale loop back
-    ret.CollectiveCfg.RedCfg.RdSupportLoopback = 1'b0;
     return ret;
   endfunction
 
@@ -424,20 +422,15 @@ package picobello_pkg;
   // Configurations for the Reductions
 localparam reduction_cfg_t WideReductionCfg = '{
     RdPipelineDepth: 5,
-    RdSupportAxi: 1'b1,
-    RdSupportLoopback: 1'b1,
     CutOffloadIntf: 1'b1
   };
 
 localparam reduction_cfg_t NarrowReductionCfg = '{
     RdPipelineDepth: 1,
-    RdSupportAxi: 1'b1,
-    RdSupportLoopback: 1'b1,
     CutOffloadIntf: 1'b0
   };
 
   localparam reduction_cfg_t ResponseReductionCfg = '{
-    RdSupportLoopback: 1'b1,
     default: '0
   };
 
