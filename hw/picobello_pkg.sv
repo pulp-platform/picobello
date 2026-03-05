@@ -430,10 +430,6 @@ localparam reduction_cfg_t NarrowReductionCfg = '{
     CutOffloadIntf: 1'b0
   };
 
-  localparam reduction_cfg_t ResponseReductionCfg = '{
-    default: '0
-  };
-
   ////////////////
   //  Cheshire  //
   ////////////////

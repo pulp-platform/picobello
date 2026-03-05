@@ -77,23 +77,11 @@ module mem_tile
     .floo_wide_i   (router_floo_wide_in),
     .floo_wide_o   (router_floo_wide_out),
     // Wide Reduction offload port
-    .offload_wide_req_op_o          (),
-    .offload_wide_req_operand1_o    (),
-    .offload_wide_req_operand2_o    (),
-    .offload_wide_req_valid_o       (),
-    .offload_wide_req_ready_i       ('0),
-    .offload_wide_resp_result_i     ('0),
-    .offload_wide_resp_valid_i      ('0),
-    .offload_wide_resp_ready_o      (),
+    .offload_wide_req_o   (    ),
+    .offload_wide_rsp_i   ( '0 ),
     // Narrow Reduction offload port
-    .offload_narrow_req_op_o        (),
-    .offload_narrow_req_operand1_o  (),
-    .offload_narrow_req_operand2_o  (),
-    .offload_narrow_req_valid_o     (),
-    .offload_narrow_req_ready_i     ('0),
-    .offload_narrow_resp_result_i   ('0),
-    .offload_narrow_resp_valid_i    ('0),
-    .offload_narrow_resp_ready_o    ()
+    .offload_narrow_req_o (   ),
+    .offload_narrow_rsp_i ('0 )
   );
 
   assign floo_req_o                      = router_floo_req_out[West:North];

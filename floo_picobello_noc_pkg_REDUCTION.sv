@@ -6,6 +6,7 @@
 
 `include "axi/typedef.svh"
 `include "floo_noc/typedef.svh"
+`include "reduction/typedef.svh"
 
 package floo_picobello_noc_pkg;
 
@@ -337,7 +338,12 @@ package floo_picobello_noc_pkg;
   `FLOO_TYPEDEF_NW_CHAN_ALL(axi, req, rsp, wide, axi_narrow_in, axi_wide_in, AxiCfgN, AxiCfgW,
                             hdr_t)
 
+  //TODO (lleone): all this must be generated
   `FLOO_TYPEDEF_NW_VIRT_CHAN_LINK_ALL(req, rsp, wide, req, rsp, wide, 2, 1)
+   typedef logic [AxiCfgW.DataWidth-1:0] data_wide_width;
+   typedef logic [AxiCfgN.DataWidth-1:0] data_narrow_width;
+  `RED_TYPEDEF_REQ_RSP_LINK(wide, data_wide_width, wide_req, wide_rsp)
+  `RED_TYPEDEF_REQ_RSP_LINK(narrow, data_narrow_width, narrow_req, narrow_rsp)
 
 
 endpackage
