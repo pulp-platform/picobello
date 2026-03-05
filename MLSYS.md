@@ -4,9 +4,11 @@
 
 ```bash
 source iis-env.sh
+make init-pd
 make all -j
 make vsim-compile -j
 make sw -j
+make elab-cluster_tile
 ```
 
 ### Barrier experiments (Fig. 2b)
@@ -33,9 +35,15 @@ cd experiments/reduction
 ./plot.py plot1 plot2
 ```
 
-### GEMM experiments (Fig. 8)
+### GEMM performance experiments (Fig. 8)
 
 ```bash
 cd experiments/summa_gemm
 ./plot.py
+```
+
+### GEMM energy experiments (Fig. 9)
+
+```bash
+
 ```
