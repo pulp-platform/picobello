@@ -417,7 +417,7 @@ package picobello_pkg;
   localparam int unsigned NumWideVirtChannels = 2;
   localparam int unsigned NumWidePhysChannels = 1;
   localparam floo_pkg::vc_impl_e VcImplementation = floo_pkg::VcPreemptValid;
-  localparam floo_pkg::wide_rw_decouple_e WideRwDecouple = floo_pkg::Vc;
+  localparam floo_pkg::wide_rw_decouple_e WideRwDecouple = floo_pkg::Phys;
 
   // Configurations for the Reductions
 localparam reduction_cfg_t WideReductionCfg = '{

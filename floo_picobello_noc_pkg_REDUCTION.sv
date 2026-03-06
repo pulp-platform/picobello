@@ -339,7 +339,7 @@ package floo_picobello_noc_pkg;
                             hdr_t)
 
   //TODO (lleone): all this must be generated
-  `FLOO_TYPEDEF_NW_VIRT_CHAN_LINK_ALL(req, rsp, wide, req, rsp, wide, 2, 1)
+  `FLOO_TYPEDEF_NW_VIRT_CHAN_LINK_ALL(req, rsp, wide, req, rsp, wide, 2, 2)
    typedef logic [AxiCfgW.DataWidth-1:0] data_wide_width;
    typedef logic [AxiCfgN.DataWidth-1:0] data_narrow_width;
   `RED_TYPEDEF_REQ_RSP_LINK(wide, data_wide_width, wide_req, wide_rsp)
