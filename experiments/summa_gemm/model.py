@@ -21,7 +21,9 @@ def beats(bytes):
 
 
 def max_square_problem_size():
-    return math.floor(math.sqrt(L1SIZE / (6 * PREC)))
+    n = math.floor(math.sqrt(L1SIZE / (6 * PREC)))
+    # Round to nearest lower multiple of 8
+    return (n // 8) * 8
 
 
 def t_mcast(dim, bytes, impl='sw'):
