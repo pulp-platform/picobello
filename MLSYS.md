@@ -45,5 +45,6 @@ cd experiments/summa_gemm
 ### GEMM energy experiments (Fig. 9)
 
 ```bash
-
+cd experiments/summa_gemm
+./experiments.py --actions sw run visual-trace
 ```

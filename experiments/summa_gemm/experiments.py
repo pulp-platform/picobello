@@ -7,6 +7,7 @@
 
 from pathlib import Path
 import picobello as pb
+from summa_gemm import model
 import snitch.util.experiments.experiment_utils as eu
 
 TCK = 5
@@ -16,30 +17,24 @@ VERIFY_PY = Path(__file__).parent / '../../.deps/snitch_cluster/sw/kernels/blas/
 class ExperimentManager(pb.ExperimentManager):
 
     def derive_axes(self, experiment):
-        return eu.derive_axes_from_keys(experiment, ['mode', 'n_tiles'])
-
-    def derive_cdefines(self, experiment):
-        cdefs = {
-            'MODE': experiment['mode'].upper(),
-        }
-        return cdefs
+        return eu.derive_axes_from_keys(experiment, ['m'])
 
     def derive_data_cfg(self, experiment):
         return eu.derive_data_cfg_from_template(experiment)
 
+    def derive_hw_cfg(self, experiment):
+        return pb.hw_cfg
+
 
 def gen_experiments():
     experiments = []
-    # for mode in ['hw']:
-    for mode in ['sw_tree']:
-        for n_tiles in [4]:
-        # for mode in ['sw_naive', 'sw_tree', 'hw']:
-            experiments.append({
-                'app': 'summa_gemm',
-                'cmd': pb.sim_and_verify_cmd(VERIFY_PY),
-                'mode': mode,
-                'n_tiles': n_tiles,
-            })
+    for m in [model.max_square_problem_size()]:
+        experiments.append({
+            'app': 'power_benchmarks',
+            'cmd': pb.sim_cmd(),
+            'm': m,
+            'roi': Path.cwd() / f'roi.json.tpl',
+        })
     return experiments
 
 
