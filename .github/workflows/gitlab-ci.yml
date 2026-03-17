@@ -17,7 +17,7 @@ jobs:
       name: Mirror and check
       runs-on: ubuntu-latest
       steps:
-        - uses: pulp-platform/pulp-actions/gitlab-ci@v2.4.1
+        - uses: pulp-platform/pulp-actions/gitlab-ci@v2.4.5
           # Skip on forks or pull requests from forks due to missing secrets.
           if: >
             github.repository == 'pulp-platform/picobello' &&
