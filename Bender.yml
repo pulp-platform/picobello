@@ -36,7 +36,7 @@ sources:
   - target: pb_gen_rtl
     files:
       # Level 0.0
-      - floo_picobello_noc_pkg_REDUCTION.sv
+      - .generated/floo_picobello_noc_pkg.sv
       - .generated/snitch_cluster_pkg.sv
       - .generated/pb_soc_regs_pkg.sv
       # Level 0.1

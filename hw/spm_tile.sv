@@ -97,9 +97,8 @@ module spm_tile
     .floo_req_t  (floo_req_t),
     .floo_rsp_t  (floo_rsp_t),
     .floo_wide_t (floo_wide_t),
-    // .floo_wide_out_t (floo_wide_double_t),
     .WideRwDecouple (WideRwDecouple),
-    .VcImpl    (VcImplementation)
+    .VcImpl    (VcImpl)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -153,7 +152,7 @@ module spm_tile
     .RouteCfg            (RouteCfgNoMcast),
     .AtopSupport         (1'b1),
     .WideRwDecouple      (WideRwDecouple),
-    .VcImpl              (VcImplementation),
+    .VcImpl              (VcImpl),
     .MaxAtomicTxns       (1),
     .Sam                 (Sam),
     .id_t                (id_t),
@@ -170,10 +169,7 @@ module spm_tile
     .axi_wide_out_rsp_t  (axi_wide_out_rsp_t),
     .floo_req_t          (floo_req_t),
     .floo_rsp_t          (floo_rsp_t),
-    .floo_wide_t         (floo_wide_t),
-    // .floo_wide_in_t (floo_wide_double_t),
-    .user_narrow_struct_t             (collective_narrow_user_t),
-    .user_wide_struct_t               (collective_wide_user_t)
+    .floo_wide_t         (floo_wide_t)
   ) i_chimney (
     .clk_i,
     .rst_ni,

@@ -100,7 +100,7 @@ module cluster_tile
   // TODO(raroth): possible to remove this decode from the picobello repo and move it inside the
   //       FlooNoC repo. Currently the Decode used for the ALU is directly inside the floo_alu.sv
   //       file. Maybe do the same for the FPU
-  if(is_en_wide_reduction(RouteCfg.CollectiveCfg.OpCfg)) begin : gen_wide_offload_reduction
+  if(en_wide_reduction(RouteCfg.CollectiveCfg.OpCfg)) begin : gen_wide_offload_reduction
     // Connect the DCA Request
     assign offload_dca_req.q_valid = offload_wide_req.valid;
     assign offload_wide_rsp.ready  = offload_dca_rsp.q_ready;
@@ -121,26 +121,26 @@ module cluster_tile
 
       // Define the operation we want to execute on the FPU
       unique casez (offload_wide_req.req.op)
-        (floo_pkg::F_Add) : begin
+        (floo_pkg::FpAdd) : begin
           offload_dca_req.q.op = fpnew_pkg::ADD;
           offload_dca_req.q.operands[0] = '0;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[2] = offload_wide_req.req.operand2;
         end
-        (floo_pkg::F_Mul) : begin
+        (floo_pkg::FpMul) : begin
           offload_dca_req.q.op = fpnew_pkg::MUL;
           offload_dca_req.q.operands[0] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand2;
           offload_dca_req.q.operands[2] = '0;
         end
-        (floo_pkg::F_Max) : begin
+        (floo_pkg::FpMax) : begin
           offload_dca_req.q.op = fpnew_pkg::MINMAX;
           offload_dca_req.q.rnd_mode = fpnew_pkg::RNE;
           offload_dca_req.q.operands[0] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand2;
           offload_dca_req.q.operands[2] = '0;
         end
-        (floo_pkg::F_Min) : begin
+        (floo_pkg::FpMin) : begin
           offload_dca_req.q.op = fpnew_pkg::MINMAX;
           offload_dca_req.q.rnd_mode = fpnew_pkg::RTZ;
           offload_dca_req.q.operands[0] = offload_wide_req.req.operand1;
@@ -162,8 +162,8 @@ module cluster_tile
     generic_reqrsp_cut #(
       .req_chan_t (snitch_cluster_pkg::dca_req_chan_t),
       .rsp_chan_t (snitch_cluster_pkg::dca_rsp_chan_t),
-      .BypassReq  (WideReductionCfg.CutOffloadIntf),
-      .BypassRsp  (WideReductionCfg.CutOffloadIntf)
+      .BypassReq  (RouteCfg.CollectiveCfg.WideRedCfg.CutOffloadIntf),
+      .BypassRsp  (RouteCfg.CollectiveCfg.WideRedCfg.CutOffloadIntf)
     ) i_dca_router_cut (
       .clk_i          (clk_i),
       .rst_ni         (rst_ni),
@@ -349,7 +349,7 @@ module cluster_tile
     .AxiCfgW     (AxiCfgW),
     .RouteAlgo   (RouteCfg.RouteAlgo),
     .WideRwDecouple (WideRwDecouple),
-    .VcImpl      (VcImplementation),
+    .VcImpl      (VcImpl),
     .NoLoopback  (1'b0),
     .NumRoutes   (5),
     .InFifoDepth (2),
@@ -361,11 +361,7 @@ module cluster_tile
     .floo_wide_t (floo_wide_t),
     .red_wide_req_t   (red_wide_req_t),
     .red_wide_rsp_t   (red_wide_rsp_t),
-    .red_narrow_req_t (red_narrow_req_t),
-    .red_narrow_rsp_t (red_narrow_rsp_t),
-    .CollectiveOpCfg          (RouteCfg.CollectiveCfg.OpCfg),
-    .RdWideCfg                (WideReductionCfg),
-    .RdNarrowCfg              (NarrowReductionCfg)
+    .CollectiveCfg          (RouteCfg.CollectiveCfg)
   ) i_router (
     .clk_i,
     .rst_ni,
@@ -404,16 +400,16 @@ module cluster_tile
     .ChimneyCfgW         (floo_pkg::ChimneyDefaultCfg),
     .RouteCfg            (floo_picobello_noc_pkg::RouteCfg),
     .AtopSupport         (1'b1),
-    .WideRwDecouple      (WideRwDecouple),
-    .VcImpl              (VcImplementation),
+    .WideRwDecouple      (floo_picobello_noc_pkg::WideRwDecouple),
+    .VcImpl              (VcImpl),
     .MaxAtomicTxns       (3),
-    .Sam                 (picobello_pkg::SamMcast),
+    .Sam                 (floo_picobello_noc_pkg::CollectiveSam),
     .id_t                (floo_picobello_noc_pkg::id_t),
     .rob_idx_t           (floo_picobello_noc_pkg::rob_idx_t),
     .hdr_t               (floo_picobello_noc_pkg::hdr_t),
-    .sam_rule_t          (floo_picobello_noc_pkg::mcast_sam_rule_t),
-    .sam_idx_t           (floo_picobello_noc_pkg::mcast_idx_t),
-    .mask_sel_t          (floo_picobello_noc_pkg::mcast_mask_sel_t),
+    .sam_rule_t          (floo_picobello_noc_pkg::collective_sam_rule_t),
+    .sam_idx_t           (floo_picobello_noc_pkg::collective_idx_t),
+    .mask_sel_t          (floo_picobello_noc_pkg::collective_mask_sel_t),
     .axi_narrow_in_req_t (snitch_cluster_pkg::narrow_out_req_t),
     .axi_narrow_in_rsp_t (snitch_cluster_pkg::narrow_out_resp_t),
     .axi_narrow_out_req_t(snitch_cluster_pkg::narrow_in_req_t),
@@ -426,8 +422,8 @@ module cluster_tile
     .floo_rsp_t          (floo_picobello_noc_pkg::floo_rsp_t),
     .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t),
     .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t),
-    .user_narrow_struct_t         (picobello_pkg::collective_narrow_user_t),
-    .user_wide_struct_t           (picobello_pkg::collective_wide_user_t)
+    .user_narrow_struct_t (floo_picobello_noc_pkg::collective_axi_narrow_in_user_t),
+    .user_wide_struct_t   (floo_picobello_noc_pkg::collective_axi_wide_in_user_t)
   ) i_chimney (
     .clk_i               (tile_clk),
     .rst_ni              (tile_rst_n),
