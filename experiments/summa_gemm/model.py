@@ -4,10 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
+# Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
 import math
 import multicast
 import reduction
+import fit
 
 PREC = 8  # in bytes
 BEAT_BYTES = 64  # in bytes
@@ -15,6 +17,10 @@ UTIL = 0.981  # median utilization from https://arxiv.org/pdf/2506.10921
 PEAKPERF = 16  # DPflop/cycle on a single cluster
 L1SIZE = 16 * 1024  # in bytes
 
+
+# --------------- #
+# Timing Models   #
+# --------------- #
 
 def beats(bytes):
     return math.ceil(bytes / BEAT_BYTES)
@@ -80,3 +86,62 @@ def t_fcl_gemm(r, c, Mt, Nt, Kt, impl='sw'):
     t_partial_result = max(t_fcl_comm(r, c, Mt, Nt, Kt, impl=impl), t_comp(Mt, Nt, Kt))
     t_redu = t_reduction(r, c, Mt * Nt * PREC, impl=impl)
     return t_partial_result + t_redu
+
+
+# -------------- #
+#  Power Models  #
+# -------------- #
+
+def e_comp(Mt, Nt, Kt):
+    return t_comp(Mt, Nt, Kt) * fit.POW_COMP
+
+
+def e_mcast(dim, bytes, impl='sw'):
+    if impl == 'sw':
+        return multicast.model.optimal_sw_energy(dim, bytes)
+    elif impl == 'seq':
+        return multicast.model.seq_energy(dim, bytes)
+    elif impl == 'tree':
+        return multicast.model.tree_energy(dim, bytes)
+    elif impl == 'hw':
+        return multicast.model.hw_energy(dim, bytes)
+    else:
+        raise ValueError(f"Unknown multicast implementation: {impl}")
+
+
+def e_mcast_a(c, Mt, Kt, impl='sw'):
+    return e_mcast(c, Mt * Kt * PREC, impl)
+
+
+def e_mcast_b(r, Nt, Kt, impl='sw'):
+    return e_mcast(r, Nt * Kt * PREC, impl)
+
+
+def e_summa_comm(r, c, Mt, Nt, Kt, impl='sw'):
+    return r * (e_mcast_a(c, Mt, Kt, impl) + e_mcast_b(r, Nt, Kt, impl))
+
+
+def e_summa_gemm(r, c, Mt, Nt, Kt, impl='sw'):
+    return r * c * e_comp(Mt, Nt, Kt) + e_summa_comm(r, c, Mt, Nt, Kt, impl=impl)
+
+
+def e_fcl_comm(r, c, Nt, Kt):
+    e_load_b = 0
+    bytes = Nt * Kt * PREC  # bytes to move for B tile
+    for i in range(c):
+        e_load_b += bytes * e_l2_to_clu(i+1)
+    return r * e_load_b
+
+
+def e_reduction(r, c, Mt, Nt, impl='sw'):
+    bytes = Mt * Nt * PREC  # bytes to move for C tile reduction
+    if impl == 'sw':
+        return reduction.model.optimal_sw_energy(r, c, bytes)
+    elif impl == 'hw':
+        return reduction.model.hw_energy()
+
+
+def e_fcl_gemm(r, c, Mt, Nt, Kt, impl='sw'):
+    return (e_comp(Mt, Nt, Kt) + e_fcl_comm(r, c, Mt, Nt, Kt) +
+            e_reduction(r, c, Mt, Nt, Kt, impl=impl))
+

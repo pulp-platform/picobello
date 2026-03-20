@@ -4,8 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
+# Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
 from math import isqrt, sqrt, log2, ceil
+
+from fit import e_clu_to_clu, e_l2_to_clu, EN_R_L1, EN_R_R
 
 # N: num clusters
 # L: num beats in transfer
@@ -104,3 +107,29 @@ def optimal_sw_runtime(N1, N2, L, delta=DELTA, alpha=SEQ_ALPHA, alpha1=SEQ_ALPHA
     T_seq = optimal_seq_runtime(N1, N2, L, delta, alpha, alpha1)
     T_tree = tree_runtime(N1, N2, L, delta)
     return min(T_seq, T_tree)
+
+
+def hw_energy(dim, bytes):
+    return bytes * (e_l2_to_clu(1) + (dim - 1) * (EN_R_R + EN_R_L1))
+
+
+def optimal_sw_energy(dim, bytes):
+    n = ceil(bytes / BEAT_BYTES)
+    T_seq = optimal_seq_runtime(dim, 1, n)
+    T_tree = tree_runtime(dim, 1, n)
+    if T_seq < T_tree:
+        return seq_energy(dim, bytes)
+    else:
+        return tree_energy(dim,  bytes)
+
+
+def seq_energy(dim, bytes):
+    return bytes * (e_l2_to_clu(1) + (dim - 1) * e_clu_to_clu(1))
+
+
+def tree_energy(dim, bytes):
+    c2c_energy = 0
+    for i in range(ceil(log2(dim))):
+        dist = dim / (2 ** (i + 1))
+        c2c_energy += (2 ** i) * e_clu_to_clu(dist)
+    return bytes * (e_l2_to_clu(1) + c2c_energy)
