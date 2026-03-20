@@ -147,18 +147,33 @@ static inline void exp_sw_sum(double *a, double *b, double *c, uint32_t m) {
 }
 
 // Experiment 7: hardware reduction — both cluster 0 and cluster 4 write to
-// cluster 4's TCDM with a floating-point add reduction opcode. The interconnect
+// memory tile 0 with a floating-point add reduction opcode. The interconnect
 // accumulates the two writes atomically. Measures cluster 0's energy when its
 // DMA participates in a hardware reduction.
 // Both DMs are active; compute cores of both clusters sleep at the hw_barrier.
-static inline void exp_hw_reduction(double *a, double *c, size_t sz,
-                                    uint64_t mask) {
+static inline void exp_hw_reduction(double *a, size_t sz, uint64_t mask) {
     if (snrt_is_dm_core()) {
-        // Both clusters write to the same physical address: cluster 4's C buffer.
-        void *dst = snrt_cluster_idx() == C0 ?
-                    snrt_remote_l1_ptr(c, C0, C4) : c;
-        snrt_dma_start_1d_reduction(dst, a, sz, mask, SNRT_REDUCTION_FADD);
+        // Both clusters write to the same physical address: memory tile 0.
+        snrt_dma_start_1d_reduction((void *)mat, a, sz, mask,
+                                    SNRT_REDUCTION_FADD);
         snrt_dma_wait_all();
+    }
+    snrt_cluster_hw_barrier();
+}
+
+// Experiment 8: idle baseline — cluster 0 is fully idle while cluster 4 spins
+// in a NOP loop for `nop_iters` iterations, then wakes cluster 0's DM via
+// interrupt. C0's DM sleeps (wfi); C0's compute cores stall at the hw_barrier.
+// Measures the static/leakage power of cluster 0 with no activity on any
+// network or compute path.
+static inline void exp_idle(uint32_t nop_iters) {
+    uint32_t n = snrt_cluster_compute_core_num();
+    if (snrt_cluster_idx() == C4 && snrt_is_dm_core()) {
+        for (volatile uint32_t i = 0; i < nop_iters; i++) snrt_nop();
+        snrt_int_cluster_set(1u << n, C0);  // wake C0 DM
+    } else if (snrt_cluster_idx() == C0 && snrt_is_dm_core()) {
+        snrt_wfi();
+        snrt_int_clr_mcip();
     }
     snrt_cluster_hw_barrier();
 }
@@ -192,7 +207,7 @@ int main() {
     // Collective mask for hardware reduction (experiment 7).
     uint64_t mask = snrt_get_collective_mask(comm);
 
-    // Run the 7 experiments. Each experiment is executed twice; the VCD window
+    // Run the 8 experiments. Each experiment is executed twice; the VCD window
     // for power measurement is taken from the second repetition.
     RUN_EXPERIMENT(exp_dma_load(a, sz));
     RUN_EXPERIMENT(exp_dma_store(a, sz));
@@ -200,7 +215,8 @@ int main() {
     RUN_EXPERIMENT(exp_remote_write(a, sz));
     RUN_EXPERIMENT(exp_gemm(a, b, c, M));
     RUN_EXPERIMENT(exp_sw_sum(a, b, c, M));
-    RUN_EXPERIMENT(exp_hw_reduction(a, c, sz, mask));
+    RUN_EXPERIMENT(exp_hw_reduction(a, sz, mask));
+    RUN_EXPERIMENT(exp_idle(100));
 
     return 0;
 }

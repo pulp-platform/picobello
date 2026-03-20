@@ -11,6 +11,7 @@
         {"idx": 22, "label": "gemm"},
         {"idx": 27, "label": "sw_sum"},
         {"idx": 31, "label": "hw_reduction"},
+        {"idx": 35, "label": "idle"},
     ]
     active_clusters = [0, 4]
 %>
