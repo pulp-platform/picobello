@@ -4,6 +4,6 @@
 #
 # Luca Colagrande <colluca@iis.ee.ethz.ch>
 
-from . import plot, experiments, model
+from . import plot, experiments, model, fit
 
-__all__ = ["plot", "experiments", "model"]
+__all__ = ["plot", "experiments", "model", "fit"]

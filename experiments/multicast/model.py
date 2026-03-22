@@ -7,8 +7,7 @@
 # Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
 from math import isqrt, sqrt, log2, ceil
-
-from fit import e_clu_to_clu, e_l2_to_clu, EN_R_L1, EN_R_R
+from summa_gemm.fit import e_clu_to_clu, e_l2_to_clu, EN_R_L1, EN_R_R
 
 # N: num clusters
 # L: num beats in transfer

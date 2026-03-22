@@ -9,7 +9,7 @@
 import math
 import multicast
 import reduction
-import fit
+from summa_gemm import fit
 
 PREC = 8  # in bytes
 BEAT_BYTES = 64  # in bytes
@@ -129,7 +129,7 @@ def e_fcl_comm(r, c, Nt, Kt):
     e_load_b = 0
     bytes = Nt * Kt * PREC  # bytes to move for B tile
     for i in range(c):
-        e_load_b += bytes * e_l2_to_clu(i+1)
+        e_load_b += bytes * fit.e_l2_to_clu(i+1)
     return r * e_load_b
 
 

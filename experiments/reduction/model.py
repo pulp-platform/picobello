@@ -8,7 +8,7 @@
 
 from math import log2, sqrt, isqrt, ceil
 from reduction import fit
-from fit import e_clu_to_clu, e_clu_to_l2, e_sw_red_clu
+from summa_gemm.fit import e_clu_to_clu, e_clu_to_l2, e_sw_red_clu
 
 BEAT_BYTES = 64
 DELTA = 30
