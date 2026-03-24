@@ -8,7 +8,7 @@
 
 from math import log2, sqrt, isqrt, ceil
 from reduction import fit
-from summa_gemm.fit import e_clu_to_clu, e_clu_to_l2, e_sw_red_clu
+from summa_gemm.fit import EN_L1_R, e_clu_to_clu, e_clu_to_l2, e_sw_red_clu, e_hw_red_clu
 
 BEAT_BYTES = 64
 DELTA = 30
@@ -130,30 +130,37 @@ def optimal_sw_runtime(c, r, n, delta=DELTA):
     return min(T_seq, T_tree)
 
 
-def seq_energy(c, r, bytes):
-    row_energy = (c-1) * (e_clu_to_clu(1))
+def seq_energy(c, r, m, n, bytes):
+    row_energy = (c-1) * (e_clu_to_clu(1)) * r
     col_energy = (r-1) * (e_clu_to_clu(1))
-    red_energy = (c + r - 2) * e_sw_red_clu()
-    return bytes * (r * row_energy + col_energy + e_clu_to_l2(1)) + red_energy
+    red_energy = (c + r - 2) * e_sw_red_clu(m, n)
+    return bytes * (row_energy + col_energy + e_clu_to_l2(1)) + red_energy
 
 
-def tree_energy(c, r, bytes):
+def tree_energy(c, r, m, n, bytes):
     c2c_energy = 0
     for i in range(ceil(log2(c))):
         dist = 2 ** i
-        c2c_energy += 2**(ceil(log2(c))-i-1) * (bytes * e_clu_to_clu(dist) + e_sw_red_clu())
+        c2c_energy += 2**(ceil(log2(c))-i-1) * (bytes * e_clu_to_clu(dist) + e_sw_red_clu(m, n))
     c2c_energy *= r
     for i in range(ceil(log2(r))):
         dist = 2 ** i
-        c2c_energy += 2**(ceil(log2(r))-i-1) * (bytes * e_clu_to_clu(dist) + e_sw_red_clu())
+        c2c_energy += 2**(ceil(log2(r))-i-1) * (bytes * e_clu_to_clu(dist) + e_sw_red_clu(m, n))
     return c2c_energy + bytes * e_clu_to_l2(1)
 
 
-def optimal_sw_energy(c, r, bytes):
+def optimal_sw_energy(c, r, m, n, bytes):
     n = ceil(bytes / BEAT_BYTES)
     T_seq = optimal_seq_runtime(c, r, n)
     T_tree = optimal_tree_runtime(c, r, n)
     if T_seq < T_tree:
-        return seq_energy(c, r, bytes)
+        return seq_energy(c, r, m, n, bytes)
     else:
-        return tree_energy(c, r, bytes)
+        return tree_energy(c, r, m, n, bytes)
+
+
+def hw_energy(c, r, m, n, bytes):
+    row_energy = r * (bytes * e_clu_to_l2(1) + (c-1) * e_hw_red_clu(m, n) + EN_L1_R)
+    col_energy = bytes * e_clu_to_l2(1) + (r-1) * e_hw_red_clu(m, n) + EN_L1_R
+
+    return row_energy + col_energy + e_clu_to_l2(1)

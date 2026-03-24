@@ -219,7 +219,7 @@ def plot3(y_label=None, show=True):
     return df
 
 
-def plot4(y_label=None, show=True):
+def plot4(y_label=None, hide_x_axis=False, show=True):
     # Get data
     mesh_sizes = [4, 8, 16, 32, 64, 128, 256]
     Mt = model.max_square_problem_size()
@@ -235,7 +235,8 @@ def plot4(y_label=None, show=True):
     })
 
     # Energy saving: how much less energy hw uses relative to sw (in %)
-    df['saving_pct'] = (1 - df['e_hw'] / df['e_sw']) * 100
+    # df['saving_pct'] = (1 - df['e_hw'] / df['e_sw']) * 100
+    df['saving_pct'] = (df['e_sw'] / df['e_hw']) * 1
 
     # Bar widths (equal width on log scale)
     logx = np.log2(df['size'].to_numpy(dtype=float))
@@ -252,14 +253,145 @@ def plot4(y_label=None, show=True):
     # Plot
     fig, ax = plt.subplots()
     ax.bar(left, df['saving_pct'], width=width, align='edge', zorder=10)
+    ax.axhline(y=1, color='black', linewidth=1, zorder=5)
+    ax.set_xscale('log', base=2)
+    ax.set_xlim(2.8, 370)
+    ax.set_ylim(0.95, None)
+    if hide_x_axis:
+        ax.set_xlabel('')
+        ax.tick_params(
+            axis='x',
+            which='both',
+            bottom=False, top=False,  # hide tick marks
+            labelbottom=False         # hide labels
+        )
+    else:
+        ax.set_xlabel('Mesh size')
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
+    if y_label is None:
+        y_label = 'Energy saving hw vs sw [%]'
+    ax.set_ylabel(y_label, multialignment='center')
+    ax.set_axisbelow(True)
+    ax.grid(axis='both', color='gainsboro')
+    fig.tight_layout()
+
+    if show:
+        plt.show()
+
+    return df
+
+
+def plot5(y_label=None, show=True):
+    # Get data
+    mesh_sizes = [4, 8, 16, 32, 64, 128, 256]
+    Mt = model.max_square_problem_size()
+    e_hw = []
+    e_sw = []
+    for size in mesh_sizes:
+        e_hw.append(model.e_fcl_gemm(size, size, Mt, Mt, Mt, impl='hw'))
+        e_sw.append(model.e_fcl_gemm(size, size, Mt, Mt, Mt, impl='sw'))
+    df = pd.DataFrame({
+        'size': mesh_sizes,
+        'e_hw': e_hw,
+        'e_sw': e_sw,
+    })
+
+    # Bar widths (equal width on log scale), split into two sub-bars per group
+    logx = np.log2(df['size'].to_numpy(dtype=float))
+    mid = 0.5 * (logx[:-1] + logx[1:])
+    log_left_edges = np.r_[logx[0] - (mid[0] - logx[0]), mid]
+    log_right_edges = np.r_[mid, logx[-1] + (logx[-1] - mid[-1])]
+    fill = 0.7
+    log_span = (log_right_edges - log_left_edges) * fill
+    logL = logx - 0.5 * log_span
+    logR = logx + 0.5 * log_span
+    log_mid = 0.5 * (logL + logR)
+
+    left_hw = 2.0**logL
+    right_hw = 2.0**log_mid
+    left_sw = 2.0**log_mid
+    right_sw = 2.0**logR
+    width_hw = right_hw - left_hw
+    width_sw = right_sw - left_sw
+
+    # Plot
+    fig, ax = plt.subplots()
+    ax.bar(left_hw, df['e_hw'], width=width_hw, align='edge', label='hw', zorder=10)
+    ax.bar(left_sw, df['e_sw'], width=width_sw, align='edge', label='sw', zorder=10)
     ax.set_xscale('log', base=2)
     ax.set_xlim(2.8, 370)
     ax.set_xticks(mesh_sizes)
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x)}x{int(x)}"))
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
     ax.set_xlabel('Mesh size')
     if y_label is None:
-        y_label = 'Energy saving hw vs sw [%]'
+        y_label = 'Energy [pJ]'
     ax.set_ylabel(y_label)
+    ax.set_yscale('log')
+    ax.set_axisbelow(True)
+    ax.grid(axis='both', color='gainsboro')
+    ax.legend()
+    fig.tight_layout()
+
+    if show:
+        plt.show()
+
+    return df
+
+
+def plot6(y_label=None, hide_x_axis=False, show=True):
+    # Get data
+    mesh_sizes = [4, 8, 16, 32, 64, 128, 256]
+    Mt = model.max_square_problem_size()
+    e_hw = []
+    e_sw = []
+    for size in mesh_sizes:
+        e_hw.append(model.e_fcl_gemm(size, size, Mt, Mt, Mt, impl='hw'))
+        e_sw.append(model.e_fcl_gemm(size, size, Mt, Mt, Mt, impl='sw'))
+    df = pd.DataFrame({
+        'size': mesh_sizes,
+        'e_hw': e_hw,
+        'e_sw': e_sw,
+    })
+
+    # Energy saving: how much less energy hw uses relative to sw (in %)
+    # df['saving_pct'] = (1 - df['e_hw'] / df['e_sw']) * 100
+    df['saving_pct'] = (df['e_sw'] / df['e_hw'])
+
+    # Bar widths (equal width on log scale)
+    logx = np.log2(df['size'].to_numpy(dtype=float))
+    mid = 0.5 * (logx[:-1] + logx[1:])
+    log_left_edges = np.r_[logx[0] - (mid[0] - logx[0]), mid]
+    log_right_edges = np.r_[mid, logx[-1] + (logx[-1] - mid[-1])]
+    fill = 0.6
+    log_span = (log_right_edges - log_left_edges) * fill
+    logL = logx - 0.5 * log_span
+    left = 2.0**logL
+    right = 2.0**(logx + 0.5 * log_span)
+    width = right - left
+
+    # Plot
+    fig, ax = plt.subplots()
+    ax.bar(left, df['saving_pct'], width=width, align='edge', zorder=10)
+    ax.axhline(y=1, color='black', linewidth=1, zorder=5)
+    ax.set_xscale('log', base=2)
+    ax.set_xlim(2.8, 370)
+    ax.set_ylim(0.95, None)
+    ax.set_xticks(mesh_sizes)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{int(x)}x{int(x)}"))
+    if hide_x_axis:
+        ax.set_xlabel('')
+        ax.tick_params(
+            axis='x',
+            which='both',
+            bottom=False, top=False,  # hide tick marks
+            labelbottom=False         # hide labels
+        )
+    else:
+        ax.set_xlabel('Mesh size')
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, pos: f"{int(x)}x{int(x)}"))
+    if y_label is None:
+        y_label = 'Energy saving hw vs sw [%]'
+    ax.set_ylabel(y_label, multialignment='center')
     ax.set_axisbelow(True)
     ax.grid(axis='both', color='gainsboro')
     fig.tight_layout()
@@ -272,7 +404,7 @@ def plot4(y_label=None, show=True):
 
 def main():
     # Parse arguments
-    functions = [plot1, plot2, plot3, plot4]
+    functions = [plot1, plot2, plot3, plot4, plot5, plot6]
     parser = argparse.ArgumentParser(description='Plot wide multicast results.')
     parser.add_argument(
         'plots',
@@ -296,6 +428,10 @@ def main():
         plot3()
     if requested('plot4'):
         plot4()
+    if requested('plot5'):
+        plot5()
+    if requested('plot6'):
+        plot6()
 
 
 if __name__ == "__main__":

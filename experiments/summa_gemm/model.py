@@ -93,7 +93,7 @@ def t_fcl_gemm(r, c, Mt, Nt, Kt, impl='sw'):
 # -------------- #
 
 def e_comp(Mt, Nt, Kt):
-    return t_comp(Mt, Nt, Kt) * fit.POW_COMP
+    return (Mt * Nt * Kt) * fit.EN_COMP
 
 
 def e_mcast(dim, bytes, impl='sw'):
@@ -118,7 +118,7 @@ def e_mcast_b(r, Nt, Kt, impl='sw'):
 
 
 def e_summa_comm(r, c, Mt, Nt, Kt, impl='sw'):
-    return r * (e_mcast_a(c, Mt, Kt, impl) + e_mcast_b(r, Nt, Kt, impl))
+    return r * e_mcast_a(c, Mt, Kt, impl) + c * e_mcast_b(r, Nt, Kt, impl)
 
 
 def e_summa_gemm(r, c, Mt, Nt, Kt, impl='sw'):
@@ -136,12 +136,12 @@ def e_fcl_comm(r, c, Nt, Kt):
 def e_reduction(r, c, Mt, Nt, impl='sw'):
     bytes = Mt * Nt * PREC  # bytes to move for C tile reduction
     if impl == 'sw':
-        return reduction.model.optimal_sw_energy(r, c, bytes)
+        return reduction.model.optimal_sw_energy(c, r, Mt, Nt, bytes)
     elif impl == 'hw':
-        return reduction.model.hw_energy()
+        return reduction.model.hw_energy(c, r, Mt, Nt, bytes)
 
 
 def e_fcl_gemm(r, c, Mt, Nt, Kt, impl='sw'):
-    return (e_comp(Mt, Nt, Kt) + e_fcl_comm(r, c, Mt, Nt, Kt) +
-            e_reduction(r, c, Mt, Nt, Kt, impl=impl))
-
+    e_fcl_comp = r * c * e_comp(Mt, Nt, Kt)
+    return (e_fcl_comp + e_fcl_comm(r, c, Nt, Kt) +
+            e_reduction(r, c, Mt, Nt, impl=impl))
