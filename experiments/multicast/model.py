@@ -7,7 +7,8 @@
 # Lorenzo Leone <lleone@iis.ee.ethz.ch>
 
 from math import isqrt, sqrt, log2, ceil
-from summa_gemm.fit import e_clu_to_clu, e_l2_to_clu, EN_R_L1, EN_R_R
+from summa_gemm.fit import e_clu_to_clu, e_l2_to_clu, EN_R_L1, EN_R_R, EN_L1_R
+import summa_gemm.fit as fit
 
 # N: num clusters
 # L: num beats in transfer
@@ -109,17 +110,7 @@ def optimal_sw_runtime(N1, N2, L, delta=DELTA, alpha=SEQ_ALPHA, alpha1=SEQ_ALPHA
 
 
 def hw_energy(dim, bytes):
-    return bytes * (e_l2_to_clu(1) + (dim - 1) * (EN_R_R + EN_R_L1))
-
-
-def optimal_sw_energy(dim, bytes):
-    n = ceil(bytes / BEAT_BYTES)
-    T_seq = optimal_seq_runtime(dim, 1, n)
-    T_tree = tree_runtime(dim, 1, n)
-    if T_seq < T_tree:
-        return seq_energy(dim, bytes)
-    else:
-        return tree_energy(dim,  bytes)
+    return bytes * (e_l2_to_clu(1) + EN_L1_R + (dim - 1) * (EN_R_R + EN_R_L1))
 
 
 def seq_energy(dim, bytes):
@@ -132,3 +123,59 @@ def tree_energy(dim, bytes):
         dist = dim / (2 ** (i + 1))
         c2c_energy += (2 ** i) * e_clu_to_clu(dist)
     return bytes * (e_l2_to_clu(1) + c2c_energy)
+
+
+def optimal_sw_energy(dim, bytes):
+    n = ceil(bytes / BEAT_BYTES)
+    T_seq = optimal_seq_runtime(dim, 1, n)
+    T_tree = tree_runtime(dim, 1, n)
+    if T_seq < T_tree:
+        return seq_energy(dim, bytes)
+    else:
+        return tree_energy(dim,  bytes)
+
+
+def seq_energy_brkdn(dim, bytes):
+    # mirrors: bytes * (e_l2_to_clu(1) + (dim - 1) * e_clu_to_clu(1))
+    return fit.add_energy_brkdn(
+        fit.scale_energy_breakdown(fit.e_l2_to_clu_brkdn(1), bytes),
+        fit.scale_energy_breakdown(fit.e_clu_to_clu_brkdn(1), bytes * (dim - 1)),
+    )
+
+
+def tree_energy_brkdn(dim, bytes):
+    # mirrors: bytes * (e_l2_to_clu(1) + sum_i 2^i * e_clu_to_clu(dist_i))
+    c2c_brkdn = fit.zero_energy_brkdn()
+    for i in range(ceil(log2(dim))):
+        dist = dim / (2 ** (i + 1))
+        c2c_brkdn = fit.add_energy_brkdn(
+            c2c_brkdn,
+            fit.scale_energy_breakdown(fit.e_clu_to_clu_brkdn(dist), 2 ** i),
+        )
+    return fit.add_energy_brkdn(
+        fit.scale_energy_breakdown(fit.e_l2_to_clu_brkdn(1), bytes),
+        fit.scale_energy_breakdown(c2c_brkdn, bytes),
+    )
+
+
+def optimal_sw_energy_brkdn(dim, bytes):
+    n = ceil(bytes / BEAT_BYTES)
+    T_seq = optimal_seq_runtime(dim, 1, n)
+    T_tree = tree_runtime(dim, 1, n)
+    if T_seq < T_tree:
+        return seq_energy_brkdn(dim, bytes)
+    else:
+        return tree_energy_brkdn(dim, bytes)
+
+
+def hw_energy_brkdn(dim, bytes):
+    # mirrors: bytes * (e_l2_to_clu(1) + (dim - 1) * (EN_R_R + EN_R_L1))
+    # (EN_R_R + EN_R_L1) = 1 router hop + 1 TCDM write (no L1→Router egress in HW path)
+    recv_brkdn = fit.zero_energy_brkdn()
+    recv_brkdn["link_to_link"] = dim - 1
+    recv_brkdn["tcdm_write"] = dim - 1
+    recv_brkdn["dma_st"] = 1
+    return fit.add_energy_brkdn(
+        fit.scale_energy_breakdown(fit.e_l2_to_clu_brkdn(1), bytes),
+        fit.scale_energy_breakdown(recv_brkdn, bytes),
+    )

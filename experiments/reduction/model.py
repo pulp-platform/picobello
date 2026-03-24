@@ -8,7 +8,8 @@
 
 from math import log2, sqrt, isqrt, ceil
 from reduction import fit
-from summa_gemm.fit import EN_L1_R, e_clu_to_clu, e_clu_to_l2, e_sw_red_clu, e_hw_red_clu
+from summa_gemm.fit import EN_L1_R, EN_R_L1, e_clu_to_clu, e_clu_to_l2, e_sw_red_clu, e_hw_red_clu
+import summa_gemm.fit as sg_fit
 
 BEAT_BYTES = 64
 DELTA = 30
@@ -160,7 +161,87 @@ def optimal_sw_energy(c, r, m, n, bytes):
 
 
 def hw_energy(c, r, m, n, bytes):
-    row_energy = r * (bytes * e_clu_to_l2(1) + (c-1) * e_hw_red_clu(m, n) + EN_L1_R)
-    col_energy = bytes * e_clu_to_l2(1) + (r-1) * e_hw_red_clu(m, n) + EN_L1_R
+    row_energy = r * (bytes * (e_clu_to_l2(1) + EN_L1_R + EN_R_L1) + (c-1) * e_hw_red_clu(m, n))
+    col_energy = bytes * (e_clu_to_l2(1) + EN_L1_R + EN_R_L1) + (r-1) * e_hw_red_clu(m, n)
 
-    return row_energy + col_energy + e_clu_to_l2(1)
+    return row_energy + col_energy + e_clu_to_l2(1) * bytes
+
+
+def seq_energy_brkdn(c, r, m, n, bytes):
+    # mirrors: bytes*(row_energy + col_energy + e_clu_to_l2(1)) + red_energy
+    # row_energy = (c-1)*r * e_clu_to_clu(1), col_energy = (r-1) * e_clu_to_clu(1)
+    return sg_fit.add_energy_brkdn(
+        sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_clu_brkdn(1), bytes * (c - 1) * r),
+        sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_clu_brkdn(1), bytes * (r - 1)),
+        sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_l2_brkdn(1), bytes),
+        sg_fit.scale_energy_breakdown(sg_fit.e_sw_red_clu_brkdn(m, n), c + r - 2),
+    )
+
+
+def tree_energy_brkdn(c, r, m, n, bytes):
+    # mirrors tree_energy: c2c_energy (scaled by r) + col c2c + bytes*e_clu_to_l2(1)
+    c2c_brkdn = sg_fit.zero_energy_brkdn()
+    for i in range(ceil(log2(c))):
+        dist = 2 ** i
+        count = 2 ** (ceil(log2(c)) - i - 1)
+        c2c_brkdn = sg_fit.add_energy_brkdn(
+            c2c_brkdn,
+            sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_clu_brkdn(dist), bytes * count),
+            sg_fit.scale_energy_breakdown(sg_fit.e_sw_red_clu_brkdn(m, n), count),
+        )
+    c2c_brkdn = sg_fit.scale_energy_breakdown(c2c_brkdn, r)
+    for i in range(ceil(log2(r))):
+        dist = 2 ** i
+        count = 2 ** (ceil(log2(r)) - i - 1)
+        c2c_brkdn = sg_fit.add_energy_brkdn(
+            c2c_brkdn,
+            sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_clu_brkdn(dist), bytes * count),
+            sg_fit.scale_energy_breakdown(sg_fit.e_sw_red_clu_brkdn(m, n), count),
+        )
+    return sg_fit.add_energy_brkdn(
+        c2c_brkdn,
+        sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_l2_brkdn(1), bytes),
+    )
+
+
+def optimal_sw_energy_brkdn(c, r, m, n, bytes):
+    n_beats = ceil(bytes / BEAT_BYTES)
+    T_seq = optimal_seq_runtime(c, r, n_beats)
+    T_tree = optimal_tree_runtime(c, r, n_beats)
+    if T_seq < T_tree:
+        return seq_energy_brkdn(c, r, m, n, bytes)
+    else:
+        return tree_energy_brkdn(c, r, m, n, bytes)
+
+
+def hw_energy_brkdn(c, r, m, n, bytes):
+    # mirrors hw_energy:
+    #   row_energy = r * (bytes*(e_clu_to_l2(1) + EN_L1_R + EN_R_L1) + (c-1)*e_hw_red_clu(m,n))
+    #   col_energy =     bytes*(e_clu_to_l2(1) + EN_L1_R + EN_R_L1) + (r-1)*e_hw_red_clu(m,n)
+    #   + e_clu_to_l2(1)
+    # EN_L1_R = EN_L1_L2 → dma_st; EN_R_L1 → tcdm_write
+    en_l1_r_brkdn = sg_fit.zero_energy_brkdn()
+    en_l1_r_brkdn["dma_st"] = 1        # EN_L1_R ≡ EN_L1_L2
+    en_r_l1_brkdn = sg_fit.zero_energy_brkdn()
+    en_r_l1_brkdn["tcdm_write"] = 1    # EN_R_L1
+
+    # bytes*(e_clu_to_l2(1) + EN_L1_R + EN_R_L1)
+    per_byte_brkdn = sg_fit.add_energy_brkdn(
+        sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_l2_brkdn(1), bytes),
+        sg_fit.scale_energy_breakdown(en_l1_r_brkdn, bytes),
+        sg_fit.scale_energy_breakdown(en_r_l1_brkdn, bytes),
+    )
+
+    per_cluster_row = sg_fit.add_energy_brkdn(
+        per_byte_brkdn,
+        sg_fit.scale_energy_breakdown(sg_fit.e_hw_red_clu_brkdn(m, n), c - 1),
+    )
+    col_brkdn = sg_fit.add_energy_brkdn(
+        per_byte_brkdn,
+        sg_fit.scale_energy_breakdown(sg_fit.e_hw_red_clu_brkdn(m, n), r - 1),
+    )
+    return sg_fit.add_energy_brkdn(
+        sg_fit.scale_energy_breakdown(per_cluster_row, r),
+        col_brkdn,
+        sg_fit.scale_energy_breakdown(sg_fit.e_clu_to_l2_brkdn(1), bytes),
+    )

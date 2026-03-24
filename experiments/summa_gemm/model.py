@@ -16,6 +16,7 @@ BEAT_BYTES = 64  # in bytes
 UTIL = 0.981  # median utilization from https://arxiv.org/pdf/2506.10921
 PEAKPERF = 16  # DPflop/cycle on a single cluster
 L1SIZE = 16 * 1024  # in bytes
+ENERGY_COMPONENTS = fit.ENERGY_COMPONENTS
 
 
 # --------------- #
@@ -96,6 +97,13 @@ def e_comp(Mt, Nt, Kt):
     return (Mt * Nt * Kt) * fit.EN_COMP
 
 
+def e_comp_brkdn(Mt, Nt, Kt):
+    # mirrors: (Mt * Nt * Kt) * EN_COMP
+    brkdn = fit.zero_energy_brkdn()
+    brkdn['gemm'] = Mt * Nt * Kt
+    return brkdn
+
+
 def e_mcast(dim, bytes, impl='sw'):
     if impl == 'sw':
         return multicast.model.optimal_sw_energy(dim, bytes)
@@ -125,11 +133,46 @@ def e_summa_gemm(r, c, Mt, Nt, Kt, impl='sw'):
     return r * c * e_comp(Mt, Nt, Kt) + e_summa_comm(r, c, Mt, Nt, Kt, impl=impl)
 
 
+def e_mcast_brkdn(dim, bytes, impl='sw'):
+    if impl == 'sw':
+        return multicast.model.optimal_sw_energy_brkdn(dim, bytes)
+    elif impl == 'seq':
+        return multicast.model.seq_energy_brkdn(dim, bytes)
+    elif impl == 'tree':
+        return multicast.model.tree_energy_brkdn(dim, bytes)
+    elif impl == 'hw':
+        return multicast.model.hw_energy_brkdn(dim, bytes)
+    else:
+        raise ValueError(f"Unknown multicast implementation: {impl}")
+
+
+def e_mcast_a_brkdn(c, Mt, Kt, impl='sw'):
+    return e_mcast_brkdn(c, Mt * Kt * PREC, impl)
+
+
+def e_mcast_b_brkdn(r, Nt, Kt, impl='sw'):
+    return e_mcast_brkdn(r, Nt * Kt * PREC, impl)
+
+
+def e_summa_comm_brkdn(r, c, Mt, Nt, Kt, impl='sw'):
+    return fit.add_energy_brkdn(
+        fit.scale_energy_breakdown(e_mcast_a_brkdn(c, Mt, Kt, impl), r),
+        fit.scale_energy_breakdown(e_mcast_b_brkdn(r, Nt, Kt, impl), c),
+    )
+
+
+def e_summa_gemm_brkdn(r, c, Mt, Nt, Kt, impl='sw'):
+    return fit.add_energy_brkdn(
+        fit.scale_energy_breakdown(e_comp_brkdn(Mt, Nt, Kt), r * c),
+        e_summa_comm_brkdn(r, c, Mt, Nt, Kt, impl=impl),
+    )
+
+
 def e_fcl_comm(r, c, Nt, Kt):
     e_load_b = 0
     bytes = Nt * Kt * PREC  # bytes to move for B tile
     for i in range(c):
-        e_load_b += bytes * fit.e_l2_to_clu(i+1)
+        e_load_b += bytes * fit.e_l2_to_clu(i + 1)
     return r * e_load_b
 
 
@@ -145,3 +188,32 @@ def e_fcl_gemm(r, c, Mt, Nt, Kt, impl='sw'):
     e_fcl_comp = r * c * e_comp(Mt, Nt, Kt)
     return (e_fcl_comp + e_fcl_comm(r, c, Nt, Kt) +
             e_reduction(r, c, Mt, Nt, impl=impl))
+
+
+def e_fcl_comm_brkdn(r, c, Nt, Kt):
+    # mirrors e_fcl_comm: r * sum_{i=0}^{c-1} bytes * e_l2_to_clu(i+1)
+    bytes = Nt * Kt * PREC
+    load_brkdn = fit.zero_energy_brkdn()
+    for i in range(c):
+        load_brkdn = fit.add_energy_brkdn(
+            load_brkdn,
+            fit.scale_energy_breakdown(fit.e_l2_to_clu_brkdn(i + 1), bytes),
+        )
+    return fit.scale_energy_breakdown(load_brkdn, r)
+
+
+def e_reduction_brkdn(r, c, Mt, Nt, impl='sw'):
+    bytes = Mt * Nt * PREC
+    if impl == 'sw':
+        return reduction.model.optimal_sw_energy_brkdn(c, r, Mt, Nt, bytes)
+    elif impl == 'hw':
+        return reduction.model.hw_energy_brkdn(c, r, Mt, Nt, bytes)
+
+
+def e_fcl_gemm_brkdn(r, c, Mt, Nt, Kt, impl='sw'):
+    # mirrors e_fcl_gemm: r*c*e_comp + e_fcl_comm + e_reduction
+    return fit.add_energy_brkdn(
+        fit.scale_energy_breakdown(e_comp_brkdn(Mt, Nt, Kt), r * c),
+        e_fcl_comm_brkdn(r, c, Nt, Kt),
+        e_reduction_brkdn(r, c, Mt, Nt, impl=impl),
+    )
