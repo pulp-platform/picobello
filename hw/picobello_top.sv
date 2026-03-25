@@ -132,13 +132,7 @@ module picobello_top
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] mtip_ext;
   logic [            iomsb(CheshireCfg.NumExtIrqHarts):0] msip_ext;
 
-<<<<<<< HEAD
-  localparam id_t CheshireId = McastSam[CheshireInternalSamIdx].idx.id;
-||||||| parent of c0f385d (tree: Align Picobello with upadted reduction capable floogen)
-  localparam id_t CheshireId = SamMcast[CheshireInternalSamIdx].idx.id;
-=======
   localparam id_t CheshireId = CollectiveSam[CheshireInternalSamIdx].idx.id;
->>>>>>> c0f385d (tree: Align Picobello with upadted reduction capable floogen)
   localparam id_t CheshirePhysicalId = SamPhysical[CheshireInternalSamIdx].idx;
 
   cheshire_tile i_cheshire_tile (
@@ -276,13 +270,7 @@ module picobello_top
   for (genvar m = 0; m < NumMemTiles; m++) begin : gen_memtile
 
     localparam int MemTileSamIdx = m + L2Spm0SamIdx;
-<<<<<<< HEAD
-    localparam id_t MemTileId = McastSam[MemTileSamIdx].idx.id;
-||||||| parent of c0f385d (tree: Align Picobello with upadted reduction capable floogen)
-    localparam id_t MemTileId = SamMcast[MemTileSamIdx].idx.id;
-=======
     localparam id_t MemTileId = CollectiveSam[MemTileSamIdx].idx.id;
->>>>>>> c0f385d (tree: Align Picobello with upadted reduction capable floogen)
     localparam id_t MemTilePhysicalId = SamPhysical[MemTileSamIdx].idx;
     localparam int MemTileX = int'(MemTilePhysicalId.x);
     localparam int MemTileY = int'(MemTilePhysicalId.y);
@@ -315,13 +303,7 @@ module picobello_top
 
   // Narrow SPM tile
   localparam int SpmNarrowTileSamIdx = int'(TopSpmNarrowSamIdx);
-<<<<<<< HEAD
-  localparam id_t SpmNarrowTileId = McastSam[SpmNarrowTileSamIdx].idx.id;
-||||||| parent of c0f385d (tree: Align Picobello with upadted reduction capable floogen)
-  localparam id_t SpmNarrowTileId = SamMcast[SpmNarrowTileSamIdx].idx.id;
-=======
   localparam id_t SpmNarrowTileId = CollectiveSam[SpmNarrowTileSamIdx].idx.id;
->>>>>>> c0f385d (tree: Align Picobello with upadted reduction capable floogen)
   localparam id_t SpmNarrowTilePhysicalId = SamPhysical[SpmNarrowTileSamIdx].idx;
   localparam int SpmNarrowTileX = int'(SpmNarrowTilePhysicalId.x);
   localparam int SpmNarrowTileY = int'(SpmNarrowTilePhysicalId.y);
@@ -357,13 +339,7 @@ module picobello_top
 
   // Wide SPM tile
   localparam int SpmWideTileSamIdx = int'(TopSpmWideSamIdx);
-<<<<<<< HEAD
-  localparam id_t SpmWideTileId = McastSam[SpmWideTileSamIdx].idx.id;
-||||||| parent of c0f385d (tree: Align Picobello with upadted reduction capable floogen)
-  localparam id_t SpmWideTileId = SamMcast[SpmWideTileSamIdx].idx.id;
-=======
   localparam id_t SpmWideTileId = CollectiveSam[SpmWideTileSamIdx].idx.id;
->>>>>>> c0f385d (tree: Align Picobello with upadted reduction capable floogen)
   localparam id_t SpmWideTilePhysicalId = SamPhysical[SpmWideTileSamIdx].idx;
   localparam int SpmWideTileX = int'(SpmWideTilePhysicalId.x);
   localparam int SpmWideTileY = int'(SpmWideTilePhysicalId.y);
