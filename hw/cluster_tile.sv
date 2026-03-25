@@ -100,7 +100,7 @@ module cluster_tile
   // TODO(raroth): possible to remove this decode from the picobello repo and move it inside the
   //       FlooNoC repo. Currently the Decode used for the ALU is directly inside the floo_alu.sv
   //       file. Maybe do the same for the FPU
-  if(en_wide_reduction(RouteCfg.CollectiveCfg.OpCfg)) begin : gen_wide_offload_reduction
+  if (en_wide_reduction(RouteCfg.CollectiveCfg.OpCfg)) begin : gen_wide_offload_reduction
     // Connect the DCA Request
     assign offload_dca_req.q_valid = offload_wide_req.valid;
     assign offload_wide_rsp.ready  = offload_dca_rsp.q_ready;
@@ -108,47 +108,47 @@ module cluster_tile
     // Parse the FPU Request
     always_comb begin
       // Init default values
-      offload_dca_req.q.operands = '0;
+      offload_dca_req.q.operands     = '0;
 
       // Set default Values
-      offload_dca_req.q.src_fmt = fpnew_pkg::FP64;
-      offload_dca_req.q.dst_fmt = fpnew_pkg::FP64;
-      offload_dca_req.q.int_fmt = fpnew_pkg::INT64;
+      offload_dca_req.q.src_fmt      = fpnew_pkg::FP64;
+      offload_dca_req.q.dst_fmt      = fpnew_pkg::FP64;
+      offload_dca_req.q.int_fmt      = fpnew_pkg::INT64;
       offload_dca_req.q.vectorial_op = 1'b0;
-      offload_dca_req.q.op_mod = 1'b0;
-      offload_dca_req.q.rnd_mode = fpnew_pkg::RNE;
-      offload_dca_req.q.op = fpnew_pkg::ADD;
+      offload_dca_req.q.op_mod       = 1'b0;
+      offload_dca_req.q.rnd_mode     = fpnew_pkg::RNE;
+      offload_dca_req.q.op           = fpnew_pkg::ADD;
 
       // Define the operation we want to execute on the FPU
       unique casez (offload_wide_req.req.op)
-        (floo_pkg::FpAdd) : begin
-          offload_dca_req.q.op = fpnew_pkg::ADD;
+        (floo_pkg::FpAdd): begin
+          offload_dca_req.q.op          = fpnew_pkg::ADD;
           offload_dca_req.q.operands[0] = '0;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[2] = offload_wide_req.req.operand2;
         end
-        (floo_pkg::FpMul) : begin
-          offload_dca_req.q.op = fpnew_pkg::MUL;
+        (floo_pkg::FpMul): begin
+          offload_dca_req.q.op          = fpnew_pkg::MUL;
           offload_dca_req.q.operands[0] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand2;
           offload_dca_req.q.operands[2] = '0;
         end
-        (floo_pkg::FpMax) : begin
-          offload_dca_req.q.op = fpnew_pkg::MINMAX;
-          offload_dca_req.q.rnd_mode = fpnew_pkg::RNE;
+        (floo_pkg::FpMax): begin
+          offload_dca_req.q.op          = fpnew_pkg::MINMAX;
+          offload_dca_req.q.rnd_mode    = fpnew_pkg::RNE;
           offload_dca_req.q.operands[0] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand2;
           offload_dca_req.q.operands[2] = '0;
         end
-        (floo_pkg::FpMin) : begin
-          offload_dca_req.q.op = fpnew_pkg::MINMAX;
-          offload_dca_req.q.rnd_mode = fpnew_pkg::RTZ;
+        (floo_pkg::FpMin): begin
+          offload_dca_req.q.op          = fpnew_pkg::MINMAX;
+          offload_dca_req.q.rnd_mode    = fpnew_pkg::RTZ;
           offload_dca_req.q.operands[0] = offload_wide_req.req.operand1;
           offload_dca_req.q.operands[1] = offload_wide_req.req.operand2;
           offload_dca_req.q.operands[2] = '0;
         end
-        default : begin
-          offload_dca_req.q.op = fpnew_pkg::ADD;
+        default: begin
+          offload_dca_req.q.op          = fpnew_pkg::ADD;
           offload_dca_req.q.operands[0] = '0;
           offload_dca_req.q.operands[1] = '0;
           offload_dca_req.q.operands[2] = '0;
@@ -158,40 +158,40 @@ module cluster_tile
 
     // TODO(raroth): move these spill register inside FlooNoC and make them configurable.
     // Insert a reqrsp-cut to avoid timing violations
-     //If teh CutOffloadIntf is enabled, the cut is already in the offload controller, you can bypass teh one below
+    //If teh CutOffloadIntf is enabled, the cut is already in the offload controller, you can bypass teh one below
     generic_reqrsp_cut #(
-      .req_chan_t (snitch_cluster_pkg::dca_req_chan_t),
-      .rsp_chan_t (snitch_cluster_pkg::dca_rsp_chan_t),
-      .BypassReq  (RouteCfg.CollectiveCfg.WideRedCfg.CutOffloadIntf),
-      .BypassRsp  (RouteCfg.CollectiveCfg.WideRedCfg.CutOffloadIntf)
+      .req_chan_t(snitch_cluster_pkg::dca_req_chan_t),
+      .rsp_chan_t(snitch_cluster_pkg::dca_rsp_chan_t),
+      .BypassReq (RouteCfg.CollectiveCfg.WideRedCfg.CutOffloadIntf),
+      .BypassRsp (RouteCfg.CollectiveCfg.WideRedCfg.CutOffloadIntf)
     ) i_dca_router_cut (
-      .clk_i          (clk_i),
-      .rst_ni         (rst_ni),
-      .slv_req_i      (offload_dca_req),
-      .slv_rsp_o      (offload_dca_rsp),
-      .mst_req_o      (offload_dca_req_cut),
-      .mst_rsp_i      (offload_dca_rsp_cut)
+      .clk_i    (clk_i),
+      .rst_ni   (rst_ni),
+      .slv_req_i(offload_dca_req),
+      .slv_rsp_o(offload_dca_rsp),
+      .mst_req_o(offload_dca_req_cut),
+      .mst_rsp_i(offload_dca_rsp_cut)
     );
     // Connect the Response
-    assign offload_wide_rsp.valid = offload_dca_rsp.p_valid;
-    assign offload_dca_req.p_ready = offload_wide_req.ready;
+    assign offload_wide_rsp.valid      = offload_dca_rsp.p_valid;
+    assign offload_dca_req.p_ready     = offload_wide_req.ready;
     assign offload_wide_rsp.rsp.result = offload_dca_rsp.p.result;
 
-  // No Wide Reduction supported
+    // No Wide Reduction supported
   end else begin : gen_no_wide_reduction
-    assign offload_dca_req_cut = '0;
-    assign offload_dca_rsp = '0;
-    assign offload_wide_rsp.ready = '0;
+    assign offload_dca_req_cut         = '0;
+    assign offload_dca_rsp             = '0;
+    assign offload_wide_rsp.ready      = '0;
     assign offload_wide_rsp.rsp.result = '0;
-    assign offload_wide_rsp.valid = '0;
+    assign offload_wide_rsp.valid      = '0;
   end
 
   // TODO(lleone): Add teh narrow ALU reduction unit and connections here
 
 
   snitch_cluster_wrapper i_cluster (
-    .clk_i            (tile_clk),
-    .rst_ni           (tile_rst_n),
+    .clk_i             (tile_clk),
+    .rst_ni            (tile_rst_n),
     .debug_req_i,
     .meip_i,
     .mtip_i,
@@ -199,35 +199,35 @@ module cluster_tile
     .hart_base_id_i,
     .cluster_base_addr_i,
     .cluster_base_offset_i,
-    .mxip_i             (mxip),
-    .clk_d2_bypass_i    ('0),
-    .sram_cfgs_i        ('0),
-    .narrow_in_req_i    (cluster_narrow_in_req),
-    .narrow_in_resp_o   (cluster_narrow_in_rsp),
-    .narrow_out_req_o   (cluster_narrow_out_req),
-    .narrow_out_resp_i  (cluster_narrow_out_rsp),
-    .wide_out_req_o     (cluster_wide_out_req),
-    .wide_out_resp_i    (cluster_wide_out_rsp),
-    .wide_in_req_i      (cluster_wide_in_req),
-    .wide_in_resp_o     (cluster_wide_in_rsp),
-    .narrow_ext_req_o   (cluster_narrow_ext_req),
-    .narrow_ext_resp_i  (cluster_narrow_ext_rsp),
-    .tcdm_ext_req_i     (cluster_tcdm_ext_req_aligned),
-    .tcdm_ext_resp_o    (cluster_tcdm_ext_rsp_aligned),
-    .dca_req_i          (offload_dca_req_cut),
-    .dca_rsp_o          (offload_dca_rsp_cut),
-    .x_issue_req_o       (),
-    .x_issue_resp_i      ('0),
-    .x_issue_valid_o     (),
-    .x_issue_ready_i     ('0),
-    .x_register_o        (),
-    .x_register_valid_o  (),
-    .x_register_ready_i  ('0),
-    .x_commit_o          (),
-    .x_commit_valid_o    (),
-    .x_result_i          ('0),
-    .x_result_valid_i    ('0),
-    .x_result_ready_o    ()
+    .mxip_i            (mxip),
+    .clk_d2_bypass_i   ('0),
+    .sram_cfgs_i       ('0),
+    .narrow_in_req_i   (cluster_narrow_in_req),
+    .narrow_in_resp_o  (cluster_narrow_in_rsp),
+    .narrow_out_req_o  (cluster_narrow_out_req),
+    .narrow_out_resp_i (cluster_narrow_out_rsp),
+    .wide_out_req_o    (cluster_wide_out_req),
+    .wide_out_resp_i   (cluster_wide_out_rsp),
+    .wide_in_req_i     (cluster_wide_in_req),
+    .wide_in_resp_o    (cluster_wide_in_rsp),
+    .narrow_ext_req_o  (cluster_narrow_ext_req),
+    .narrow_ext_resp_i (cluster_narrow_ext_rsp),
+    .tcdm_ext_req_i    (cluster_tcdm_ext_req_aligned),
+    .tcdm_ext_resp_o   (cluster_tcdm_ext_rsp_aligned),
+    .dca_req_i         (offload_dca_req_cut),
+    .dca_rsp_o         (offload_dca_rsp_cut),
+    .x_issue_req_o     (),
+    .x_issue_resp_i    ('0),
+    .x_issue_valid_o   (),
+    .x_issue_ready_i   ('0),
+    .x_register_o      (),
+    .x_register_valid_o(),
+    .x_register_ready_i('0),
+    .x_commit_o        (),
+    .x_commit_valid_o  (),
+    .x_result_i        ('0),
+    .x_result_valid_i  ('0),
+    .x_result_ready_o  ()
   );
 
   if (UseHWPE) begin : gen_hwpe
@@ -345,41 +345,41 @@ module cluster_tile
 
 
   floo_nw_router #(
-    .AxiCfgN     (AxiCfgN),
-    .AxiCfgW     (AxiCfgW),
-    .RouteAlgo   (RouteCfg.RouteAlgo),
-    .WideRwDecouple (WideRwDecouple),
-    .VcImpl      (VcImpl),
-    .NoLoopback  (1'b0),
-    .NumRoutes   (5),
-    .InFifoDepth (2),
-    .OutFifoDepth(2),
-    .id_t        (id_t),
-    .hdr_t       (hdr_t),
-    .floo_req_t  (floo_req_t),
-    .floo_rsp_t  (floo_rsp_t),
-    .floo_wide_t (floo_wide_t),
-    .red_wide_req_t   (red_wide_req_t),
-    .red_wide_rsp_t   (red_wide_rsp_t),
-    .CollectiveCfg          (RouteCfg.CollectiveCfg)
+    .AxiCfgN       (AxiCfgN),
+    .AxiCfgW       (AxiCfgW),
+    .RouteAlgo     (RouteCfg.RouteAlgo),
+    .WideRwDecouple(WideRwDecouple),
+    .VcImpl        (VcImpl),
+    .NoLoopback    (1'b0),
+    .NumRoutes     (5),
+    .InFifoDepth   (2),
+    .OutFifoDepth  (2),
+    .id_t          (id_t),
+    .hdr_t         (hdr_t),
+    .floo_req_t    (floo_req_t),
+    .floo_rsp_t    (floo_rsp_t),
+    .floo_wide_t   (floo_wide_t),
+    .red_wide_req_t(red_wide_req_t),
+    .red_wide_rsp_t(red_wide_rsp_t),
+    .CollectiveCfg (RouteCfg.CollectiveCfg)
   ) i_router (
     .clk_i,
     .rst_ni,
     .test_enable_i,
     .id_i,
-    .id_route_map_i('0),
-    .floo_req_i    (router_floo_req_in),
-    .floo_rsp_o    (router_floo_rsp_out),
-    .floo_req_o    (router_floo_req_out),
-    .floo_rsp_i    (router_floo_rsp_in),
-    .floo_wide_i   (router_floo_wide_in),
-    .floo_wide_o   (router_floo_wide_out),
+    .id_route_map_i      ('0),
+    .floo_req_i          (router_floo_req_in),
+    .floo_rsp_o          (router_floo_rsp_out),
+    .floo_req_o          (router_floo_req_out),
+    .floo_rsp_i          (router_floo_rsp_in),
+    .floo_wide_i         (router_floo_wide_in),
+    .floo_wide_o         (router_floo_wide_out),
     // Wide Reduction offload port
-    .offload_wide_req_o   ( offload_wide_req ),
-    .offload_wide_rsp_i   ( offload_wide_rsp ),
+    .offload_wide_req_o  (offload_wide_req),
+    .offload_wide_rsp_i  (offload_wide_rsp),
     // Narrow Reduction offload port
-    .offload_narrow_req_o (   ),
-    .offload_narrow_rsp_i ('0 )
+    .offload_narrow_req_o(),
+    .offload_narrow_rsp_i('0)
   );
 
   assign floo_req_o                      = router_floo_req_out[West:North];
@@ -387,7 +387,7 @@ module cluster_tile
   assign floo_rsp_o                      = router_floo_rsp_out[West:North];
   assign router_floo_rsp_in[West:North]  = floo_rsp_i;
   assign router_floo_wide_in[West:North] = floo_wide_i;
-  assign floo_wide_o[West:North] =router_floo_wide_out[West:North];
+  assign floo_wide_o[West:North]         = router_floo_wide_out[West:North];
 
   /////////////
   // Chimney //
@@ -422,8 +422,8 @@ module cluster_tile
     .floo_rsp_t          (floo_picobello_noc_pkg::floo_rsp_t),
     .floo_wide_t         (floo_picobello_noc_pkg::floo_wide_t),
     .sram_cfg_t          (snitch_cluster_pkg::sram_cfg_t),
-    .user_narrow_struct_t (floo_picobello_noc_pkg::collective_axi_narrow_in_user_t),
-    .user_wide_struct_t   (floo_picobello_noc_pkg::collective_axi_wide_in_user_t)
+    .user_narrow_struct_t(floo_picobello_noc_pkg::collective_axi_narrow_in_user_t),
+    .user_wide_struct_t  (floo_picobello_noc_pkg::collective_axi_wide_in_user_t)
   ) i_chimney (
     .clk_i               (tile_clk),
     .rst_ni              (tile_rst_n),

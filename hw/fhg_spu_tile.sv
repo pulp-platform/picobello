@@ -51,37 +51,37 @@ module fhg_spu_tile
   floo_wide_t [Eject:North] router_floo_wide_out;
 
   floo_nw_router #(
-    .AxiCfgN     (AxiCfgN),
-    .AxiCfgW     (AxiCfgW),
-    .RouteAlgo   (RouteCfg.RouteAlgo),
-    .NumRoutes   (5),
-    .InFifoDepth (2),
-    .OutFifoDepth(2),
-    .id_t        (id_t),
-    .hdr_t       (hdr_t),
-    .floo_req_t  (floo_req_t),
-    .floo_rsp_t  (floo_rsp_t),
-    .floo_wide_t (floo_wide_t),
-    .WideRwDecouple      (WideRwDecouple),
-    .VcImpl    (VcImpl)
+    .AxiCfgN       (AxiCfgN),
+    .AxiCfgW       (AxiCfgW),
+    .RouteAlgo     (RouteCfg.RouteAlgo),
+    .NumRoutes     (5),
+    .InFifoDepth   (2),
+    .OutFifoDepth  (2),
+    .id_t          (id_t),
+    .hdr_t         (hdr_t),
+    .floo_req_t    (floo_req_t),
+    .floo_rsp_t    (floo_rsp_t),
+    .floo_wide_t   (floo_wide_t),
+    .WideRwDecouple(WideRwDecouple),
+    .VcImpl        (VcImpl)
   ) i_router (
     .clk_i,
     .rst_ni,
     .test_enable_i,
     .id_i,
-    .id_route_map_i('0),
-    .floo_req_i    (router_floo_req_in),
-    .floo_rsp_o    (router_floo_rsp_out),
-    .floo_req_o    (router_floo_req_out),
-    .floo_rsp_i    (router_floo_rsp_in),
-    .floo_wide_i   (router_floo_wide_in),
-    .floo_wide_o   (router_floo_wide_out),
+    .id_route_map_i      ('0),
+    .floo_req_i          (router_floo_req_in),
+    .floo_rsp_o          (router_floo_rsp_out),
+    .floo_req_o          (router_floo_req_out),
+    .floo_rsp_i          (router_floo_rsp_in),
+    .floo_wide_i         (router_floo_wide_in),
+    .floo_wide_o         (router_floo_wide_out),
     // Wide Reduction offload port
-    .offload_wide_req_o   (    ),
-    .offload_wide_rsp_i   ( '0 ),
+    .offload_wide_req_o  (),
+    .offload_wide_rsp_i  ('0),
     // Narrow Reduction offload port
-    .offload_narrow_req_o (   ),
-    .offload_narrow_rsp_i ('0 )
+    .offload_narrow_req_o(),
+    .offload_narrow_rsp_i('0)
   );
 
   assign floo_req_west_o            = router_floo_req_out[West];
