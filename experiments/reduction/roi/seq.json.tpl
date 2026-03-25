@@ -1,3 +1,6 @@
+## Copyright 2025 ETH Zurich and University of Bologna.
+## Licensed under the Apache License, Version 2.0, see LICENSE for details.
+## SPDX-License-Identifier: Apache-2.0
 <%
 n_rows = experiment['n_rows']
 n_cols = 4
@@ -50,7 +53,7 @@ def pb_cluster_idx(r, c):
                 ]
             },
         % endfor
-    
+
         ## for westernmost column
         % if row != 0 and n_rows > 1:
             ## DMA core
