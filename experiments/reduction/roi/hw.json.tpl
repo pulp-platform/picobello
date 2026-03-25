@@ -1,6 +1,6 @@
-## Copyright 2025 ETH Zurich and University of Bologna.
-## Licensed under the Apache License, Version 2.0, see LICENSE for details.
-## SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 ETH Zurich and University of Bologna.
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
 <%
     def pb_cluster_idx(c, r):
         return c * 4 + r
