@@ -1,0 +1,17 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
+version = 1
+
+# Project documentation and tool configuration files that cannot carry SPDX headers
+[[annotations]]
+path = [
+  "README.md",
+  "MLSYS.md",
+  "Bender.lock",
+  "experiments/multicast/README.md",
+  "hw/axi_obi/Readme.md",
+]
+SPDX-FileCopyrightText = "2025 ETH Zurich and University of Bologna"
+SPDX-License-Identifier = "SHL-0.51"

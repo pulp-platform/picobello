@@ -1,3 +1,6 @@
+# Copyright 2025 ETH Zurich and University of Bologna.
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
 --column_limit=100
 --indentation_spaces=2
 --line_break_penalty=2
