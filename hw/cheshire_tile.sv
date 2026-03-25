@@ -495,17 +495,23 @@ module cheshire_tile
   // Add Assertion that no multicast / reduction can enter this tile!
   for (genvar r = 0; r < 4; r++) begin : gen_virt
     `ASSERT(NoCollectivOperation_NReq_In,
-            (!router_floo_req_in[r].valid | (router_floo_req_in[r].req[0].generic.hdr.collective_op == Unicast)))
+            (!router_floo_req_in[r].valid |
+             (router_floo_req_in[r].req[0].generic.hdr.collective_op == Unicast)))
     `ASSERT(NoCollectivOperation_NRsp_In,
-            (!router_floo_rsp_in[r].valid | (router_floo_rsp_in[r].rsp[0].generic.hdr.collective_op == Unicast)))
+            (!router_floo_rsp_in[r].valid |
+             (router_floo_rsp_in[r].rsp[0].generic.hdr.collective_op == Unicast)))
     `ASSERT(NoCollectivOperation_NWide_In,
-            (!router_floo_wide_in[r].valid | (router_floo_wide_in[r].wide[0].generic.hdr.collective_op == Unicast)))
+            (!router_floo_wide_in[r].valid |
+             (router_floo_wide_in[r].wide[0].generic.hdr.collective_op == Unicast)))
     `ASSERT(NoCollectivOperation_NReq_Out,
-            (!router_floo_req_out[r].valid | (router_floo_req_out[r].req[0].generic.hdr.collective_op == Unicast)))
+            (!router_floo_req_out[r].valid |
+             (router_floo_req_out[r].req[0].generic.hdr.collective_op == Unicast)))
     `ASSERT(NoCollectivOperation_NRsp_Out,
-            (!router_floo_rsp_out[r].valid | (router_floo_rsp_out[r].rsp[0].generic.hdr.collective_op == Unicast)))
+            (!router_floo_rsp_out[r].valid |
+             (router_floo_rsp_out[r].rsp[0].generic.hdr.collective_op == Unicast)))
     `ASSERT(NoCollectivOperation_NWide_Out,
-            (!router_floo_wide_out[r].valid | (router_floo_wide_out[r].wide[0].generic.hdr.collective_op == Unicast)))
+            (!router_floo_wide_out[r].valid |
+             (router_floo_wide_out[r].wide[0].generic.hdr.collective_op == Unicast)))
   end
 
 endmodule
