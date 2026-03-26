@@ -6,6 +6,9 @@ include:
   - local: .gitlab/common.yml
   - local: .gitlab/sw-tests.yml
 
+default:
+  interruptible: true
+
 stages:
   - init
   - build
