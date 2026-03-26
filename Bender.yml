@@ -54,7 +54,7 @@ sources:
   - hw/spm_tile.sv
   - hw/dummy_tile.sv
 
-  - target: not(asic)
+  - target: not(all(fhg_spu, asic))
     files:
     - hw/fhg_spu_tile.sv
 
