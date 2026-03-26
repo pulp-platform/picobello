@@ -320,7 +320,7 @@ package picobello_pkg;
   //  Cluster Tile  //
   ////////////////////
 
-  localparam bit UseHWPE = 1'b0;
+  localparam bit UseHWPE = 1'b1;
 
   ////////////////
   //  Mem Tile  //
