@@ -58,7 +58,7 @@ sources:
     files:
     - hw/fhg_spu_tile.sv
 
-  - target: asic
+  - target: all(fhg_spu, asic)
     files:
     - .deps/fhg_spu_cluster/hw/fhg_spu_tile.sv
 
