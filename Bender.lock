@@ -155,7 +155,7 @@ packages:
     - tech_cells_generic
   common_verification:
     revision: 5fd30c18a6be6f664d1ef9e44d04956fb4e3364e
-    version: 0.2.5
+    version: null
     source:
       Git: https://github.com/pulp-platform/common_verification.git
     dependencies: []
@@ -207,8 +207,8 @@ packages:
       Path: .deps/fhg_spu_cluster
     dependencies: []
   floo_noc:
-    revision: 4c98673d3761dd8909a742012b799039331826a4
-    version: null
+    revision: 959fb172670a7910fcee94c2d82e460c07c0a24c
+    version: 0.8.0
     source:
       Git: https://github.com/pulp-platform/FlooNoC.git
     dependencies:
