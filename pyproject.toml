@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 
 dependencies = [
     "flatdict>=4.0.1",
-    "floogen",
+    "floogen>=0.8.0",
     "hjson>=3.1.0",
     "peakrdl>=1.5.0",
     "peakrdl-rawheader>=0.2.2",
@@ -21,12 +21,10 @@ dependencies = [
 
 [tool.uv.workspace]
 members = [
-    ".deps/floo_noc",
     ".deps/snitch_cluster",
 ]
 
 [tool.uv.sources]
-floogen = { workspace = true, editable = true }
 snitch = { workspace = true, editable = true }
 torch = [{ index = "pytorch-cpu" }]
 
