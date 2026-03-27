@@ -11,8 +11,8 @@ dependencies:
   register_interface: { git: "https://github.com/pulp-platform/register_interface.git", version: "0.4.5"                                }
   axi:                { git: "https://github.com/colluca/axi.git",                      rev: "multicast"                                }
   common_cells:       { git: "https://github.com/pulp-platform/common_cells.git",       rev: "snitch"                                   }
-  cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "main"                                }
   snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "main"                         }
+  cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "fischeti/uv2"                             } # TODO(fischeti): Point to main once merged
   floo_noc:           { git: "https://github.com/pulp-platform/FlooNoC.git",            version: "0.8.0"                                }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "acfcd0f80c7539aa8da7821a66d9acf2074a5b4e" }
   redmule:            { git: "https://github.com/pulp-platform/redmule.git",            rev: "picobello"                                }
