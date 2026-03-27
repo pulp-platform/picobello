@@ -38,8 +38,6 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
-
-
 [build-system]
 requires = ["uv_build>=0.6,<1"]
 build-backend = "uv_build"
