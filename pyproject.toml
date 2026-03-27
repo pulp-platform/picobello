@@ -17,6 +17,11 @@ dependencies = [
     "cheshire"
 ]
 
+[dependency-groups]
+dev = [
+    "reuse>=6.2.0",
+]
+
 [tool.uv.workspace]
 members = [
     ".deps/snitch_cluster",
@@ -32,3 +37,12 @@ torch = [{ index = "pytorch-cpu" }]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
+
+
+
+[build-system]
+requires = ["uv_build>=0.6,<1"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "experiments"

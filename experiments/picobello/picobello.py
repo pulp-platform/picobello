@@ -9,7 +9,7 @@ import shutil
 import snitch.util.experiments.experiment_utils as eu
 from snitch.util.experiments import common
 
-root = Path(__file__).resolve().parents[1]
+root = Path(__file__).resolve().parents[2]
 default_work_dir = root / 'target/sim/vsim'
 hw_cfg = root / 'cfg/snitch_cluster.json'
 
