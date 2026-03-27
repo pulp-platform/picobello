@@ -34,9 +34,6 @@ L2_TILES = $(shell $(FLOO_GEN) query -c $(FLOO_CFG) endpoints.l2_spm.num 2>/dev/
 BENDER_YML = $(PB_ROOT)/Bender.yml
 BENDER_LOCK = $(PB_ROOT)/Bender.lock
 
-$(PB_GEN_DIR):
-	mkdir -p $@
-
 ################
 # Bender flags #
 ################
