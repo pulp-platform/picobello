@@ -4,14 +4,23 @@
 
 version = 1
 
-# Project documentation and tool configuration files that cannot carry SPDX headers
+# READMEs and other documentation files that are ugly to carry SPDX headers
 [[annotations]]
 path = [
   "README.md",
   "MLSYS.md",
-  "Bender.lock",
   "experiments/multicast/README.md",
   "hw/axi_obi/Readme.md",
+]
+SPDX-FileCopyrightText = "2025 ETH Zurich and University of Bologna"
+SPDX-License-Identifier = "SHL-0.51"
+
+# Project tool version configuration files that cannot carry SPDX headers
+[[annotations]]
+path = [
+  "Bender.lock",
+  ".python-version",
+  "uv.lock",
 ]
 SPDX-FileCopyrightText = "2025 ETH Zurich and University of Bologna"
 SPDX-License-Identifier = "SHL-0.51"
