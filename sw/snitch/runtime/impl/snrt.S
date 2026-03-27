@@ -12,7 +12,7 @@
 #define SNRT_CRT0_PARK
 
 #include "pb_raw_addrmap.h"
-#define SNRT_TCDM_START_ADDR PICOBELLO_ADDRMAP_CLUSTER_0_TCDM_BASE_ADDR
+#define SNRT_TCDM_START_ADDR PICOBELLO_ADDRMAP_CLUSTER_TCDM_BASE_ADDR(0)
 
 #include "snitch_cluster_cfg.h"
 #include "start.S"

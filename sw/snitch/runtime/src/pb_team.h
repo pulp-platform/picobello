@@ -26,8 +26,7 @@ inline uintptr_t pb_l2_tile_address(uint32_t tile_idx) {
  * @return Address location offset respect to the tile start address
  */
 inline uintptr_t pb_l2_tile_offset(uintptr_t src_addr) {
-    return (src_addr - PICOBELLO_ADDRMAP_L2_SPM_0_BASE_ADDR) %
-        PICOBELLO_ADDRMAP_L2_SPM_0_SIZE;
+    return (src_addr - PICOBELLO_ADDRMAP_L2_SPM_BASE_ADDR(0)) % PICOBELLO_ADDRMAP_L2_SPM_SIZE;
 }
 
 /**
