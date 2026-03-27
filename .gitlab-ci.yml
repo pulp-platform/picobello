@@ -141,6 +141,7 @@ sim-exps:
 
 subpipe:
   stage: build
+  interruptible: true
   needs:
     - init-deps
   trigger:
