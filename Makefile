@@ -72,7 +72,7 @@ $(PB_GEN_DIR)/pb_addrmap.h: $(PB_GEN_DIR)/picobello_addrmap.rdl $(PB_RDL_ALL)
 	$(PEAKRDL) c-header $< $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) -o $@ -i -b ltoh
 
 $(PB_GEN_DIR)/pb_addrmap.svh: $(PB_RDL_ALL)
-	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --format svh
+	$(PEAKRDL) raw-header $< -o $@ $(PEAKRDL_INCLUDES) $(PEAKRDL_DEFINES) --format svh --no-prefix
 
 PB_RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs.sv
 PB_RDL_HW_ALL += $(PB_GEN_DIR)/pb_soc_regs_pkg.sv
