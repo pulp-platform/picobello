@@ -1527,7 +1527,7 @@ requires-dist = [
     { name = "cheshire", virtual = ".deps/cheshire" },
     { name = "floogen", specifier = ">=0.8.0" },
     { name = "peakrdl", specifier = ">=1.5.0" },
-    { name = "peakrdl-rawheader", specifier = ">=0.2.2" },
+    { name = "peakrdl-rawheader", specifier = ">=0.2.4" },
     { name = "snitch", extras = ["kernels"], editable = ".deps/snitch_cluster" },
 ]
 

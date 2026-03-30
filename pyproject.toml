@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 dependencies = [
     "floogen>=0.8.0",
     "peakrdl>=1.5.0",
-    "peakrdl-rawheader>=0.2.2",
+    "peakrdl-rawheader>=0.2.4",
     "snitch[kernels]",
     "cheshire"
 ]
