@@ -12,10 +12,10 @@ remotes:
 
 dependencies:
   register_interface: "0.4.5"
-  axi: "0.39.9"
   floo_noc: { version: "0.8.0", upstream_name: "FlooNoC" }
   apb: "0.2.4"
   common_cells: "1.39.0"
+  axi:                { git: "https://github.com/pulp-platform/axi.git",                rev: "picobello-multicast"                      }
   snitch_cluster:     { git: "https://github.com/pulp-platform/snitch_cluster.git",     rev: "main"                                     }
   cheshire:           { git: "https://github.com/pulp-platform/cheshire.git",           rev: "main"                                     }
   obi:                { git: "https://github.com/pulp-platform/obi.git",                rev: "acfcd0f80c7539aa8da7821a66d9acf2074a5b4e" }
