@@ -32,9 +32,10 @@ init-deps:
   extends:
     - .init-env
     - .init-deps-tpl
-  artifacts:
-    paths:
-      - pd/ci.yml
+  # Note(fischeti): To reduce CI efforts, we disable the PD CI for now.
+  # artifacts:
+  #   paths:
+  #     - pd/ci.yml
 
 ########################################
 # Generate RTL Sources and Addressmaps #
@@ -139,13 +140,14 @@ sim-exps:
 # Physical Design #
 ###################
 
-subpipe:
-  stage: build
-  interruptible: true
-  needs:
-    - init-deps
-  trigger:
-    include:
-      - artifact: pd/ci.yml
-        job: init-deps
-    strategy: depend
+# Note(fischeti): To reduce CI efforts, we disable the PD CI for now.
+# subpipe:
+#   stage: build
+#   interruptible: true
+#   needs:
+#     - init-deps
+#   trigger:
+#     include:
+#       - artifact: pd/ci.yml
+#         job: init-deps
+#     strategy: depend
